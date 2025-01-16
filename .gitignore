@@ -1,0 +1,10 @@
+/build
+/bin
+
+/.vs
+.vs/
+bin/
+build/
+out/
+/out
+out
