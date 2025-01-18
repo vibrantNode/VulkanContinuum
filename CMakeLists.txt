@@ -21,8 +21,14 @@ add_executable(VKContinuum
         # src
         src/main.cpp
         src/AppCore/vk_core.cpp
-        src/AppCore/vk_core.h
+        src/AppCore/vk_window.cpp 
 
+        src/Renderer/vk_renderer.cpp 
+
+        src/VK_abstraction/vk_initializers.cpp 
+        src/VK_abstraction/vk_device.cpp 
+        src/VK_abstraction/vk_swapchain.cpp 
+        src/VK_abstraction/vk_descriptors.cpp 
 
         # vendor
         vendor/vkbootstrap/VkBootstrap.cpp 
@@ -40,6 +46,9 @@ target_include_directories(VKContinuum PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinyobjloader"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vkbootstrap"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vma"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vk_video"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 

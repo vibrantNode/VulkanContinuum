@@ -5,12 +5,8 @@
 int main() {
 
 
-	Core::Application app;
-
-	app.Init();
+	vkc::Application app;
 	app.RunApp();
-	app.CleanUp();
-
 	return 0;
 	
 }

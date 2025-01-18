@@ -1,17 +1,18 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <deque>
 #include <functional>
 
-#include "vk_mem_alloc.h"
-#include "VkBootstrap.h"
+#include "vma/vk_mem_alloc.h"
 
+#include "VK_abstraction/vk_device.h"
+#include "VK_abstraction/vk_descriptors.h"
 
-#include "IMCommon/vk_types.h"
-#include <GLFW/glfw3.h>
+#include "Renderer/vk_renderer.h"
 
-namespace Core {
+namespace vkc {
 	struct DeletionQueue {
 		std::deque<std::function<void()>> deleters;
 
@@ -28,68 +29,38 @@ namespace Core {
 		}
 	};
 
-
-	
-
+ 
 	class Application {
 	public:
-		static Application& Get();
+		static constexpr int WIDTH = 800;
+		static constexpr int HEIGHT = 600;
 
-		// Main
-		void Init();
+		Application();
+		~Application();
+
+		Application(const Application&) = delete;
+		Application& operator=(const Application&) = delete;
+
 
 		void RunApp();
 
-		void CleanUp();
-		
-
-		// App core members
-		bool b_IsInitialized{ false };
-		int _frameNumber{ 0 };
-
-		bool freeze_rendering = false;
-		bool resize_requested = false;
-
-		// Window members
-		GLFWwindow* _window;
-		VkExtent2D _windowExtent{ 1700, 900 };
-
-
-		// Vulkan Members
-		VkInstance _instance;
-		VkSurfaceKHR _surface;
-		VkDebugUtilsMessengerEXT _debug_messenger;
-		VkPhysicalDevice _chosenGPU;
-		VkDevice _device;
-
-		VkQueue _graphicsQueue;
-		uint32_t _graphicsQueueFamily;
 
 		// Memory management
 		VmaAllocator _allocator;
 		DeletionQueue _mainDeletionQueue;
 
 
-
-
-		// Getters
-		inline VkDevice GetDevice() const { return _device; }
-		inline VkPhysicalDevice GetPhysicalDevice() const { return _chosenGPU; }
-		inline VkExtent2D GetWindowExtent() const { return _windowExtent; }
-
 	private:
 
 		// Private Members
+		VkWindow _window{ WIDTH, HEIGHT, "Vulkan window" };
+		VkcDevice _device{ _window };
+		Renderer _renderer{ _window, _device };
+ 
 
+		std::unique_ptr<VkcDescriptorPool> globalPool{};
 	
 
-		// Initialization
-		void InitVulkan();
-
-		void InitSwapChain();
-
-		// Helper functions
-		void InitGLFW();
 	};
 
 }

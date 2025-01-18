@@ -20,6 +20,18 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 
+#include <cstdlib> // For abort()
+
+#define VK_CHECK(x)                                                              \
+    do {                                                                         \
+        VkResult err = x;                                                        \
+        if (err) {                                                               \
+            std::cerr << "Detected Vulkan error: " << string_VkResult(err)       \
+                      << std::endl;                                              \
+            abort();                                                             \
+        }                                                                        \
+    } while (0)
+
 
 struct AllocatedBuffer {
     VkBuffer buffer;
