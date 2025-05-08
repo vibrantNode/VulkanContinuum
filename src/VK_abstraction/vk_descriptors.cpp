@@ -53,7 +53,10 @@ namespace vkc {
     }
 
     VkcDescriptorSetLayout::~VkcDescriptorSetLayout() {
-        vkDestroyDescriptorSetLayout(vkcDevice.device(), descriptorSetLayout, nullptr);
+        if (descriptorSetLayout != VK_NULL_HANDLE) {
+            vkDestroyDescriptorSetLayout(vkcDevice.device(), descriptorSetLayout, nullptr);
+            descriptorSetLayout = VK_NULL_HANDLE;
+        }
     }
 
     // *************** Descriptor Pool Builder *********************
@@ -100,7 +103,10 @@ namespace vkc {
     }
 
     VkcDescriptorPool::~VkcDescriptorPool() {
-        vkDestroyDescriptorPool(vkcDevice.device(), descriptorPool, nullptr);
+        if (descriptorPool != VK_NULL_HANDLE) {
+            vkDestroyDescriptorPool(vkcDevice.device(), descriptorPool, nullptr);
+            descriptorPool = VK_NULL_HANDLE;
+        }
     }
 
     bool VkcDescriptorPool::allocateDescriptor(

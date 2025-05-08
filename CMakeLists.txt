@@ -1,11 +1,7 @@
 ﻿cmake_minimum_required(VERSION "3.13")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 #set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-
-
-
 
 add_subdirectory("vendor/glfw")
 
@@ -29,10 +25,11 @@ add_executable(VKContinuum
         src/VK_abstraction/vk_device.cpp 
         src/VK_abstraction/vk_swapchain.cpp 
         src/VK_abstraction/vk_descriptors.cpp 
+        src/VK_abstraction/vk_pipeline.cpp 
 
         # vendor
         vendor/vkbootstrap/VkBootstrap.cpp 
-      )
+       "src/Renderer/vk_buffer.h" "src/Renderer/vk_buffer.cpp" "src/Renderer/Types/vk_basicRenderSystem.cpp" "src/VK_abstraction/vk_camera.cpp" "src/VK_abstraction/vk_model.cpp" "src/VK_abstraction/vk_gameObject.cpp" "src/VK_abstraction/vk_input.cpp" "src/Renderer/Types/vk_pointLightSystem.cpp")
 
 # Define PROJECT_ROOT_DIR for use in the code
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

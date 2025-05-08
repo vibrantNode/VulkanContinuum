@@ -106,6 +106,8 @@ namespace vkc {
 		isFrameStarted = false;
 		currentFrameIndex = (currentFrameIndex + 1) % VkcSwapChain::MAX_FRAMES_IN_FLIGHT;
 	}
+
+
 	void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 		assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
 		assert(
