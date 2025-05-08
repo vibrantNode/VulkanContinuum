@@ -61,7 +61,7 @@ namespace vkc {
 		glm::vec3 m_WorldUp;
 
 		// Euler angles
-		float m_Yaw = 0.0f;
+		float m_Yaw = 2.0f;
 		float m_Pitch = -90.0f;
 
 		// Camera options

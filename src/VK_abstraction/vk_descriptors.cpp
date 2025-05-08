@@ -31,7 +31,7 @@ namespace vkc {
     // *************** Descriptor Set Layout *********************
 
     VkcDescriptorSetLayout::VkcDescriptorSetLayout(
-        VkcDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
+        VkcDevice& vkcDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
         : vkcDevice{ vkcDevice }, bindings{ bindings } {
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
         for (auto kv : bindings) {
@@ -44,7 +44,7 @@ namespace vkc {
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
         if (vkCreateDescriptorSetLayout(
-            lveDevice.device(),
+            vkcDevice.device(),
             &descriptorSetLayoutInfo,
             nullptr,
             &descriptorSetLayout) != VK_SUCCESS) {

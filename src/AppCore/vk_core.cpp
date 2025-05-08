@@ -35,10 +35,6 @@
 
 
 namespace vkc {
-
-
-
-
     Application::Application() {
         globalPool =
             VkcDescriptorPool::Builder(_device)
@@ -48,12 +44,8 @@ namespace vkc {
         loadGameObjects();
     }
     Application::~Application() {
-
-
     }
-
     void Application::RunApp() {
-
         std::vector<std::unique_ptr<VkcBuffer>> uboBuffers(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<VkcBuffer>(
@@ -68,7 +60,6 @@ namespace vkc {
        auto globalSetLayout = VkcDescriptorSetLayout::Builder(_device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .build();
-   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) {
@@ -89,14 +80,14 @@ namespace vkc {
             globalSetLayout->getDescriptorSetLayout()
         };
 
-        VkcCamera camera{};
+        VkcCamera camera(glm::vec3(0.0f, 2.0f, -15.0f), -90.0f, 0.0f);
 
         auto viewerObject = VkcGameObject::createGameObject();
         viewerObject.transform.translation.z = -2.5f;
         MNKController cameraController{};
-    /*    glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);*/
-        
+        //glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!_window.shouldClose()) {
             glfwPollEvents();
@@ -136,9 +127,7 @@ namespace vkc {
                 _renderer.endFrame();
             }
         }
-        if (_device.device() != VK_NULL_HANDLE) {
-            vkDeviceWaitIdle(_device.device());
-        }
+        vkDeviceWaitIdle(_device.device());
     }
     void Application::loadGameObjects()
     {
@@ -174,7 +163,7 @@ namespace vkc {
               {1.f, 1.f, 1.f}  //
         };
 
-  /*      for (int i = 0; i < lightColors.size(); i++) {
+        for (int i = 0; i < lightColors.size(); i++) {
             auto pointLight = VkcGameObject::makePointLight(0.2f);
             pointLight.color = lightColors[i];
             auto rotateLight = glm::rotate(
@@ -183,7 +172,7 @@ namespace vkc {
                 { 0.f, -1.f, 0.f });
             pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
             gameObjects.emplace(pointLight.getId(), std::move(pointLight));
-        }*/
+        }
 
     }
 }

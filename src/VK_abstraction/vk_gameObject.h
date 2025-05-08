@@ -33,6 +33,7 @@ namespace vkc {
 	public:
 		using id_t = unsigned int;
 		using Map = std::unordered_map<id_t, VkcGameObject>;
+
 		static VkcGameObject createGameObject() {
 			static id_t currentId = 0;
 			return VkcGameObject{ currentId++ };

@@ -33,7 +33,6 @@ namespace vkc {
 		VkWindow _window{ WIDTH, HEIGHT, "Vulkan window" };
 		VkcDevice _device{ _window };
 		Renderer _renderer{ _window, _device };
- 
 
 		std::unique_ptr<VkcDescriptorPool> globalPool{};
 		

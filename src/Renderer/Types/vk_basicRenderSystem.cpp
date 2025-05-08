@@ -100,8 +100,11 @@ namespace vkc {
 				0,
 				sizeof(SimplePushConstantData),
 				&push);
-			obj.model->bind(frameInfo.commandBuffer);
-			obj.model->draw(frameInfo.commandBuffer);
+			if (obj.model) {
+				obj.model->bind(frameInfo.commandBuffer);
+				obj.model->draw(frameInfo.commandBuffer);
+			}
+		
 		}
 	}
 }

@@ -120,17 +120,16 @@ namespace vkc {
     }
 
     void VkcCamera::UpdateCameraVectors() {
-        // Calculate the new front vector based on yaw and pitch
         glm::vec3 front;
         front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
         front.y = sin(glm::radians(m_Pitch));
         front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
-        this->m_Front = glm::normalize(front);
+        m_Front = glm::normalize(front);
 
-        // Re-calculate the right and up vector
-        this->m_Right = glm::normalize(glm::cross(this->m_Front, this->m_Up));
-        this->m_Up = glm::normalize(glm::cross(this->m_Right, this->m_Front));
+        m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));  // Use world up
+        m_Up = glm::normalize(glm::cross(m_Right, m_Front));       // Recalculate up
     }
+
 
 
     // Get the camera's zoom (field of view)
