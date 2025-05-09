@@ -115,6 +115,7 @@ namespace vkc {
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
+                ubo.inverseView = camera.getInverseView();
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
@@ -156,13 +157,27 @@ namespace vkc {
         smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
         gameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
 
+        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
+        auto stoneSphere = VkcGameObject::createGameObject();
+        stoneSphere.model = vkcModel;
+        stoneSphere.transform.translation = { .0f, 1.f, -40.f };
+        stoneSphere.transform.scale = { 3.f, 1.5f, 3.f };
+        gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
+
+        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
+        auto woodBarrel = VkcGameObject::createGameObject();
+        woodBarrel.model = vkcModel;
+        woodBarrel.transform.translation = { .0f, 1.f, -4.f };
+        woodBarrel.transform.scale = { 2.f, 1.5f, 2.f };
+        gameObjects.emplace(woodBarrel.getId(), std::move(woodBarrel));
+
         std::vector<glm::vec3> lightColors{
               {1.f, .1f, .1f},
               {.1f, .1f, 1.f},
               {.1f, 1.f, .1f},
               {1.f, 1.f, .1f},
               {.1f, 1.f, 1.f},
-              {1.f, 1.f, 1.f}  //
+              {1.f, 1.f, 1.f} 
         };
 
         for (int i = 0; i < lightColors.size(); i++) {

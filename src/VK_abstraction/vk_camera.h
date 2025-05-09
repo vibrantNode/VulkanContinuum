@@ -27,7 +27,7 @@ namespace vkc {
 		void setPerspectiveProjection(float fovy, float aspect, float near, float far);
 		const glm::mat4& getProjection() const { return projectionMatrix; }
 		const glm::mat4& getView() const { return viewMatrix; }
-
+		const glm::mat4& getInverseView() const{ return inverseViewMatrix; }
 		// Get zoom (field of view)
 		float GetZoom() const;
 		// Get the view matrix
@@ -45,6 +45,7 @@ namespace vkc {
 	private:
 		glm::mat4 projectionMatrix{ 1.f };
 		glm::mat4 viewMatrix{ 1.f };
+		glm::mat4 inverseViewMatrix{ 1.f };
 
 		float m_LastX; // Last mouse x position
 		float m_LastY; // Last mouse y position
