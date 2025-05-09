@@ -7,22 +7,25 @@ namespace vkc {
     MNKController::MNKController(float sensitivity, float yaw, float pitch)
         : _sensitivity(sensitivity), _yaw(yaw), _pitch(pitch), _cameraDirection(glm::vec3(0.0f, 0.0f, -1.0f)), _cameraPosition(glm::vec3(0.0f, 0.0f, 3.0f)) {
     }
-    void MNKController::moveInPlaneXZ(
-        GLFWwindow* window, float dt, VkcGameObject& gameObject) {
-        glm::vec3 rotate{ 0 };
-        if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
-        if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) rotate.y -= 1.f;
-        if (glfwGetKey(window, keys.lookUp) == GLFW_PRESS) rotate.x += 1.f;
-        if (glfwGetKey(window, keys.lookDown) == GLFW_PRESS) rotate.x -= 1.f;
+    void MNKController::updateLook(float xOffset, float yOffset, VkcGameObject& gameObject) {
+        xOffset *= _sensitivity;
+        yOffset *= _sensitivity;
 
-        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-            gameObject.transform.rotation += lookSpeed * dt * glm::normalize(rotate);
-        }
+        _yaw += xOffset;
+        _pitch += yOffset;
 
-        // limit pitch values between about +/- 85ish degrees
-        gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);
-        gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y, glm::two_pi<float>());
+        // Clamp pitch to avoid flipping
+        _pitch = glm::clamp(_pitch, -89.0f, 89.0f);
 
+        // Optional: wrap yaw
+        if (_yaw > 360.0f) _yaw -= 360.0f;
+        if (_yaw < 0.0f) _yaw += 360.0f;
+
+        gameObject.transform.rotation.x = glm::radians(_pitch);
+        gameObject.transform.rotation.y = glm::radians(_yaw);
+    }
+
+    void MNKController::updateMovement(GLFWwindow* window, float dt, VkcGameObject& gameObject) {
         float yaw = gameObject.transform.rotation.y;
         const glm::vec3 forwardDir{ sin(yaw), 0.f, cos(yaw) };
         const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
@@ -39,9 +42,9 @@ namespace vkc {
         if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
             gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
         }
-
         if (glfwGetKey(window, keys.Exit) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GLFW_TRUE);
+    
     }
 
 
@@ -88,4 +91,23 @@ namespace vkc {
     glm::vec3 MNKController::getCameraDirection() const { return _cameraDirection; }
 
     glm::vec3 MNKController::getCameraPosition() const { return _cameraPosition; }
+
+
+    void MNKController::handleMouseInput(GLFWwindow* window)
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        if (_firstMouse) {
+            _lastX = xpos;
+            _lastY = ypos;
+            _firstMouse = false;
+        }
+
+        _xOffset = static_cast<float>(xpos - _lastX);
+        _yOffset = static_cast<float>(_lastY - ypos);  // reversed Y
+
+        _lastX = xpos;
+        _lastY = ypos;
+    }
 } // namespace vkc

@@ -85,8 +85,8 @@ namespace vkc {
         auto viewerObject = VkcGameObject::createGameObject();
         viewerObject.transform.translation.z = -2.5f;
         MNKController cameraController{};
-        //glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        //glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
+        glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!_window.shouldClose()) {
@@ -97,8 +97,10 @@ namespace vkc {
                 std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
+            cameraController.handleMouseInput(_window.getGLFWwindow());
+            cameraController.updateLook(cameraController.getXOffset(), cameraController.getYOffset(), viewerObject);
+            cameraController.updateMovement(_window.getGLFWwindow(), frameTime, viewerObject);
 
-            cameraController.moveInPlaneXZ(_window.getGLFWwindow(), frameTime, viewerObject);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = _renderer.getAspectRatio();

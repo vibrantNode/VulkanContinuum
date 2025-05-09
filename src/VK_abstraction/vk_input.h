@@ -23,13 +23,27 @@ namespace vkc {
             int Exit = GLFW_KEY_ESCAPE;
         };
 
-        void moveInPlaneXZ(GLFWwindow* window, float dt, VkcGameObject& gameObject);
-
+        void updateMovement(GLFWwindow* window, float dt, VkcGameObject& gameObject);
+        void updateLook(float xOffset, float yOffset, VkcGameObject& gameObject);
         void processMouseMovement(float xOffset, float yOffset);
         void processKeyboardInput(GLFWwindow* window, float deltaTime);
 
         glm::vec3 getCameraDirection() const;
         glm::vec3 getCameraPosition() const;
+
+    public:
+        // Existing functions...
+        void handleMouseInput(GLFWwindow* window);
+
+        float getXOffset() const { return _xOffset; }
+        float getYOffset() const { return _yOffset; }
+
+    private:
+        double _lastX = 0.0, _lastY = 0.0;
+        bool _firstMouse = true;
+        float _xOffset = 0.f, _yOffset = 0.f;
+
+
 
         KeyMappings keys{};
         float moveSpeed{ 3.f };

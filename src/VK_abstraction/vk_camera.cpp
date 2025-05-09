@@ -20,6 +20,8 @@ namespace vkc {
 
     }
 
+
+
     // Mouse movement processing
     void VkcCamera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch) {
         const float sensitivity = 0.1f;  // Adjust this value to your liking
