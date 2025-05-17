@@ -5,15 +5,18 @@
 
 
 namespace vkc {
-	VkWindow::VkWindow(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name } {
+	VkWindow::VkWindow(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name } 
+	{
 		initWindow();
 	}
 
-	VkWindow::~VkWindow() {
+	VkWindow::~VkWindow() 
+	{
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
-	void VkWindow::initWindow() {
+	void VkWindow::initWindow() 
+	{
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -23,13 +26,15 @@ namespace vkc {
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
 
-	void VkWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
+	void VkWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) 
+	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create window surface");
 		}
 	}
 
-	void VkWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+	void VkWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height) 
+	{
 		auto Window = reinterpret_cast<VkWindow*>(glfwGetWindowUserPointer(window));
 		Window->framebufferResized = true;
 		Window->width = width;

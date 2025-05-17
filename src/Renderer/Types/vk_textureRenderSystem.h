@@ -5,7 +5,8 @@
 #include "VK_abstraction/vk_pipeline.h"
 
 namespace vkc {
-    class TextureRenderSystem {
+    class TextureRenderSystem 
+    {
     public:
         TextureRenderSystem(VkcDevice& device, VkRenderPass renderPass,
             VkDescriptorSetLayout globalSetLayout,

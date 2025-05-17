@@ -44,6 +44,9 @@ namespace vkc {
 		
 		VkcGameObject::Map gameObjects;
 
+
+
+
 	};
 
 }

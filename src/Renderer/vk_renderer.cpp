@@ -8,26 +8,32 @@
 
 
 namespace vkc {
-	Renderer::Renderer(VkWindow& window, VkcDevice& device) : vkcWindow{ window }, vkcDevice{ device } {
+	Renderer::Renderer(VkWindow& window, VkcDevice& device) : vkcWindow{ window }, vkcDevice{ device } 
+	{
 		recreateSwapchain();
 		createCommandBuffers();
 	}
 
-	Renderer::~Renderer() {
+	Renderer::~Renderer() 
+	{
 		freeCommandBuffers();
 	}
 
-	void Renderer::recreateSwapchain() {
+	void Renderer::recreateSwapchain() 
+	{
 		auto extent = vkcWindow.getExtent();
-		while (extent.width == 0 || extent.height == 0) {
+		while (extent.width == 0 || extent.height == 0) 
+		{
 			glfwWaitEvents();
 		}
 		vkDeviceWaitIdle(vkcDevice.device());
 
-		if (vkcSwapChain == nullptr) {
+		if (vkcSwapChain == nullptr) 
+		{
 			vkcSwapChain = std::make_unique<VkcSwapChain>(vkcDevice, extent);
 		}
-		else {
+		else 
+		{
 			std::shared_ptr<VkcSwapChain> oldSwapChain = std::move(vkcSwapChain);
 			vkcSwapChain = std::make_unique<VkcSwapChain>(vkcDevice, extent, oldSwapChain);
 			if (!oldSwapChain->compareSwapFormats(*vkcSwapChain.get())) {
@@ -46,14 +52,15 @@ namespace vkc {
 		allocInfo.commandPool = vkcDevice.getCommandPool();
 		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-		if (vkAllocateCommandBuffers(vkcDevice.device(), &allocInfo, commandBuffers.data()) !=
-			VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(vkcDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 
 	}
 
-	void Renderer::freeCommandBuffers() {
+	void Renderer::freeCommandBuffers()
+	{
 		vkFreeCommandBuffers(
 			vkcDevice.device(),
 			vkcDevice.getCommandPool(),
@@ -62,16 +69,19 @@ namespace vkc {
 		commandBuffers.clear();
 	}
 
-	VkCommandBuffer Renderer::beginFrame() {
+	VkCommandBuffer Renderer::beginFrame() 
+	{
 		assert(!isFrameStarted && "Can't call beginFrame while already in progress");
 
 		auto result = vkcSwapChain->acquireNextImage(&currentImageIndex);
 
-		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) 
+		{
 			recreateSwapchain();
 			return nullptr;
 		}
-		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
 			throw std::runtime_error("Failed to aquire swap chain image");
 		}
 
@@ -82,16 +92,19 @@ namespace vkc {
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+		{
 			throw std::runtime_error("failed to begin recording command buffer!");
 		}
 		return commandBuffer;
 	}
 
-	void Renderer::endFrame() {
+	void Renderer::endFrame() 
+	{
 		assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
 		auto commandBuffer = getCurrentCommandBuffer();
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to record command buffer!");
 		}
 		auto result = vkcSwapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
@@ -100,7 +113,8 @@ namespace vkc {
 			vkcWindow.resetWindowResizedFlag();
 			recreateSwapchain();
 		}
-		else if (result != VK_SUCCESS) {
+		else if (result != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to present swap chain image!");
 		}
 		isFrameStarted = false;
@@ -108,7 +122,8 @@ namespace vkc {
 	}
 
 
-	void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+	void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) 
+	{
 		assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
 		assert(
 			commandBuffer == getCurrentCommandBuffer() &&
@@ -142,7 +157,8 @@ namespace vkc {
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+	void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) 
+	{
 		assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
 		assert(
 			commandBuffer == getCurrentCommandBuffer() &&

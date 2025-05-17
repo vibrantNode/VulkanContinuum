@@ -69,6 +69,7 @@ namespace vkc {
 		float m_Zoom;
 		float m_MovementSpeed;  // Added movement speed
 
+		glm::vec3 m_Target;
 		// Update camera vectors
 		void UpdateCameraVectors();
 	};

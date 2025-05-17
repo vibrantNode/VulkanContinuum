@@ -33,26 +33,31 @@
 
 
 namespace vkc {
-    Application::Application() {
+    Application::Application() 
+    {
         globalPool =
             VkcDescriptorPool::Builder(_device)
             .setMaxSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         _assetManager.preloadGlobalAssets();
-        _scene.loadSceneData("DefaultScene");
+        _scene.loadSceneData("EmptyPlanes");
     }
-    Application::~Application() {
+    Application::~Application() 
+    {
     }
-    void Application::RunApp() {
+    void Application::RunApp() 
+    {
         std::vector<std::unique_ptr<VkcBuffer>> uboBuffers(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
-            uboBuffers[i] = std::make_unique<VkcBuffer>(
+            uboBuffers[i] = std::make_unique<VkcBuffer>
+                (
                 _device,
                 sizeof(GlobalUbo),
                 1,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                );
 
             uboBuffers[i]->map();
         }
@@ -61,7 +66,8 @@ namespace vkc {
             .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalDescriptorSets.size(); i++) {
+        for (int i = 0; i < globalDescriptorSets.size(); i++) 
+        {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             VkcDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
@@ -71,15 +77,35 @@ namespace vkc {
         _scene.addRenderSystem(std::make_unique<SimpleRenderSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
         _scene.addRenderSystem(std::make_unique<PointLightSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
 
+        // Camera initialization logic
+        glm::vec3 cameraPos = glm::vec3(0.0f, .0f, -5.0f);
+        glm::vec3 target = glm::vec3(0.0f); // Look at origin
+        glm::vec3 direction = glm::normalize(target - cameraPos);
 
-        VkcCamera camera(glm::vec3(0.0f, 2.0f, -10.0f), .0f, 0.0f);
+        float initialYaw = glm::degrees(atan2(direction.x, direction.z));
+        float initialPitch = glm::degrees(asin(-direction.y));
+
+        // Adjust the yaw and pitch
+        initialYaw += 0.f;
+        initialPitch += 5.0f;
+
+        VkcCamera camera(
+            cameraPos,
+            initialYaw,
+            initialPitch
+        );
 
         auto viewerObject = VkcGameObject::createGameObject();
-        viewerObject.transform.translation.z = -3.5f;
-        viewerObject.transform.translation.x = -3.5f;
-        viewerObject.transform.rotation.x = {glm::half_pi<float>()};
+        viewerObject.transform.translation = cameraPos;
+        viewerObject.transform.rotation = glm::vec3(
+            glm::radians(initialPitch), // pitch
+            glm::radians(initialYaw),   // yaw
+            0.0f
+        );
 
-        MNKController cameraController{};
+
+        MNKController cameraController(0.1f, initialYaw, initialPitch);
+
         glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
 
@@ -95,8 +121,6 @@ namespace vkc {
             cameraController.handleMouseInput(_window.getGLFWwindow());
             cameraController.updateLook(cameraController.getXOffset(), cameraController.getYOffset(), viewerObject);
             cameraController.updateMovement(_window.getGLFWwindow(), frameTime, viewerObject);
-
-        
 
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
@@ -114,7 +138,6 @@ namespace vkc {
                 ubo.view = camera.getView();
                 ubo.inverseView = camera.getInverseView();
           
-
                 _scene.update(frameInfo, ubo, frameTime);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();

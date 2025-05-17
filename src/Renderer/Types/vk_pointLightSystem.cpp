@@ -15,24 +15,27 @@
 
 namespace vkc {
 
-    struct PointLightPushConstants {
+    struct PointLightPushConstants
+    {
         glm::vec4 position{};
         glm::vec4 color{};
         float radius;
     };
 
-    PointLightSystem::PointLightSystem(
-        VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
-        : vkcDevice{ device } {
+    PointLightSystem::PointLightSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
+        : vkcDevice{ device } 
+    {
         createPipelineLayout(globalSetLayout);
         createPipeline(renderPass);
     }
 
-    PointLightSystem::~PointLightSystem() {
+    PointLightSystem::~PointLightSystem() 
+    {
         vkDestroyPipelineLayout(vkcDevice.device(), pipelineLayout, nullptr);
     }
 
-    void PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
+    void PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) 
+    {
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
@@ -53,7 +56,8 @@ namespace vkc {
         }
     }
 
-    void PointLightSystem::createPipeline(VkRenderPass renderPass) {
+    void PointLightSystem::createPipeline(VkRenderPass renderPass) 
+    {
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
         PipelineConfigInfo pipelineConfig{};
@@ -74,7 +78,8 @@ namespace vkc {
             pipelineConfig
         );
     }
-    void PointLightSystem::render(FrameInfo& frameInfo) {
+    void PointLightSystem::render(FrameInfo& frameInfo)
+    {
         // sort lights
         std::map<float, VkcGameObject::id_t> sorted;
         for (auto& kv : frameInfo.gameObjects) {

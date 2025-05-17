@@ -20,19 +20,22 @@ namespace vkc {
 
 
 	SimpleRenderSystem::SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
-		: vkcDevice{ device } {
+		: vkcDevice{ device } 
+	{
 		createPipelineLayout(globalSetLayout);
 		createPipeline(renderPass);
 
 	}
 
-	SimpleRenderSystem::~SimpleRenderSystem() {
+	SimpleRenderSystem::~SimpleRenderSystem() 
+	{
 		vkDestroyPipelineLayout(vkcDevice.device(), pipelineLayout, nullptr);
 	}
 
 
 
-	void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
+	void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) 
+	{
 
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -53,7 +56,8 @@ namespace vkc {
 		}
 
 	}
-	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
+	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) 
+	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
 		PipelineConfigInfo pipelineConfig{};
@@ -75,7 +79,8 @@ namespace vkc {
 	}
 
 
-	void SimpleRenderSystem::render(FrameInfo& frameInfo)  {
+	void SimpleRenderSystem::render(FrameInfo& frameInfo) 
+	{
 
 		vkcPipeline->bind(frameInfo.commandBuffer);
 		vkCmdBindDescriptorSets(

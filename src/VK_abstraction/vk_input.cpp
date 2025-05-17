@@ -5,9 +5,13 @@
 namespace vkc {
 
     MNKController::MNKController(float sensitivity, float yaw, float pitch)
-        : _sensitivity(sensitivity), _yaw(yaw), _pitch(pitch), _cameraDirection(glm::vec3(0.0f, 0.0f, -1.0f)), _cameraPosition(glm::vec3(0.0f, 0.0f, 3.0f)) {
+        : _sensitivity(sensitivity), _yaw(yaw), _pitch(pitch), _cameraPosition(glm::vec3(0.0f, 0.0f, 3.0f)) {
     }
     void MNKController::updateLook(float xOffset, float yOffset, VkcGameObject& gameObject) {
+
+        if (!_hasMouseMoved) {
+            return;
+        }
         xOffset *= _sensitivity;
         yOffset *= _sensitivity;
 
@@ -95,6 +99,9 @@ namespace vkc {
 
     void MNKController::handleMouseInput(GLFWwindow* window)
     {
+        if (_xOffset != 0.0f || _yOffset != 0.0f) {
+            _hasMouseMoved = true;
+        }
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 

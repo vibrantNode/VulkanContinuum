@@ -54,11 +54,14 @@ namespace vkc {
         double lastX = 400.0;
         double lastY = 300.0;
         bool firstMouse = true;
+        bool _hasMouseMoved = false;
+
 
         float _sensitivity;  
         float _yaw;         
         float _pitch;       
         glm::vec3 _cameraDirection; 
         glm::vec3 _cameraPosition;
+
     };
 }  // namespace vkc

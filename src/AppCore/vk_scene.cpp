@@ -16,8 +16,9 @@ namespace vkc {
         : device(device), assetManager(assetManager), camera(glm::vec3(0.0f, 0.0f, 5.0f), 0.0f, 0.0f) {
     }
 
-    void Scene::loadSceneData(const std::string& sceneFile) {
-        std::cout << "Loading:" << sceneFile << std::endl;
+    void Scene::loadSceneData(const std::string& sceneFile) 
+    {
+        std::cout << "Loading: " << sceneFile << std::endl;
         if (sceneFile == "DefaultScene") {
             loadDefaultScene();
         }
@@ -26,49 +27,50 @@ namespace vkc {
         }
     }
 
-    void Scene::update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime) {
+    void Scene::update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime) 
+    {
         // Update camera or game object logic here
         for (auto& renderSystem : renderSystems) {
             renderSystem->update(frameInfo, ubo);
         }
     }
 
-    void Scene::render(FrameInfo& frameInfo) {
+    void Scene::render(FrameInfo& frameInfo) 
+    {
 
         for (auto& renderSystem : renderSystems) {
             renderSystem->render(frameInfo);
     }
     }
 
-    void Scene::addRenderSystem(std::unique_ptr<VkcRenderSystem> renderSystem) {
+    void Scene::addRenderSystem(std::unique_ptr<VkcRenderSystem> renderSystem) 
+    {
         renderSystems.push_back(std::move(renderSystem));
     }
 
-    void Scene::addGameObject(uint32_t id, VkcGameObject obj) {
+    void Scene::addGameObject(uint32_t id, VkcGameObject obj) 
+    {
         gameObjects[id] = std::move(obj);
     }
 
-    void Scene::removeGameObject(uint32_t id) {
+    void Scene::removeGameObject(uint32_t id) 
+    {
         gameObjects.erase(id);
     }
 
-    void Scene::loadDefaultScene() {
-
-        // Note that we should be figuring out how to load assets once upfront and accessing later in this file ideally 
+    void Scene::loadDefaultScene()
+    {
 
         auto floorModel = assetManager.getModel("quad");
         auto floor = VkcGameObject::createGameObject();
         floor.model = floorModel;
         floor.transform.translation = { 0.f, .5f, 0.f };
-        floor.transform.scale = { 15.f, 15.f, 15.f };
+        floor.transform.scale = { 9.f, 9.f, 9.f };
         gameObjects.emplace(floor.getId(), std::move(floor));
 
-
         auto flatVaseModel = assetManager.getModel("flat_vase");
-        //auto texture = assetManager.loadTexture("textures/flat_vase_diffuse.png");
         auto flatVase = VkcGameObject::createGameObject();
         flatVase.model = flatVaseModel;
-        //flatVase.texture = texture;
         flatVase.transform.translation = { -0.5f, 0.5f, 0.0f };
         flatVase.transform.scale = { 3.0f, 1.5f, 3.0f };
         gameObjects.emplace(flatVase.getId(), std::move(flatVase));
@@ -80,13 +82,6 @@ namespace vkc {
         smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
         gameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
 
-        auto stoneSphereModel = assetManager.getModel("stone_sphere");
-        auto stoneSphere = VkcGameObject::createGameObject();
-        stoneSphere.model = stoneSphereModel;
-        stoneSphere.transform.translation = { .0f, 0.f, 2.f };
-        stoneSphere.transform.scale = { 2.5f, 2.5f, 2.5f };
-        gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
-
         auto woodBarrelModel = assetManager.getModel("barrel");
         auto woodBarrel = VkcGameObject::createGameObject();
         woodBarrel.model = woodBarrelModel;
@@ -94,7 +89,18 @@ namespace vkc {
         woodBarrel.transform.scale = { 1.f, 1.f, 1.f };
         gameObjects.emplace(woodBarrel.getId(), std::move(woodBarrel));
 
-        std::vector<glm::vec3> lightColors{
+        auto stoneSphereModel = assetManager.getModel("stone_sphere");
+        auto stoneSphere = VkcGameObject::createGameObject();
+        stoneSphere.model = stoneSphereModel;
+        stoneSphere.transform.translation = { 1.0f, 0.f, 2.f };
+        stoneSphere.transform.scale = { .5f, .5f, .5f };
+        if (&stoneSphere) 
+        {
+            gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
+        }
+ 
+        std::vector<glm::vec3> lightColors
+        {
         {1.f, .1f, .1f},
         {.1f, .1f, 1.f},
         {.1f, 1.f, .1f},
@@ -103,7 +109,8 @@ namespace vkc {
         {1.f, 1.f, 1.f}
         };
 
-        for (int i = 0; i < lightColors.size(); i++) {
+        for (int i = 0; i < lightColors.size(); i++) 
+        {
             auto pointLight = VkcGameObject::makePointLight(0.2f);
             pointLight.color = lightColors[i];
             pointLight.pointLight->lightIntensity = .8f;
@@ -116,7 +123,8 @@ namespace vkc {
         }
     }
 
-    void Scene::loadEmptyPlanes() {
+    void Scene::loadEmptyPlanes() 
+    {
         auto planeModel = assetManager.getModel("quad");
         auto plane = VkcGameObject::createGameObject();
         plane.model = planeModel;
@@ -133,7 +141,8 @@ namespace vkc {
             {.1f, 1.f, 1.f}
         };
 
-        for (int i = 0; i < lightColors2.size(); ++i) {
+        for (int i = 0; i < lightColors2.size(); ++i) 
+        {
             auto pointLights = VkcGameObject::makePointLight(0.2f);
             pointLights.color = lightColors2[i];
             pointLights.pointLight->lightIntensity = 1.0f;
