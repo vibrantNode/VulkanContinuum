@@ -123,7 +123,7 @@ namespace vkc {
 
     void PointLightSystem::update(FrameInfo& frameInfo, GlobalUbo& ubo)
     {
-        auto rotateLight = glm::rotate(glm::mat4(1.f), 0.5f * frameInfo.frameTime, { 0.f, -1.f, 0.f });
+        auto rotateLight = glm::rotate(glm::mat4(1.f), 1.8f * frameInfo.frameTime, { 0.f, -1.f, 0.f });
         int lightIndex = 0;
         for (auto& kv : frameInfo.gameObjects) {
             auto& obj = kv.second;

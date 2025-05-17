@@ -29,7 +29,18 @@ add_executable(VKContinuum
 
         # vendor
         vendor/vkbootstrap/VkBootstrap.cpp 
-       "src/Renderer/vk_buffer.h" "src/Renderer/vk_buffer.cpp" "src/Renderer/Types/vk_basicRenderSystem.cpp" "src/VK_abstraction/vk_camera.cpp" "src/VK_abstraction/vk_model.cpp" "src/VK_abstraction/vk_gameObject.cpp" "src/VK_abstraction/vk_input.cpp" "src/Renderer/Types/vk_pointLightSystem.cpp")
+        src/Renderer/vk_buffer.h 
+        src/Renderer/vk_buffer.cpp
+        src/Renderer/Types/vk_basicRenderSystem.cpp 
+        src/VK_abstraction/vk_camera.cpp
+        src/VK_abstraction/vk_model.cpp
+        src/VK_abstraction/vk_gameObject.cpp
+        src/VK_abstraction/vk_input.cpp 
+        src/Renderer/Types/vk_pointLightSystem.cpp
+        
+        #src/Renderer/Types/vk_textureRenderSystem.cpp
+        "src/VK_abstraction/vk_texture.cpp"
+ "src/AppCore/vk_assetManager.cpp" "src/AppCore/vk_scene.cpp")
 
 # Define PROJECT_ROOT_DIR for use in the code
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -46,6 +57,7 @@ target_include_directories(VKContinuum PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/vk_video"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/ktx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 

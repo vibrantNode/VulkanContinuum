@@ -2,8 +2,6 @@
 
 // std
 #include <iostream>
-// std
-#include <iostream>
 #include <chrono>
 #include <array>
 #include <cassert>
@@ -41,7 +39,8 @@ namespace vkc {
             .setMaxSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
-        loadGameObjects();
+        _assetManager.preloadGlobalAssets();
+        _scene.loadSceneData("DefaultScene");
     }
     Application::~Application() {
     }
@@ -69,21 +68,17 @@ namespace vkc {
                 .build(globalDescriptorSets[i]);
         }
 
-        SimpleRenderSystem simpleRenderSystem{
-            _device,
-            _renderer.getSwapChainRenderPass(),
-            globalSetLayout->getDescriptorSetLayout() };
+        _scene.addRenderSystem(std::make_unique<SimpleRenderSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
+        _scene.addRenderSystem(std::make_unique<PointLightSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
 
-        PointLightSystem pointLightSystem{
-            _device,
-            _renderer.getSwapChainRenderPass(),
-            globalSetLayout->getDescriptorSetLayout()
-        };
 
-        VkcCamera camera(glm::vec3(0.0f, 2.0f, -15.0f), -90.0f, 0.0f);
+        VkcCamera camera(glm::vec3(0.0f, 2.0f, -10.0f), .0f, 0.0f);
 
         auto viewerObject = VkcGameObject::createGameObject();
-        viewerObject.transform.translation.z = -2.5f;
+        viewerObject.transform.translation.z = -3.5f;
+        viewerObject.transform.translation.x = -3.5f;
+        viewerObject.transform.rotation.x = {glm::half_pi<float>()};
+
         MNKController cameraController{};
         glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
@@ -101,6 +96,8 @@ namespace vkc {
             cameraController.updateLook(cameraController.getXOffset(), cameraController.getYOffset(), viewerObject);
             cameraController.updateMovement(_window.getGLFWwindow(), frameTime, viewerObject);
 
+        
+
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = _renderer.getAspectRatio();
@@ -109,22 +106,23 @@ namespace vkc {
             if (auto commandBuffer = _renderer.beginFrame()) {
                 int frameIndex = _renderer.getFrameIndex();
 
-                FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], gameObjects };
+                FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], _scene.getGameObjects()};
 
                 // update
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
                 ubo.inverseView = camera.getInverseView();
-                pointLightSystem.update(frameInfo, ubo);
+          
+
+                _scene.update(frameInfo, ubo, frameTime);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 _renderer.beginSwapChainRenderPass(commandBuffer);
 
-                simpleRenderSystem.renderGameObjects(frameInfo);
-                pointLightSystem.render(frameInfo);
+                _scene.render(frameInfo);
 
                 _renderer.endSwapChainRenderPass(commandBuffer);
                 _renderer.endFrame();
@@ -132,66 +130,7 @@ namespace vkc {
         }
         vkDeviceWaitIdle(_device.device());
     }
-    void Application::loadGameObjects()
-    {
-
-        std::shared_ptr<VkcModel> vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/flat_vase.obj");
-        auto flatVase = VkcGameObject::createGameObject();
-
-        flatVase.model = vkcModel;
-        flatVase.transform.translation = { -.5f, .5f, 0.f };
-        flatVase.transform.scale = { 3.f, 1.5f, 3.f };
-        gameObjects.emplace(flatVase.getId(), std::move(flatVase));
-
-        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/quad.obj");
-        auto floor = VkcGameObject::createGameObject();
-        floor.model = vkcModel;
-        floor.transform.translation = { 0.f, .5f, 0.f };
-        floor.transform.scale = { 3.f, 1.f, 3.f };
-        gameObjects.emplace(floor.getId(), std::move(floor));
-
-        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
-        auto smoothVase = VkcGameObject::createGameObject();
-        smoothVase.model = vkcModel;
-        smoothVase.transform.translation = { .5f, .5f, 0.f };
-        smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
-        gameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
-
-        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
-        auto stoneSphere = VkcGameObject::createGameObject();
-        stoneSphere.model = vkcModel;
-        stoneSphere.transform.translation = { .0f, 1.f, -40.f };
-        stoneSphere.transform.scale = { 3.f, 1.5f, 3.f };
-        gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
-
-        vkcModel = VkcModel::createModelFromFile(_device, PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
-        auto woodBarrel = VkcGameObject::createGameObject();
-        woodBarrel.model = vkcModel;
-        woodBarrel.transform.translation = { .0f, 1.f, -4.f };
-        woodBarrel.transform.scale = { 2.f, 1.5f, 2.f };
-        gameObjects.emplace(woodBarrel.getId(), std::move(woodBarrel));
-
-        std::vector<glm::vec3> lightColors{
-              {1.f, .1f, .1f},
-              {.1f, .1f, 1.f},
-              {.1f, 1.f, .1f},
-              {1.f, 1.f, .1f},
-              {.1f, 1.f, 1.f},
-              {1.f, 1.f, 1.f} 
-        };
-
-        for (int i = 0; i < lightColors.size(); i++) {
-            auto pointLight = VkcGameObject::makePointLight(0.2f);
-            pointLight.color = lightColors[i];
-            auto rotateLight = glm::rotate(
-                glm::mat4(1.f),
-                (i * glm::two_pi<float>()) / lightColors.size(),
-                { 0.f, -1.f, 0.f });
-            pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
-            gameObjects.emplace(pointLight.getId(), std::move(pointLight));
-        }
-
-    }
+   
 }
 
 

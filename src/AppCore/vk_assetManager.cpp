@@ -1,0 +1,42 @@
+#include "vk_assetManager.h"
+
+
+namespace vkc {
+
+
+    AssetManager::AssetManager(VkcDevice& device) : _device(device) 
+    {
+    }
+    void AssetManager::preloadGlobalAssets() {
+        loadModel("quad", PROJECT_ROOT_DIR "/res/models/quad.obj");
+        loadModel("flat_vase", PROJECT_ROOT_DIR "/res/models/flat_vase.obj");
+        loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
+        loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
+        loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/sphere.obj");
+    }
+
+
+    std::shared_ptr<VkcModel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath) {
+        // Check if the model is already loaded
+        auto it = modelCache.find(filepath);
+        if (it != modelCache.end()) {
+            return it->second;
+        }
+
+        // Load the model and store it in the cache
+        auto model = VkcModel::createModelFromFile(_device, filepath);
+        modelCache[modelName] = model;
+        return model;
+    }
+
+    std::shared_ptr<VkcModel> AssetManager::getModel(const std::string& modelName) {
+        auto it = modelCache.find(modelName);
+        if (it != modelCache.end()) {
+            return it->second;
+        }
+        else {
+            throw std::runtime_error("Model not found in cache: " + modelName);
+        }
+    }
+
+}

@@ -5,7 +5,7 @@
 #include <VK_abstraction/vk_gameObject.h>
 #include <VK_abstraction/vk_frameInfo.h>
 #include <VK_abstraction/vk_camera.h>
-
+#include "Renderer/Types/vk_renderSystem.h"
 
 
 #include <memory>
@@ -14,7 +14,7 @@
 
 
 namespace vkc {
-	class SimpleRenderSystem {
+	class SimpleRenderSystem : public VkcRenderSystem {
 	public:
 		SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 		~SimpleRenderSystem();
@@ -22,7 +22,8 @@ namespace vkc {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(FrameInfo& frameInfo);
+		void render(FrameInfo& frameInfo) override;
+	
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);

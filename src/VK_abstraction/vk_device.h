@@ -94,11 +94,14 @@ namespace vkc {
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
+    public:
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device_;
+    private:
         VkWindow& window;
         VkCommandPool commandPool;
 
-        VkDevice device_;
+       
         VkSurfaceKHR surface_;
         VkQueue graphicsQueue_;
         VkQueue presentQueue_;

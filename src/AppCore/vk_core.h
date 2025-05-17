@@ -9,6 +9,8 @@
 #include "VK_abstraction/vk_descriptors.h"
 #include "VK_abstraction/vk_gameObject.h"
 #include "Renderer/vk_renderer.h"
+#include "vk_assetManager.h"
+#include "vk_scene.h"
 
 namespace vkc {
 
@@ -26,13 +28,17 @@ namespace vkc {
 		void RunApp();
 
 	private:
-
-		void loadGameObjects();
+		//std::vector<std::unique_ptr<Scene>> scenes;
+		size_t activeSceneIndex = 0;
+		//AssetManager assetManager;
+	
 
 		// Private Members
 		VkWindow _window{ WIDTH, HEIGHT, "Vulkan window" };
 		VkcDevice _device{ _window };
 		Renderer _renderer{ _window, _device };
+		AssetManager _assetManager{ _device };
+		Scene _scene{ _device, _assetManager };
 
 		std::unique_ptr<VkcDescriptorPool> globalPool{};
 		

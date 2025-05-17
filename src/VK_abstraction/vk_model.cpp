@@ -39,12 +39,12 @@ namespace vkc {
     VkcModel::~VkcModel() {
     }
 
-    std::unique_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath) {
+    std::shared_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath) {
         Builder builder{};
         builder.loadModel(filepath);
 
 
-        return std::make_unique<VkcModel>(device, builder);
+        return std::make_shared<VkcModel>(device, builder);
     }
 
 

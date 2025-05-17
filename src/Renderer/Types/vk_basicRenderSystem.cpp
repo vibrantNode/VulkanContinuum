@@ -75,7 +75,7 @@ namespace vkc {
 	}
 
 
-	void SimpleRenderSystem::renderGameObjects(FrameInfo& frameInfo) {
+	void SimpleRenderSystem::render(FrameInfo& frameInfo)  {
 
 		vkcPipeline->bind(frameInfo.commandBuffer);
 		vkCmdBindDescriptorSets(
@@ -106,5 +106,8 @@ namespace vkc {
 			}
 		
 		}
+		
 	}
+
+
 }

@@ -5,13 +5,13 @@
 #include "VK_abstraction/vk_frameInfo.h"
 #include "VK_abstraction/vk_gameObject.h"
 #include "VK_abstraction/vk_pipeline.h"
-
+#include "Renderer/Types/vk_renderSystem.h"
 // std
 #include <memory>
 #include <vector>
 
 namespace vkc {
-    class PointLightSystem {
+    class PointLightSystem : public VkcRenderSystem {
     public:
         PointLightSystem(
             VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
@@ -21,8 +21,8 @@ namespace vkc {
         PointLightSystem& operator=(const PointLightSystem&) = delete;
 
       
-        void render(FrameInfo& frameInfo);
-        void update(FrameInfo& framInfo, GlobalUbo& ubo);
+        void render(FrameInfo& frameInfo) override;
+        void update(FrameInfo& framInfo, GlobalUbo& ubo) override;
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

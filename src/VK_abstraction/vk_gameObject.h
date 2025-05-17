@@ -31,6 +31,7 @@ namespace vkc {
 
 	class VkcGameObject {
 	public:
+	
 		using id_t = unsigned int;
 		using Map = std::unordered_map<id_t, VkcGameObject>;
 
@@ -41,6 +42,8 @@ namespace vkc {
 
 		static VkcGameObject makePointLight(float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
 
+
+		VkcGameObject() = default;
 		VkcGameObject(const VkcGameObject&) = delete;
 		VkcGameObject& operator=(const VkcGameObject&) = delete;
 		VkcGameObject(VkcGameObject&&) = default;

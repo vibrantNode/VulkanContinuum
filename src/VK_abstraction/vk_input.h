@@ -32,7 +32,7 @@ namespace vkc {
         glm::vec3 getCameraPosition() const;
 
     public:
-        // Existing functions...
+       
         void handleMouseInput(GLFWwindow* window);
 
         float getXOffset() const { return _xOffset; }
@@ -55,10 +55,10 @@ namespace vkc {
         double lastY = 300.0;
         bool firstMouse = true;
 
-        float _sensitivity;  // Sensitivity factor for mouse movement
-        float _yaw;          // Camera yaw (horizontal rotation)
-        float _pitch;        // Camera pitch (vertical rotation)
-        glm::vec3 _cameraDirection; // Camera direction vector
+        float _sensitivity;  
+        float _yaw;         
+        float _pitch;       
+        glm::vec3 _cameraDirection; 
         glm::vec3 _cameraPosition;
     };
 }  // namespace vkc

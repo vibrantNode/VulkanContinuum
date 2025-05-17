@@ -38,7 +38,7 @@ namespace vkc {
 
 
 
-        static std::unique_ptr<VkcModel> createModelFromFile(VkcDevice& device, const std::string& filepath);
+        static std::shared_ptr<VkcModel> createModelFromFile(VkcDevice& device, const std::string& filepath);
 
 
         VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder);
@@ -56,6 +56,8 @@ namespace vkc {
 
         bool hasIndexBuffer = false;
         VkcDevice& vkcDevice;
+
+        
 
 
         std::unique_ptr<VkcBuffer> vertexBuffer;
