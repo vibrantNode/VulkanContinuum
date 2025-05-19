@@ -1,12 +1,8 @@
-#include <iostream>
-#include "AppCore/vk_core.h"
+#include "AppCore/_vkCore.h"
 
-
-int main() {
-
-
+int main()
+{
 	vkc::Application app;
 	app.RunApp();
 	return 0;
-	
 }

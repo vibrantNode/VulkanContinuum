@@ -1,8 +1,11 @@
+// vk_model.cpp
+
+// Project headers
 #include "vk_model.h"
 #include "Utils/vkc_utils.h"
 
 
-// lib headers
+// External
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -10,7 +13,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-// std
+// STD
 #include <cassert>
 #include <cstring>
 #include <stdexcept>
@@ -19,10 +22,12 @@
 
 
 
-namespace std {
+namespace std 
+{
     template <>
     struct hash<vkc::VkcModel::Vertex> {
-        size_t operator()(vkc::VkcModel::Vertex const& vertex) const {
+        size_t operator()(vkc::VkcModel::Vertex const& vertex) const 
+        {
             size_t seed = 0;
             vkc::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
             return seed;
@@ -31,15 +36,18 @@ namespace std {
 }  // namespace std
 
 
-namespace vkc {
-    VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder) : vkcDevice{ device } {
+namespace vkc 
+{
+    VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder) : vkcDevice{ device } 
+    {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
     VkcModel::~VkcModel() {
     }
 
-    std::shared_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath) {
+    std::shared_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath) 
+    {
         Builder builder{};
         builder.loadModel(filepath);
 
@@ -48,7 +56,8 @@ namespace vkc {
     }
 
 
-    void VkcModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
+    void VkcModel::createVertexBuffers(const std::vector<Vertex>& vertices) 
+    {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -79,7 +88,8 @@ namespace vkc {
 
     }
 
-    void VkcModel::createIndexBuffers(const std::vector<uint32_t>& indices) {
+    void VkcModel::createIndexBuffers(const std::vector<uint32_t>& indices) 
+    {
         indexCount = static_cast<uint32_t>(indices.size());
         hasIndexBuffer = indexCount > 0;
 
@@ -112,7 +122,8 @@ namespace vkc {
     }
 
 
-    void VkcModel::draw(VkCommandBuffer commandBuffer) {
+    void VkcModel::draw(VkCommandBuffer commandBuffer) 
+    {
         if (hasIndexBuffer) {
             vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
         }
@@ -121,7 +132,8 @@ namespace vkc {
         }
     }
 
-    void VkcModel::bind(VkCommandBuffer commandBuffer) {
+    void VkcModel::bind(VkCommandBuffer commandBuffer) 
+    {
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
@@ -130,7 +142,8 @@ namespace vkc {
             vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
-    std::vector<VkVertexInputBindingDescription> VkcModel::Vertex::getBindingDescriptions() {
+    std::vector<VkVertexInputBindingDescription> VkcModel::Vertex::getBindingDescriptions() 
+    {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1, VkVertexInputBindingDescription{});
 
         bindingDescriptions[0].binding = 0;
@@ -138,7 +151,8 @@ namespace vkc {
         bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         return bindingDescriptions;
     }
-    std::vector<VkVertexInputAttributeDescription> VkcModel::Vertex::getAttributeDescriptions() {
+    std::vector<VkVertexInputAttributeDescription> VkcModel::Vertex::getAttributeDescriptions() 
+    {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
         attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
@@ -150,7 +164,8 @@ namespace vkc {
     }
 
 
-    void VkcModel::Builder::loadModel(const std::string& filepath) {
+    void VkcModel::Builder::loadModel(const std::string& filepath) 
+    {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -208,4 +223,4 @@ namespace vkc {
             }
         }
     }
-}  // namespace vkc
+}// namespace vkc

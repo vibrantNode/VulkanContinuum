@@ -1,28 +1,7 @@
 // vk_core.cpp
 
-// std
-#include <iostream>
-#include <chrono>
-#include <array>
-#include <cassert>
-#include <stdexcept>
-
-
-// Vulkan
-#include <vulkan/vulkan.h>
-
-
-// Third party
-#define VMA_IMPLEMENTATION
-#include "vk_mem_alloc.h"
-
-#define GLM_FORCE_RADIANS	
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
 // Project source specific includes
-#include "vk_core.h"
+#include "_vkCore.h"
 #include "VkBootstrap.h"
 #include "Renderer/vk_buffer.h"
 #include "VK_abstraction/vk_camera.h"
@@ -30,7 +9,21 @@
 #include "Renderer/Types/vk_basicRenderSystem.h"
 #include "Renderer/Types/vk_pointLightSystem.h"
 
+// Vulkan
+#include <vulkan/vulkan.h>
 
+// External
+#define GLM_FORCE_RADIANS	
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
+// STD
+#include <iostream>
+#include <chrono>
+#include <array>
+#include <cassert>
+#include <stdexcept>
 
 namespace vkc {
     Application::Application() 
@@ -41,7 +34,7 @@ namespace vkc {
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         _assetManager.preloadGlobalAssets();
-        _scene.loadSceneData("EmptyPlanes");
+        _scene.loadSceneData("Level1");
     }
     Application::~Application() 
     {
@@ -88,11 +81,18 @@ namespace vkc {
         // Adjust the yaw and pitch
         initialYaw += 0.f;
         initialPitch += 5.0f;
+        
+        // fov and movement speed
+        float fov = 100.f;
+        float movementSpeed = 13.f;
+
 
         VkcCamera camera(
             cameraPos,
             initialYaw,
-            initialPitch
+            initialPitch,
+            fov,
+            movementSpeed   
         );
 
         auto viewerObject = VkcGameObject::createGameObject();
@@ -125,7 +125,7 @@ namespace vkc {
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = _renderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+            camera.setPerspectiveProjection(aspect, 0.1f, 100.f);
            
             if (auto commandBuffer = _renderer.beginFrame()) {
                 int frameIndex = _renderer.getFrameIndex();
@@ -154,6 +154,6 @@ namespace vkc {
         vkDeviceWaitIdle(_device.device());
     }
    
-}
+}// namespace vkc
 
 

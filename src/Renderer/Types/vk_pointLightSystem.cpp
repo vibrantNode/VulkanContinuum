@@ -1,3 +1,4 @@
+// vk_pointLightSystem.cpp
 #include "vk_pointLightSystem.h"
 
 // libs
@@ -148,4 +149,4 @@ namespace vkc {
         ubo.numLights = lightIndex;
 
     }  
-}
+} 

@@ -6,8 +6,10 @@
 #include "ktxvulkan.h"
 
 
-namespace vkc {
-	class VulkanTexture {
+namespace vkc 
+{
+	class VulkanTexture
+	{
 	public:
 	public:
 		vkc::VkcDevice* device;
@@ -72,4 +74,5 @@ namespace vkc {
 			VkImageUsageFlags  imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
 			VkImageLayout      imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	};
-}
+
+}// namespace vkc

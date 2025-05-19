@@ -1,7 +1,15 @@
+// vk_assetManager.h
 #pragma once 
+
+// Project headers
 #include "VK_abstraction/vk_model.h"
 #include "VK_abstraction/vk_device.h"
+
+// STD
 #include <unordered_map>
+
+
+
 
 namespace vkc {
     class AssetManager {

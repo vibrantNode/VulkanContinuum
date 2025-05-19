@@ -1,19 +1,24 @@
+// vk_scene.cpp
+// 
+// 
+// Project headers
 #include "vk_scene.h"
 #include "vk_assetManager.h"
 #include "Renderer/Types/vk_basicRenderSystem.h"
 #include "Renderer/Types/vk_pointLightSystem.h"
-
-// external
+#include "VK_abstraction/vk_camera.h"
+// External
 #include <glm/gtc/matrix_transform.hpp>
 
 // std
 #include <iostream>
 
 
+
 namespace vkc {
 
     Scene::Scene(VkcDevice& device, AssetManager& assetManager)
-        : device(device), assetManager(assetManager), camera(glm::vec3(0.0f, 0.0f, 5.0f), 0.0f, 0.0f) {
+        : device(device), assetManager(assetManager) {
     }
 
     void Scene::loadSceneData(const std::string& sceneFile) 
@@ -25,11 +30,14 @@ namespace vkc {
         else if (sceneFile == "EmptyPlanes") {
             loadEmptyPlanes();
         }
+        else if (sceneFile == "Level1") {
+            loadLevel1();
+        }
     }
 
     void Scene::update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime) 
     {
-        // Update camera or game object logic here
+        // Update camera or game object logic 
         for (auto& renderSystem : renderSystems) {
             renderSystem->update(frameInfo, ubo);
         }
@@ -56,6 +64,12 @@ namespace vkc {
     void Scene::removeGameObject(uint32_t id) 
     {
         gameObjects.erase(id);
+    }
+
+    void Scene::addPlayer(std::shared_ptr<Player> p)
+    {
+        player = std::move(p);
+        //addGameObject(player->getId(), *player;
     }
 
     void Scene::loadDefaultScene()
@@ -94,10 +108,8 @@ namespace vkc {
         stoneSphere.model = stoneSphereModel;
         stoneSphere.transform.translation = { 1.0f, 0.f, 2.f };
         stoneSphere.transform.scale = { .5f, .5f, .5f };
-        if (&stoneSphere) 
-        {
-            gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
-        }
+        gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
+        
  
         std::vector<glm::vec3> lightColors
         {
@@ -149,6 +161,62 @@ namespace vkc {
             auto rotateLight = glm::rotate(
                 glm::mat4(1.f),
                 (i * glm::two_pi<float>()) / lightColors2.size(),
+                { 0.f, -1.f, 0.f });
+            // Position lights above each plane
+            pointLights.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+
+            gameObjects.emplace(pointLights.getId(), std::move(pointLights));
+        }
+    }
+
+    void Scene::loadLevel1()
+    {
+
+        auto lvl1FlatVaseModel = assetManager.getModel("flat_vase");
+        auto lvl1FlatVase = VkcGameObject::createGameObject();
+        lvl1FlatVase.model = lvl1FlatVaseModel;
+        lvl1FlatVase.transform.translation = { -0.5f, 0.5f, 0.0f };
+        lvl1FlatVase.transform.scale = { 3.0f, 1.5f, 3.0f };
+        gameObjects.emplace(lvl1FlatVase.getId(), std::move(lvl1FlatVase));
+
+        auto lvl1SmoothVaseModel = assetManager.getModel("smooth_vase");
+        auto lvl1SmoothVase = VkcGameObject::createGameObject();
+        lvl1SmoothVase.model = lvl1SmoothVaseModel;
+        lvl1SmoothVase.transform.translation = { .5f, .5f, 0.f };
+        lvl1SmoothVase.transform.scale = { 3.f, 1.5f, 3.f };
+        gameObjects.emplace(lvl1SmoothVase.getId(), std::move(lvl1SmoothVase));
+
+        auto lvl1WoodBarrelModel = assetManager.getModel("barrel");
+        auto lvl1WoodBarrel = VkcGameObject::createGameObject();
+        lvl1WoodBarrel.model = lvl1WoodBarrelModel;
+        lvl1WoodBarrel.transform.translation = { 1.f, -.4f, -1.5f };
+        lvl1WoodBarrel.transform.scale = { 1.f, 1.f, 1.f };
+        gameObjects.emplace(lvl1WoodBarrel.getId(), std::move(lvl1WoodBarrel));
+
+        auto lvl1StoneSphereModel = assetManager.getModel("stone_sphere");
+        auto lvl1StoneSphere = VkcGameObject::createGameObject();
+        lvl1StoneSphere.model = lvl1StoneSphereModel;
+        lvl1StoneSphere.transform.translation = { 0.f, 1.f, 0.f };
+        lvl1StoneSphere.transform.scale = { 10.5f, .5f, 10.5f };
+        gameObjects.emplace(lvl1StoneSphere.getId(), std::move(lvl1StoneSphere));
+
+        // Add colored point lights
+        std::vector<glm::vec3> lvl1LightColor{
+            {1.f, .1f, .1f},
+            {.1f, .1f, 1.f},
+            {.1f, 1.f, .1f},
+            {1.f, 1.f, .1f},
+            {.1f, 1.f, 1.f}
+        };
+
+        for (int i = 0; i < lvl1LightColor.size(); ++i)
+        {
+            auto pointLights = VkcGameObject::makePointLight(0.2f);
+            pointLights.color = lvl1LightColor[i];
+            pointLights.pointLight->lightIntensity = 1.0f;
+            auto rotateLight = glm::rotate(
+                glm::mat4(1.f),
+                (i * glm::two_pi<float>()) / lvl1LightColor.size(),
                 { 0.f, -1.f, 0.f });
             // Position lights above each plane
             pointLights.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));

@@ -1,19 +1,23 @@
+// vk_swapchain.h
 #pragma once
 
+// Project headers
 #include "vk_device.h"
 
 // vulkan headers
 #include <vulkan/vulkan.h>
 
-// std lib headers
+// STD
 #include <string>
 #include <vector>
 #include <memory>
 
 
-namespace vkc {
+namespace vkc
+{
 
-    class VkcSwapChain {
+    class VkcSwapChain
+    {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -88,4 +92,4 @@ namespace vkc {
         size_t currentFrame = 0;
     };
 
-}  // namespace vkc
+}// namespace vkc

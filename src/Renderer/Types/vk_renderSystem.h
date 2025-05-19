@@ -22,4 +22,4 @@ namespace vkc {
 
         virtual void render(FrameInfo& frameInfo) = 0;
     };
-}
+}// namespace vkc

@@ -1,5 +1,7 @@
+// vk_basicRenerSystem.h
 #pragma once
 
+// Project headers
 #include <VK_abstraction/vk_device.h>
 #include <VK_abstraction/vk_pipeline.h>
 #include <VK_abstraction/vk_gameObject.h>
@@ -7,7 +9,7 @@
 #include <VK_abstraction/vk_camera.h>
 #include "Renderer/Types/vk_renderSystem.h"
 
-
+// STD
 #include <memory>
 #include <vector>
 
@@ -34,4 +36,4 @@ namespace vkc {
 		std::unique_ptr<VkcPipeline> vkcPipeline;
 		VkPipelineLayout pipelineLayout;
 	};
-}
+}// namespace vkc

@@ -56,4 +56,4 @@ namespace vkc {
         VkMemoryPropertyFlags memoryPropertyFlags;
     };
 
-}  // namespace vkc
+}// namespace vkc

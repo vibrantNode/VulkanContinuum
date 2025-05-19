@@ -3,8 +3,10 @@
 #include "VK_Abstraction/vk_gameObject.h"
 #include "AppCore/vk_window.h"
 
-namespace vkc {
-    class MNKController {
+namespace vkc 
+{
+    class MNKController
+    {
     public:
 
         MNKController(float sensitivity = 0.1f, float yaw = -90.0f, float pitch = 0.0f);
@@ -21,6 +23,7 @@ namespace vkc {
             int lookUp = GLFW_KEY_UP;
             int lookDown = GLFW_KEY_DOWN;
             int Exit = GLFW_KEY_ESCAPE;
+            int toggleFullscreen = GLFW_KEY_BACKSPACE;
         };
 
         void updateMovement(GLFWwindow* window, float dt, VkcGameObject& gameObject);
@@ -64,4 +67,4 @@ namespace vkc {
         glm::vec3 _cameraPosition;
 
     };
-}  // namespace vkc
+}// namespace vkc

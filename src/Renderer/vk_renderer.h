@@ -13,8 +13,10 @@
 constexpr unsigned int FRAME_OVERLAP = 2;
 
 
-namespace vkc {
-	class Renderer {
+namespace vkc
+{
+	class Renderer 
+	{
 	public:
 		Renderer(VkWindow &window, VkcDevice& device);
 		~Renderer();
@@ -61,5 +63,5 @@ namespace vkc {
 		bool isFrameStarted = false;
 	
 	};
-}
+}// namespace vkc
 

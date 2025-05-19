@@ -11,8 +11,10 @@
 #include <unordered_map>
 
 
-namespace vkc {
-	struct TransformComponent {
+namespace vkc 
+{
+	struct TransformComponent
+	{
 		glm::vec3 translation{};
 		glm::vec3 scale{ 1.f, 1.f, 1.f };
 		glm::vec3 rotation{};
@@ -25,11 +27,13 @@ namespace vkc {
 
 	};
 
-	struct PointLightComponent {
+	struct PointLightComponent 
+	{
 		float lightIntensity = 1.0f;
 	};
 
-	class VkcGameObject {
+	class VkcGameObject
+	{
 	public:
 	
 		using id_t = unsigned int;
@@ -62,4 +66,4 @@ namespace vkc {
 
 		id_t id;
 	};
-}
+}// namespace vkc

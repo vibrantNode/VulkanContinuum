@@ -201,4 +201,4 @@ namespace vkc {
         return invalidate(alignmentSize, index * alignmentSize);
     }
 
-}  // namespace Vkc
+}// namespace vkc

@@ -7,15 +7,18 @@
 #include <string>
 #include <vector>
 
-namespace vkc {
+namespace vkc
+{
 
-    struct SwapChainSupportDetails {
+    struct SwapChainSupportDetails 
+    {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
 
-    struct QueueFamilyIndices {
+    struct QueueFamilyIndices
+    {
         uint32_t graphicsFamily;
         uint32_t presentFamily;
         bool graphicsFamilyHasValue = false;
@@ -23,7 +26,8 @@ namespace vkc {
         bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
     };
 
-    class VkcDevice {
+    class VkcDevice
+    {
     public:
 #ifdef NDEBUG
         const bool enableValidationLayers = false;
@@ -107,7 +111,10 @@ namespace vkc {
         VkQueue presentQueue_;
 
         const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-        const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+        const std::vector<const char*> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+        };
     };
 
 }  // namespace vkc

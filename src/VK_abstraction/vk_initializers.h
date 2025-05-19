@@ -3,7 +3,8 @@
 
 
 
-namespace vkinit {
+namespace vkinit 
+{
 
 
     //> init_cmd

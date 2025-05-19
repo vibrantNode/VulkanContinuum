@@ -1,5 +1,7 @@
+// vk_pointLightSystem.h
 #pragma once
 
+// Project headers
 #include "VK_abstraction/vk_camera.h"
 #include "VK_abstraction/vk_device.h"
 #include "VK_abstraction/vk_frameInfo.h"
@@ -33,4 +35,4 @@ namespace vkc {
         std::unique_ptr<VkcPipeline> vkcPipeline;
         VkPipelineLayout pipelineLayout;
     };
-}  // namespace lve
+}// namespace vkc

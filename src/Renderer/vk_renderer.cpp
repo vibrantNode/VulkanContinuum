@@ -166,4 +166,4 @@ namespace vkc {
 		vkCmdEndRenderPass(commandBuffer);
 	}
 
-}
+}// namespace vkc

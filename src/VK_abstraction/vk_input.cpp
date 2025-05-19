@@ -2,7 +2,8 @@
 #include "vk_gameObject.h"
 #include <limits>
 
-namespace vkc {
+namespace vkc 
+{
 
     MNKController::MNKController(float sensitivity, float yaw, float pitch)
         : _sensitivity(sensitivity), _yaw(yaw), _pitch(pitch), _cameraPosition(glm::vec3(0.0f, 0.0f, 3.0f)) {
@@ -48,7 +49,10 @@ namespace vkc {
         }
         if (glfwGetKey(window, keys.Exit) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GLFW_TRUE);
-    
+
+     /*   if (glfwGetKey(window, keys.toggleFullscreen) == GLFW_PRESS)
+          )
+    */
     }
 
 
@@ -117,4 +121,4 @@ namespace vkc {
         _lastX = xpos;
         _lastY = ypos;
     }
-} // namespace vkc
+}// namespace vkc

@@ -7,7 +7,8 @@
 #include <unordered_set>
 
 
-namespace vkc {
+namespace vkc 
+{
 	
 // local callback functions
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -48,7 +49,8 @@ void DestroyDebugUtilsMessengerEXT(
 }
 
 // class member functions
-VkcDevice::VkcDevice(VkWindow &window) : window{window} {
+VkcDevice::VkcDevice(VkWindow &window) : window{window}
+{
   createInstance();
   setupDebugMessenger();
   createSurface();
@@ -57,7 +59,8 @@ VkcDevice::VkcDevice(VkWindow &window) : window{window} {
   createCommandPool();
 }
 
-VkcDevice::~VkcDevice() {
+VkcDevice::~VkcDevice()
+{
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
 
@@ -70,7 +73,8 @@ VkcDevice::~VkcDevice() {
     
 }
 
-void VkcDevice::createInstance() {
+void VkcDevice::createInstance()
+{
   if (enableValidationLayers && !checkValidationLayerSupport()) {
     throw std::runtime_error("validation layers requested, but not available!");
   }
@@ -110,7 +114,8 @@ void VkcDevice::createInstance() {
   hasGflwRequiredInstanceExtensions();
 }
 
-void VkcDevice::pickPhysicalDevice() {
+void VkcDevice::pickPhysicalDevice()
+{
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
   if (deviceCount == 0) {
@@ -136,52 +141,68 @@ void VkcDevice::pickPhysicalDevice() {
 }
 
 void VkcDevice::createLogicalDevice() {
-  QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
-  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-  std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
 
-  float queuePriority = 1.0f;
-  for (uint32_t queueFamily : uniqueQueueFamilies) {
-    VkDeviceQueueCreateInfo queueCreateInfo = {};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = queueFamily;
-    queueCreateInfo.queueCount = 1;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
-    queueCreateInfos.push_back(queueCreateInfo);
-  }
+    float queuePriority = 1.0f;
+    for (uint32_t queueFamily : uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
-  VkPhysicalDeviceFeatures deviceFeatures = {};
-  deviceFeatures.samplerAnisotropy = VK_TRUE;
+    // Setup descriptor indexing features struct
+    VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures{};
+    descriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+    descriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+    descriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+    descriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+    descriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
 
-  VkDeviceCreateInfo createInfo = {};
-  createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    // Setup features2 struct and chain descriptorIndexingFeatures via pNext
+    VkPhysicalDeviceFeatures2 deviceFeatures2{};
+    deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    deviceFeatures2.features.samplerAnisotropy = VK_TRUE;
+    deviceFeatures2.pNext = &descriptorIndexingFeatures;
 
-  createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-  createInfo.pQueueCreateInfos = queueCreateInfos.data();
+    // Query the device features (optional, you may want to check or override)
+    vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
 
-  createInfo.pEnabledFeatures = &deviceFeatures;
-  createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-  createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext = &deviceFeatures2; // Chain features2 here
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-  // might not really be necessary anymore because device specific validation layers
-  // have been deprecated
-  if (enableValidationLayers) {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-  } else {
-    createInfo.enabledLayerCount = 0;
-  }
+    createInfo.pEnabledFeatures = nullptr; // Must be null when using pNext chaining
 
-  if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create logical device!");
-  }
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-  vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-  vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else {
+        createInfo.enabledLayerCount = 0;
+    }
+
+    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create logical device!");
+    }
+
+    vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
+    vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
 }
 
-void VkcDevice::createCommandPool() {
+
+void VkcDevice::createCommandPool() 
+{
   QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
 
   VkCommandPoolCreateInfo poolInfo = {};
@@ -213,6 +234,7 @@ bool VkcDevice::isDeviceSuitable(VkPhysicalDevice device) {
 
   return indices.isComplete() && extensionsSupported && swapChainAdequate &&
          supportedFeatures.samplerAnisotropy;
+//         supportedFeatures.des
 }
 
 void VkcDevice::populateDebugMessengerCreateInfo(
@@ -228,7 +250,8 @@ void VkcDevice::populateDebugMessengerCreateInfo(
   createInfo.pUserData = nullptr;  // Optional
 }
 
-void VkcDevice::setupDebugMessenger() {
+void VkcDevice::setupDebugMessenger()
+{
   if (!enableValidationLayers) return;
   VkDebugUtilsMessengerCreateInfoEXT createInfo;
   populateDebugMessengerCreateInfo(createInfo);
@@ -262,7 +285,8 @@ bool VkcDevice::checkValidationLayerSupport() {
   return true;
 }
 
-std::vector<const char *> VkcDevice::getRequiredExtensions() {
+std::vector<const char *> VkcDevice::getRequiredExtensions()
+{
   uint32_t glfwExtensionCount = 0;
   const char **glfwExtensions;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -270,13 +294,14 @@ std::vector<const char *> VkcDevice::getRequiredExtensions() {
   std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
   if (enableValidationLayers) {
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+      extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
 
   return extensions;
 }
 
-void VkcDevice::hasGflwRequiredInstanceExtensions() {
+void VkcDevice::hasGflwRequiredInstanceExtensions() 
+{
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
   std::vector<VkExtensionProperties> extensions(extensionCount);
@@ -299,7 +324,8 @@ void VkcDevice::hasGflwRequiredInstanceExtensions() {
   }
 }
 
-bool VkcDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool VkcDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) 
+{
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -319,7 +345,8 @@ bool VkcDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
   return requiredExtensions.empty();
 }
 
-QueueFamilyIndices VkcDevice::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices VkcDevice::findQueueFamilies(VkPhysicalDevice device) 
+{
   QueueFamilyIndices indices;
 
   uint32_t queueFamilyCount = 0;
@@ -350,7 +377,8 @@ QueueFamilyIndices VkcDevice::findQueueFamilies(VkPhysicalDevice device) {
   return indices;
 }
 
-SwapChainSupportDetails VkcDevice::querySwapChainSupport(VkPhysicalDevice device) {
+SwapChainSupportDetails VkcDevice::querySwapChainSupport(VkPhysicalDevice device)
+{
   SwapChainSupportDetails details;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
 
@@ -436,7 +464,8 @@ void VkcDevice::createBuffer(
   vkBindBufferMemory(device_, buffer, bufferMemory, 0);
 }
 
-VkCommandBuffer VkcDevice::beginSingleTimeCommands() {
+VkCommandBuffer VkcDevice::beginSingleTimeCommands() 
+{
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -532,4 +561,4 @@ void VkcDevice::createImageWithInfo(
     throw std::runtime_error("failed to bind image memory!");
   }
 }
-}
+}// namespace vkc

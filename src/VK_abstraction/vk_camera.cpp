@@ -9,16 +9,16 @@
 #include <cassert>
 #include <limits>
 
-namespace vkc {
+namespace vkc 
+{
 
-
-    VkcCamera::VkcCamera(glm::vec3 position, float yaw, float pitch)
+    VkcCamera::VkcCamera(glm::vec3 position, float yaw, float pitch, float zoom, float movementSpeed)
         : m_Position(position),
         m_Yaw(yaw),
         m_Pitch(pitch),
         m_WorldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-        m_Zoom(80.0f),
-        m_MovementSpeed(8.0f),
+        m_Zoom(zoom),
+        m_MovementSpeed(movementSpeed),
         m_Target(glm::vec3(0.0f))
     {
         UpdateCameraVectors();
@@ -81,9 +81,10 @@ namespace vkc {
         projectionMatrix[3][2] = -near / (far - near);
     }
  
-    void VkcCamera::setPerspectiveProjection(float fovy, float aspect, float near, float far) 
+    void VkcCamera::setPerspectiveProjection(float aspect, float near, float far)
     {
         assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
+        float fovy = glm::radians(m_Zoom);
         const float tanHalfFovy = tan(fovy / 2.f);
         projectionMatrix = glm::mat4{ 0.0f };
         projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
@@ -197,4 +198,6 @@ namespace vkc {
         return m_Position;
     }
 
-}  // namespace vkc
+
+
+}// namespace vkc

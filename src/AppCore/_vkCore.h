@@ -45,12 +45,10 @@ namespace vkc {
 		VkcGameObject::Map gameObjects;
 
 
-
-
 	};
 
-}
 
+}// namespace vkc
 
 
 

@@ -58,4 +58,4 @@ namespace vkc {
 		VkShaderModule vertShaderModule;
 		VkShaderModule fragShaderModule;
 	};
-}
+}// namespace vkc

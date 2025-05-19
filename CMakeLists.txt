@@ -16,7 +16,7 @@ include_directories(${Vulkan_INCLUDE_DIR})
 add_executable(VKContinuum
         # src
         src/main.cpp
-        src/AppCore/vk_core.cpp
+        "src/AppCore/_vkCore.cpp"
         src/AppCore/vk_window.cpp 
 
         src/Renderer/vk_renderer.cpp 
@@ -40,7 +40,9 @@ add_executable(VKContinuum
         
         #src/Renderer/Types/vk_textureRenderSystem.cpp
         "src/VK_abstraction/vk_texture.cpp"
- "src/AppCore/vk_assetManager.cpp" "src/AppCore/vk_scene.cpp")
+        "src/AppCore/vk_assetManager.cpp" "src/AppCore/vk_scene.cpp" 
+        #"src/Game/vk_player.cpp"
+)
 
 # Define PROJECT_ROOT_DIR for use in the code
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

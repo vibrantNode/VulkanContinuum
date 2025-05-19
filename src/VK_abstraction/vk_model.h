@@ -12,11 +12,14 @@
 #include <memory>
 #include <vector>
 
-namespace vkc {
+namespace vkc 
+{
 
-    class VkcModel {
+    class VkcModel
+    {
     public:
-        struct Vertex {
+        struct Vertex 
+        {
             glm::vec3 position{};
             glm::vec3 color{};
             glm::vec3 normal{};
@@ -28,7 +31,8 @@ namespace vkc {
             bool operator==(const Vertex& other) const { return position == other.position && normal == other.normal && uv == other.uv; }
         };
 
-        struct Builder {
+        struct Builder 
+        {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
 
@@ -66,4 +70,4 @@ namespace vkc {
         std::unique_ptr<VkcBuffer> indexBuffer;
         uint32_t indexCount;
     };
-}  // namespace vkc
+}// namespace vkc

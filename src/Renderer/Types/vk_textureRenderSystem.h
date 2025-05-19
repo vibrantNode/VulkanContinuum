@@ -24,4 +24,4 @@ namespace vkc {
         std::unique_ptr<VkcPipeline> vkcPipeline;
         VkPipelineLayout pipelineLayout;
     };
-}
+}// namespace vkc

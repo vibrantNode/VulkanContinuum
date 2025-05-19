@@ -8,10 +8,13 @@
 #include <vector>
 
 
-namespace vkc {
-    class VkcDescriptorSetLayout {
+namespace vkc 
+{
+    class VkcDescriptorSetLayout 
+    {
     public:
-        class Builder {
+        class Builder 
+        {
         public:
             Builder(VkcDevice& vkcDevice) : vkcDevice{ vkcDevice } {}
 
@@ -43,9 +46,11 @@ namespace vkc {
         friend class VkcDescriptorWriter;
     };
 
-    class VkcDescriptorPool {
+    class VkcDescriptorPool 
+    {
     public:
-        class Builder {
+        class Builder 
+        {
         public:
             Builder(VkcDevice& vkcDevice) : vkcDevice{ vkcDevice } {}
 
@@ -84,7 +89,8 @@ namespace vkc {
         friend class VkcDescriptorWriter;
     };
 
-    class VkcDescriptorWriter {
+    class VkcDescriptorWriter 
+    {
     public:
         VkcDescriptorWriter(VkcDescriptorSetLayout& setLayout, VkcDescriptorPool& pool);
 
@@ -99,4 +105,4 @@ namespace vkc {
         VkcDescriptorPool& pool;
         std::vector<VkWriteDescriptorSet> writes;
     };
-}
+}// namespace vkc

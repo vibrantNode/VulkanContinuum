@@ -7,8 +7,10 @@
 #include <iostream>
 #include <cassert>
 
-namespace vkc {
-	VkcPipeline::VkcPipeline(
+namespace vkc
+{
+	VkcPipeline::VkcPipeline
+	(
 		VkcDevice& device,
 		const std::string& vertFilepath,
 		const std::string& fragFilepath,
@@ -19,17 +21,20 @@ namespace vkc {
 
  
 
-	VkcPipeline::~VkcPipeline() {
+	VkcPipeline::~VkcPipeline() 
+	{
 		vkDestroyShaderModule(vkcDevice.device(), vertShaderModule, nullptr);
 		vkDestroyShaderModule(vkcDevice.device(), fragShaderModule, nullptr);
 		vkDestroyPipeline(vkcDevice.device(), graphicsPipeline, nullptr);
 	}
 
-	void VkcPipeline::bind(VkCommandBuffer commandBuffer) {
+	void VkcPipeline::bind(VkCommandBuffer commandBuffer) 
+	{
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	}
-
-	std::vector<char> VkcPipeline::readFile(const std::string& filepath) {
+	 
+	std::vector<char> VkcPipeline::readFile(const std::string& filepath) 
+	{
 		
 
 		std::ifstream file{ filepath, std::ios::ate | std::ios::binary };
@@ -47,7 +52,8 @@ namespace vkc {
 		file.close();
 		return buffer;
 	}
-	void VkcPipeline::createGraphicsPipeline(
+	void VkcPipeline::createGraphicsPipeline
+	(
 		const std::string& vertFilepath,
 		const std::string& fragFilepath,
 		const PipelineConfigInfo& configInfo)
@@ -113,13 +119,18 @@ namespace vkc {
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 
-		if (vkCreateGraphicsPipelines(
+		if (vkCreateGraphicsPipelines
+		(
 			vkcDevice.device(),
 			VK_NULL_HANDLE,
 			1,
 			&pipelineInfo,
 			nullptr,
-			&graphicsPipeline) != VK_SUCCESS) {
+			&graphicsPipeline
+		) 
+			!= VK_SUCCESS
+			)
+		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}
 	}
@@ -130,11 +141,13 @@ namespace vkc {
 		createInfo.codeSize = code.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-		if (vkCreateShaderModule(vkcDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+		if (vkCreateShaderModule(vkcDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create shader module");
 		}
 	}
-	void VkcPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) {
+	void VkcPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
+	{
 
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -209,4 +222,4 @@ namespace vkc {
 		configInfo.bindingDescriptions = VkcModel::Vertex::getBindingDescriptions();
 		configInfo.attributeDescriptions = VkcModel::Vertex::getAttributeDescriptions();
 	}
-}
+}// namespace vkc
