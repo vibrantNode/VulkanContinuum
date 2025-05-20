@@ -1,6 +1,6 @@
 #pragma once
 #include "vk_device.h"
-#include "Renderer/vk_buffer.h"
+#include "VK_abstraction/vk_buffer.h"
 
 // libs
 #define GLM_FORCE_RADIANS	

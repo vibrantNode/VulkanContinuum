@@ -76,6 +76,14 @@ namespace vkc
             VkImage& image,
             VkDeviceMemory& imageMemory);
 
+        void transitionImageLayout(
+            VkImage image,
+            VkFormat format,
+            VkImageLayout oldLayout,
+            VkImageLayout newLayout,
+            uint32_t mipLevels,
+            uint32_t layerCount);
+
         VkPhysicalDeviceProperties properties;
 
     private:
@@ -95,7 +103,7 @@ namespace vkc
         void hasGflwRequiredInstanceExtensions();
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-
+        bool hasStencilComponent(VkFormat format);
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
     public:

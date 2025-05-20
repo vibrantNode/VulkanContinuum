@@ -3,11 +3,11 @@
 // Project source specific includes
 #include "_vkCore.h"
 #include "VkBootstrap.h"
-#include "Renderer/vk_buffer.h"
+#include "VK_abstraction/vk_buffer.h"
 #include "VK_abstraction/vk_camera.h"
 #include "VK_abstraction/vk_input.h"
-#include "Renderer/Types/vk_basicRenderSystem.h"
-#include "Renderer/Types/vk_pointLightSystem.h"
+#include "Renderer/RendererSystems/vk_basicRenderSystem.h"
+#include "Renderer/RendererSystems/vk_pointLightSystem.h"
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -34,7 +34,7 @@ namespace vkc {
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         _assetManager.preloadGlobalAssets();
-        _scene.loadSceneData("Level1");
+        _scene.loadSceneData("DefaultScene");
     }
     Application::~Application() 
     {
@@ -56,7 +56,16 @@ namespace vkc {
         }
        auto globalSetLayout = VkcDescriptorSetLayout::Builder(_device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
+
+       // this needs to be abstracted in a way that gets the image view and sampler on a per object basis
+       auto texture = _assetManager.getTexture("texture");
+       VkDescriptorImageInfo imageInfo{};
+       imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+       imageInfo.imageView = texture->GetImageView(); 
+       imageInfo.sampler = texture->GetSampler();
+
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) 
@@ -64,6 +73,7 @@ namespace vkc {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             VkcDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -79,11 +89,11 @@ namespace vkc {
         float initialPitch = glm::degrees(asin(-direction.y));
 
         // Adjust the yaw and pitch
-        initialYaw += 0.f;
-        initialPitch += 5.0f;
+        initialYaw += .5f;
+        initialPitch += .0f;
         
         // fov and movement speed
-        float fov = 100.f;
+        float fov = 80.f;
         float movementSpeed = 13.f;
 
 

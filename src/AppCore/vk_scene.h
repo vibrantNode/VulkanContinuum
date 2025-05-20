@@ -7,7 +7,7 @@
 #include <VK_abstraction/vk_frameInfo.h>
 #include "AppCore/vk_assetManager.h"
 #include "VK_abstraction/vk_device.h"
-#include "Renderer/Types/vk_renderSystem.h"
+#include "Renderer/RendererSystems/vk_renderSystem.h"
 #include "VK_abstraction/vk_camera.h"
 #include "Game/vk_player.h"
 

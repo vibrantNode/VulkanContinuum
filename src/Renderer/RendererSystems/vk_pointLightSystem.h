@@ -7,7 +7,7 @@
 #include "VK_abstraction/vk_frameInfo.h"
 #include "VK_abstraction/vk_gameObject.h"
 #include "VK_abstraction/vk_pipeline.h"
-#include "Renderer/Types/vk_renderSystem.h"
+#include "Renderer/RendererSystems/vk_renderSystem.h"
 // std
 #include <memory>
 #include <vector>

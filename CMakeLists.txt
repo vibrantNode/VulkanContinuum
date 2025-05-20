@@ -26,22 +26,24 @@ add_executable(VKContinuum
         src/VK_abstraction/vk_swapchain.cpp 
         src/VK_abstraction/vk_descriptors.cpp 
         src/VK_abstraction/vk_pipeline.cpp 
+        src/VK_abstraction/vk_buffer.h 
+        src/VK_abstraction/vk_buffer.cpp
 
         # vendor
         vendor/vkbootstrap/VkBootstrap.cpp 
-        src/Renderer/vk_buffer.h 
-        src/Renderer/vk_buffer.cpp
-        src/Renderer/Types/vk_basicRenderSystem.cpp 
+        src/Renderer/RendererSystems/vk_basicRenderSystem.cpp 
         src/VK_abstraction/vk_camera.cpp
         src/VK_abstraction/vk_model.cpp
         src/VK_abstraction/vk_gameObject.cpp
         src/VK_abstraction/vk_input.cpp 
-        src/Renderer/Types/vk_pointLightSystem.cpp
+        src/Renderer/RendererSystems/vk_pointLightSystem.cpp
         
-        #src/Renderer/Types/vk_textureRenderSystem.cpp
-        "src/VK_abstraction/vk_texture.cpp"
+        #src/Renderer/RendererSystems/vk_textureRenderSystem.cpp
+        
         "src/AppCore/vk_assetManager.cpp" "src/AppCore/vk_scene.cpp" 
         #"src/Game/vk_player.cpp"
+        #"src/Renderer/RendererSystems/vk_bindlessTextureManager.cpp" "src/Renderer/RendererSystems/vk_texture.cpp"
+        "src/VK_abstraction/vk_texture.cpp"
 )
 
 # Define PROJECT_ROOT_DIR for use in the code

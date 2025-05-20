@@ -4,14 +4,16 @@
 // Project headers
 #include "vk_scene.h"
 #include "vk_assetManager.h"
-#include "Renderer/Types/vk_basicRenderSystem.h"
-#include "Renderer/Types/vk_pointLightSystem.h"
+#include "Renderer/RendererSystems/vk_basicRenderSystem.h"
+#include "Renderer/RendererSystems/vk_pointLightSystem.h"
 #include "VK_abstraction/vk_camera.h"
 // External
 #include <glm/gtc/matrix_transform.hpp>
 
 // std
 #include <iostream>
+
+#include <fstream>
 
 
 

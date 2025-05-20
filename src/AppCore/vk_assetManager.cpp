@@ -17,7 +17,31 @@ namespace vkc {
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
+        loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
+     
     }
+    std::shared_ptr<VkcTexture> AssetManager::loadTexture(const std::string& textureName, const std::string& filepath)
+    {
+        // Check if texture is already loaded
+        auto it = textureCache.find(textureName);
+        if (it != textureCache.end())
+        {
+            return it->second; // Return cached texture
+        }
+
+        // Create new texture and load it
+        auto texture = std::make_shared<VkcTexture>(&_device);
+        if (!texture->LoadFromFile(filepath))
+        {
+            throw std::runtime_error("Failed to load texture: " + textureName);
+        }
+
+        // Cache the loaded texture
+        textureCache[textureName] = texture;
+
+        return texture;
+    }
+
 
     std::shared_ptr<VkcModel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath) 
     {
@@ -32,7 +56,7 @@ namespace vkc {
         modelCache[modelName] = model;
         return model;
     }
-
+  
     std::shared_ptr<VkcModel> AssetManager::getModel(const std::string& modelName) 
     {
         auto it = modelCache.find(modelName);
@@ -43,5 +67,14 @@ namespace vkc {
             throw std::runtime_error("Model not found in cache: " + modelName);
         }
     }
-
+    std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& filename)
+    {
+        auto it = textureCache.find(filename);
+        if (it != textureCache.end()) {
+            return it->second;
+        }
+        else {
+            throw std::runtime_error("Texture not found in cache: " + filename);
+        }
+    }
 }
