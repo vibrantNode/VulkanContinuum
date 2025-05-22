@@ -64,7 +64,7 @@ namespace vkc {
 		vkFreeCommandBuffers(
 			vkcDevice.device(),
 			vkcDevice.getCommandPool(),
-			static_cast<float>(commandBuffers.size()),
+			static_cast<uint32_t>(commandBuffers.size()),
 			commandBuffers.data());
 		commandBuffers.clear();
 	}

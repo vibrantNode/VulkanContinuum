@@ -22,16 +22,30 @@ namespace vkc
                 uint32_t binding,
                 VkDescriptorType descriptorType,
                 VkShaderStageFlags stageFlags,
-                uint32_t count = 1);
+                uint32_t count,
+                VkDescriptorBindingFlags flags);
+
+            Builder& addBinding(
+                uint32_t binding,
+                VkDescriptorType descriptorType,
+                VkShaderStageFlags stageFlags);
+
             std::unique_ptr<VkcDescriptorSetLayout> build() const;
 
         private:
             VkcDevice& vkcDevice;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+            std::unordered_map<uint32_t, VkDescriptorBindingFlags> bindingFlags{};
         };
 
         VkcDescriptorSetLayout(
-            VkcDevice& vkcDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+            VkcDevice& vkcDevice,
+            const std::vector<VkDescriptorSetLayoutBinding>& bindingsVec,
+            VkDescriptorSetLayout layout
+        );
+        VkcDescriptorSetLayout(VkcDevice& vkcDevice, VkDescriptorSetLayout layout)
+            : vkcDevice{ vkcDevice }, descriptorSetLayout{ layout } {
+        }
         ~VkcDescriptorSetLayout();
         VkcDescriptorSetLayout(const VkcDescriptorSetLayout&) = delete;
         VkcDescriptorSetLayout& operator=(const VkcDescriptorSetLayout&) = delete;
@@ -76,7 +90,7 @@ namespace vkc
         VkcDescriptorPool& operator=(const VkcDescriptorPool&) = delete;
 
         bool allocateDescriptor(
-            const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
+            const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor, uint32_t variableDescriptorCount) const;
 
         void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
 
@@ -96,6 +110,7 @@ namespace vkc
 
         VkcDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
         VkcDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+        VkcDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfos, uint32_t count);
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);
@@ -104,5 +119,6 @@ namespace vkc
         VkcDescriptorSetLayout& setLayout;
         VkcDescriptorPool& pool;
         std::vector<VkWriteDescriptorSet> writes;
+   
     };
 }// namespace vkc

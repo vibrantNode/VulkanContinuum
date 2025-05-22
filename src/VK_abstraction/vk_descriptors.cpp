@@ -4,6 +4,8 @@
 #include <cassert>
 #include <stdexcept>
 
+uint32_t maxTextures = 1000;
+
 
 namespace vkc {
 
@@ -13,44 +15,72 @@ namespace vkc {
         uint32_t binding,
         VkDescriptorType descriptorType,
         VkShaderStageFlags stageFlags,
-        uint32_t count) {
+        uint32_t count,
+        VkDescriptorBindingFlags flags) {
+
         assert(bindings.count(binding) == 0 && "Binding already in use");
+
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = binding;
         layoutBinding.descriptorType = descriptorType;
         layoutBinding.descriptorCount = count;
         layoutBinding.stageFlags = stageFlags;
+        layoutBinding.pImmutableSamplers = nullptr;
+
         bindings[binding] = layoutBinding;
+        bindingFlags[binding] = flags;
+
         return *this;
     }
+    VkcDescriptorSetLayout::Builder& VkcDescriptorSetLayout::Builder::addBinding(
+        uint32_t binding,
+        VkDescriptorType descriptorType,
+        VkShaderStageFlags stageFlags) {
 
-    std::unique_ptr<VkcDescriptorSetLayout> VkcDescriptorSetLayout::Builder::build() const {
-        return std::make_unique<VkcDescriptorSetLayout>(vkcDevice, bindings);
+        // Default count = 1, no special flags
+        return addBinding(binding, descriptorType, stageFlags, 1, 0);
     }
+    std::unique_ptr<VkcDescriptorSetLayout> VkcDescriptorSetLayout::Builder::build() const {
+        std::vector<VkDescriptorSetLayoutBinding> setBindings;
+        std::vector<VkDescriptorBindingFlags> setBindingFlags;
 
+        for (const auto& [binding, layoutBinding] : bindings) {
+            setBindings.push_back(layoutBinding);
+            setBindingFlags.push_back(bindingFlags.at(binding));
+        }
+
+        VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
+        bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+        bindingFlagsInfo.bindingCount = static_cast<uint32_t>(setBindingFlags.size());
+        bindingFlagsInfo.pBindingFlags = setBindingFlags.data();
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.pNext = &bindingFlagsInfo;
+        layoutInfo.bindingCount = static_cast<uint32_t>(setBindings.size());
+        layoutInfo.pBindings = setBindings.data();
+        layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+
+        VkDescriptorSetLayout layout;
+        if (vkCreateDescriptorSetLayout(vkcDevice.device(), &layoutInfo, nullptr, &layout) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create descriptor set layout!");
+        }
+
+        return std::make_unique<VkcDescriptorSetLayout>(vkcDevice, setBindings, layout);
+    }
     // *************** Descriptor Set Layout *********************
 
     VkcDescriptorSetLayout::VkcDescriptorSetLayout(
-        VkcDevice& vkcDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-        : vkcDevice{ vkcDevice }, bindings{ bindings } {
-        std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto kv : bindings) {
-            setLayoutBindings.push_back(kv.second);
-        }
+        VkcDevice& vkcDevice,
+        const std::vector<VkDescriptorSetLayoutBinding>& bindingsVec,
+        VkDescriptorSetLayout layout
+    ) : vkcDevice{ vkcDevice }, descriptorSetLayout{ layout } {
 
-        VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
-        descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-        descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
-
-        if (vkCreateDescriptorSetLayout(
-            vkcDevice.device(),
-            &descriptorSetLayoutInfo,
-            nullptr,
-            &descriptorSetLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor set layout!");
+        for (const auto& binding : bindingsVec) {
+            bindings[binding.binding] = binding;
         }
     }
+
 
     VkcDescriptorSetLayout::~VkcDescriptorSetLayout() {
         if (descriptorSetLayout != VK_NULL_HANDLE) {
@@ -109,13 +139,23 @@ namespace vkc {
         }
     }
 
-    bool VkcDescriptorPool::allocateDescriptor(
-        const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const {
+    bool VkcDescriptorPool::allocateDescriptor(const 
+        VkDescriptorSetLayout descriptorSetLayout,
+        VkDescriptorSet& descriptor,
+        uint32_t variableDescriptorCount
+    ) 
+        const {
+        VkDescriptorSetVariableDescriptorCountAllocateInfo countInfo{};
+        countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+        countInfo.descriptorSetCount = 1;
+        countInfo.pDescriptorCounts = &variableDescriptorCount;
+
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
-        allocInfo.pSetLayouts = &descriptorSetLayout;
         allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+        allocInfo.pNext = &countInfo;
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
@@ -142,7 +182,7 @@ namespace vkc {
     VkcDescriptorWriter::VkcDescriptorWriter(VkcDescriptorSetLayout& setLayout, VkcDescriptorPool& pool)
         : setLayout{ setLayout }, pool{ pool } {
     }
-
+    uint32_t variableDescriptorCount = 0;
     VkcDescriptorWriter& VkcDescriptorWriter::writeBuffer(
         uint32_t binding, VkDescriptorBufferInfo* bufferInfo) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -152,7 +192,7 @@ namespace vkc {
         assert(
             bindingDescription.descriptorCount == 1 &&
             "Binding single descriptor info, but binding expects multiple");
-
+       
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         write.descriptorType = bindingDescription.descriptorType;
@@ -165,10 +205,12 @@ namespace vkc {
     }
 
     VkcDescriptorWriter& VkcDescriptorWriter::writeImage(
-        uint32_t binding, VkDescriptorImageInfo* imageInfo) {
+        uint32_t binding, VkDescriptorImageInfo* imageInfo
+        ) {
+        auto& bindingDescription = setLayout.bindings[binding];
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-        auto& bindingDescription = setLayout.bindings[binding];
+      
 
         assert(
             bindingDescription.descriptorCount == 1 &&
@@ -184,9 +226,28 @@ namespace vkc {
         writes.push_back(write);
         return *this;
     }
+    VkcDescriptorWriter& VkcDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfos, uint32_t count) {
+        assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+        assert(setLayout.bindings.at(binding).descriptorCount >= count && "Too many image descriptors for binding");
+
+
+        variableDescriptorCount = count;
+        VkWriteDescriptorSet write{};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.dstBinding = binding;
+        write.dstArrayElement = 0;
+        write.descriptorType = setLayout.bindings[binding].descriptorType;
+        write.descriptorCount = count;
+        write.pImageInfo = imageInfos;
+        write.pBufferInfo = nullptr;
+        write.pTexelBufferView = nullptr;
+
+        writes.push_back(write);
+        return *this;
+    }
 
     bool VkcDescriptorWriter::build(VkDescriptorSet& set) {
-        bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
+        bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set, variableDescriptorCount);
         if (!success) {
             return false;
         }

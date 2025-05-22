@@ -11,6 +11,11 @@ namespace vkc {
 
 #define MAX_LIGHTS 10
 
+	struct Material
+	{
+		uint32_t textureIndex;
+	};
+
 	struct PointLight 
 	{
 		glm::vec4 position{};  // ignore w

@@ -82,7 +82,8 @@ foreach(SHADER_FILE ${SHADER_FILES})
     add_custom_command(
         OUTPUT ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
         COMMAND ${CMAKE_COMMAND} -E echo "Compiling shader: ${FILE_NAME}"
-        COMMAND glslangValidator -V ${SHADER_FILE} -o ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
+       COMMAND glslangValidator -V --target-env vulkan1.3 ${SHADER_FILE} -o ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
+
         DEPENDS ${SHADER_FILE}
         COMMENT "Compiling ${FILE_NAME} to SPIR-V"
     )

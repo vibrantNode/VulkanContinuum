@@ -57,7 +57,7 @@ namespace vkc
 
 		TransformComponent transform;
 		glm::vec3 color{};
-
+		int textureIndex = 0;
 		std::shared_ptr<VkcModel> model{};
 		
 		std::unique_ptr<PointLightComponent> pointLight = nullptr;

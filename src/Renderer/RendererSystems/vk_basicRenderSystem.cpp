@@ -18,7 +18,7 @@ namespace vkc {
 	struct SimplePushConstantData {
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
-		int textureIndex;
+		glm::vec4 extra; // .x = texIndex;
 	};
 
 
@@ -97,9 +97,11 @@ namespace vkc {
 
 		for (auto& kv : frameInfo.gameObjects) {
 			auto& obj = kv.second;
+
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
+			push.extra = glm::vec4(static_cast<float>(obj.textureIndex), 0, 0, 0);
 
 			vkCmdPushConstants(
 				frameInfo.commandBuffer,

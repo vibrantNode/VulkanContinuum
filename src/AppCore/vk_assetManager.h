@@ -23,6 +23,7 @@ namespace vkc {
         std::shared_ptr<VkcModel> getModel(const std::string& modelName);
         std::shared_ptr<VkcTexture> loadTexture(const std::string& textureName, const std::string& filename);
         std::shared_ptr < VkcTexture> getTexture(const std::string& textureName);
+        std::vector<std::shared_ptr<VkcTexture>> getAllTextures()const;
     private:
         std::unordered_map<std::string, std::shared_ptr<VkcModel>> modelCache;
         std::unordered_map<std::string, std::shared_ptr<VkcTexture>> textureCache;

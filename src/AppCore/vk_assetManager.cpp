@@ -18,6 +18,7 @@ namespace vkc {
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
         loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
+        loadTexture("texture2", PROJECT_ROOT_DIR "/res/textures/container2.png");
      
     }
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(const std::string& textureName, const std::string& filepath)
@@ -46,7 +47,7 @@ namespace vkc {
     std::shared_ptr<VkcModel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath) 
     {
         // Check if the model is already loaded
-        auto it = modelCache.find(filepath);
+        auto it = modelCache.find(modelName);
         if (it != modelCache.end()) {
             return it->second;
         }
@@ -76,5 +77,12 @@ namespace vkc {
         else {
             throw std::runtime_error("Texture not found in cache: " + filename);
         }
+    }
+    std::vector<std::shared_ptr<VkcTexture>> AssetManager::getAllTextures() const {
+        std::vector<std::shared_ptr<VkcTexture>> textures;
+        for (const auto& [key, texture] : textureCache) {
+            textures.push_back(texture);
+        }
+        return textures;
     }
 }

@@ -85,7 +85,7 @@ void VkcDevice::createInstance()
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.pEngineName = "No Engine";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.apiVersion = VK_API_VERSION_1_0;
+  appInfo.apiVersion = VK_API_VERSION_1_3;
 
   VkInstanceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -140,6 +140,7 @@ void VkcDevice::pickPhysicalDevice()
   std::cout << "physical device: " << properties.deviceName << std::endl;
 }
 
+
 void VkcDevice::createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -155,32 +156,36 @@ void VkcDevice::createLogicalDevice() {
         queueCreateInfo.pQueuePriorities = &queuePriority;
         queueCreateInfos.push_back(queueCreateInfo);
     }
+    // --- Descriptor Indexing Features (Vulkan 1.2, still needed in 1.3) ---
+    VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
+    indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+    indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+    indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    indexingFeatures.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+    indexingFeatures.runtimeDescriptorArray = VK_TRUE;
+    indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
-    // Setup descriptor indexing features struct
-    VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures{};
-    descriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-    descriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
-    descriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
-    descriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
-    descriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-    descriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+    // --- Vulkan 1.3 Features ---
+    VkPhysicalDeviceVulkan13Features vulkan13Features{};
+    vulkan13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    vulkan13Features.dynamicRendering = VK_TRUE;
+    vulkan13Features.synchronization2 = VK_TRUE;
+    vulkan13Features.maintenance4 = VK_TRUE;
+    vulkan13Features.pNext = nullptr;
+    // --- Link pNext chain correctly ---
+    indexingFeatures.pNext = &vulkan13Features;
 
-    // Setup features2 struct and chain descriptorIndexingFeatures via pNext
-    VkPhysicalDeviceFeatures2 deviceFeatures2{};
-    deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    deviceFeatures2.features.samplerAnisotropy = VK_TRUE;
-    deviceFeatures2.pNext = &descriptorIndexingFeatures;
-
-    // Query the device features (optional, you may want to check or override)
-    vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
+    VkPhysicalDeviceFeatures2 features2{};
+    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features2.features.samplerAnisotropy = VK_TRUE;
+    features2.pNext = &indexingFeatures;
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pNext = &deviceFeatures2; // Chain features2 here
+    createInfo.pNext = &features2;
+
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-    createInfo.pEnabledFeatures = nullptr; // Must be null when using pNext chaining
 
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
@@ -193,6 +198,9 @@ void VkcDevice::createLogicalDevice() {
         createInfo.enabledLayerCount = 0;
     }
 
+    // Vulkan 1.3 uses features2 chain; no need to use pEnabledFeatures
+    createInfo.pEnabledFeatures = nullptr;
+
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create logical device!");
     }
@@ -200,6 +208,8 @@ void VkcDevice::createLogicalDevice() {
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
 }
+
+
 
 
 void VkcDevice::createCommandPool() 
@@ -232,6 +242,7 @@ bool VkcDevice::isDeviceSuitable(VkPhysicalDevice device) {
 
   VkPhysicalDeviceFeatures supportedFeatures;
   vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
 
   return indices.isComplete() && extensionsSupported && swapChainAdequate &&
          supportedFeatures.samplerAnisotropy;
@@ -323,6 +334,7 @@ void VkcDevice::hasGflwRequiredInstanceExtensions()
       throw std::runtime_error("Missing required glfw extension");
     }
   }
+
 }
 
 bool VkcDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) 

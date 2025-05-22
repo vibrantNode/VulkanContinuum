@@ -127,7 +127,7 @@ namespace vkc {
         {
             auto pointLight = VkcGameObject::makePointLight(0.2f);
             pointLight.color = lightColors[i];
-            pointLight.pointLight->lightIntensity = .8f;
+            pointLight.pointLight->lightIntensity = 3.8f;
             auto rotateLight = glm::rotate(
                 glm::mat4(1.f),
                 (i * glm::two_pi<float>()) / lightColors.size(),

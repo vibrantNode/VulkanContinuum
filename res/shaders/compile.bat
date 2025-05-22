@@ -1,4 +1,3 @@
-
 @echo off
 setlocal
 
@@ -11,16 +10,19 @@ set OUTPUT_DIR=SpirV
 :: Create the output directory if it doesn't exist
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 
-:: Compile all .vert files
+:: Use Vulkan 1.2 target (or 1.3 if you're enabling dynamic indexing)
+set GLSL_FLAGS=-V --target-env vulkan1.2
+
+:: Compile .vert
 for %%f in (*.vert) do (
     echo Compiling %%f...
-    "%GLSLANG%" -V "%%f" -o "%OUTPUT_DIR%/%%~nf.vert.spv"
+    "%GLSLANG%" %GLSL_FLAGS% "%%f" -o "%OUTPUT_DIR%/%%~nf.vert.spv"
 )
 
-:: Compile all .frag files
+:: Compile .frag
 for %%f in (*.frag) do (
     echo Compiling %%f...
-    "%GLSLANG%" -V "%%f" -o "%OUTPUT_DIR%/%%~nf.frag.spv"
+    "%GLSLANG%" %GLSL_FLAGS% "%%f" -o "%OUTPUT_DIR%/%%~nf.frag.spv"
 )
 
 echo.
