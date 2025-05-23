@@ -138,32 +138,36 @@ namespace vkc {
             descriptorPool = VK_NULL_HANDLE;
         }
     }
-
-    bool VkcDescriptorPool::allocateDescriptor(const 
-        VkDescriptorSetLayout descriptorSetLayout,
+    bool VkcDescriptorPool::allocateDescriptor(
+        const VkDescriptorSetLayout descriptorSetLayout,
         VkDescriptorSet& descriptor,
         uint32_t variableDescriptorCount
-    ) 
-        const {
-        VkDescriptorSetVariableDescriptorCountAllocateInfo countInfo{};
-        countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
-        countInfo.descriptorSetCount = 1;
-        countInfo.pDescriptorCounts = &variableDescriptorCount;
-
+    ) const {
+        // Set up allocation info
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.descriptorSetCount = 1;
         allocInfo.pSetLayouts = &descriptorSetLayout;
-        allocInfo.pNext = &countInfo;
 
-        // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
-        // a new pool whenever an old pool fills up. But this is beyond our current scope
+        // Optional variable descriptor count extension
+        VkDescriptorSetVariableDescriptorCountAllocateInfo countInfo{};
+        if (variableDescriptorCount > 0) {
+            countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+            countInfo.descriptorSetCount = 1;
+            countInfo.pDescriptorCounts = &variableDescriptorCount;
+
+            allocInfo.pNext = &countInfo; // chain if used
+        }
+
+        // Try to allocate
         if (vkAllocateDescriptorSets(vkcDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS) {
             return false;
         }
+
         return true;
     }
+
 
     void VkcDescriptorPool::freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const {
         vkFreeDescriptorSets(
@@ -248,9 +252,7 @@ namespace vkc {
 
     bool VkcDescriptorWriter::build(VkDescriptorSet& set) {
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set, variableDescriptorCount);
-        if (!success) {
-            return false;
-        }
+        if (!success) return false;
         overwrite(set);
         return true;
     }

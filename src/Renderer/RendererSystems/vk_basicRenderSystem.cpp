@@ -14,25 +14,65 @@
 #include <stdexcept>
 
 
-namespace vkc {
+namespace vkc 
+{
+
 	struct SimplePushConstantData {
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
-		glm::vec4 extra; // .x = texIndex;
+		int textureIndex;
 	};
 
-
 	SimpleRenderSystem::SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
-		: vkcDevice{ device } 
+		: vkcDevice{ device }
 	{
 		createPipelineLayout(globalSetLayout);
 		createPipeline(renderPass);
 
 	}
 
-	SimpleRenderSystem::~SimpleRenderSystem() 
+	SimpleRenderSystem::~SimpleRenderSystem()
 	{
 		vkDestroyPipelineLayout(vkcDevice.device(), pipelineLayout, nullptr);
+	}
+
+
+
+	void SimpleRenderSystem::render(FrameInfo& frameInfo)
+	{
+
+		vkcPipeline->bind(frameInfo.commandBuffer);
+		vkCmdBindDescriptorSets(
+			frameInfo.commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineLayout,
+			0, 1,
+			&frameInfo.globalDescriptorSet,
+			0, nullptr
+		);
+
+		for (auto& kv : frameInfo.gameObjects) {
+			auto& obj = kv.second;
+
+			SimplePushConstantData push{};
+			push.modelMatrix = obj.transform.mat4();
+			push.normalMatrix = obj.transform.normalMatrix();
+			push.textureIndex = obj.textureIndex;
+
+			vkCmdPushConstants(
+				frameInfo.commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(SimplePushConstantData),
+				&push);
+			if (obj.model) {
+				obj.model->bind(frameInfo.commandBuffer);
+				obj.model->draw(frameInfo.commandBuffer);
+			}
+
+		}
+
 	}
 
 
@@ -82,40 +122,5 @@ namespace vkc {
 	}
 
 
-	void SimpleRenderSystem::render(FrameInfo& frameInfo) 
-	{
-
-		vkcPipeline->bind(frameInfo.commandBuffer);
-		vkCmdBindDescriptorSets(
-			frameInfo.commandBuffer,
-			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineLayout,
-			0, 1,
-			&frameInfo.globalDescriptorSet,
-			0, nullptr
-		);
-
-		for (auto& kv : frameInfo.gameObjects) {
-			auto& obj = kv.second;
-
-			SimplePushConstantData push{};
-			push.modelMatrix = obj.transform.mat4();
-			push.normalMatrix = obj.transform.normalMatrix();
-			push.extra = glm::vec4(static_cast<float>(obj.textureIndex), 0, 0, 0);
-
-			vkCmdPushConstants(
-				frameInfo.commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(SimplePushConstantData),
-				&push);
-			if (obj.model) {
-				obj.model->bind(frameInfo.commandBuffer);
-				obj.model->draw(frameInfo.commandBuffer);
-			}
-		
-		}
-		
-	}
+	
 }// namespace vkc

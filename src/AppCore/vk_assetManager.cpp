@@ -19,6 +19,7 @@ namespace vkc {
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
         loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
         loadTexture("texture2", PROJECT_ROOT_DIR "/res/textures/container2.png");
+        loadTexture("texture3", PROJECT_ROOT_DIR "/res/textures/stoneWall.jpg");
      
     }
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(const std::string& textureName, const std::string& filepath)

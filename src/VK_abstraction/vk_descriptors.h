@@ -119,6 +119,6 @@ namespace vkc
         VkcDescriptorSetLayout& setLayout;
         VkcDescriptorPool& pool;
         std::vector<VkWriteDescriptorSet> writes;
-   
+        uint32_t variableDescriptorCount = 0;
     };
 }// namespace vkc

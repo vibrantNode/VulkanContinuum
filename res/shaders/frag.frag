@@ -1,10 +1,8 @@
 #version 450
-//#extension GL_KHR_vulkan_glsl : enable
-
 #extension GL_EXT_nonuniform_qualifier : enable
 
 
-layout(set = 0, binding = 2) uniform sampler2D textures[];
+layout(set = 0, binding = 1) uniform sampler2D textures[];
 
 layout(location = 4) flat in int inTexIndex;
 
@@ -40,7 +38,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 layout(push_constant) uniform Push {
   mat4 modelMatrix;
   mat4 normalMatrix;
-
+  int textureIndex;
 } push;
 
 void main() {
@@ -70,9 +68,6 @@ void main() {
   }
 
   vec4 textureColor = texture(textures[nonuniformEXT(inTexIndex)], fragUV);
-
-
-
 
   // Combine lighting with texture color (modulate texture with lighting)
   vec3 finalColor = (diffuseLight + specularLight) * textureColor.rgb;

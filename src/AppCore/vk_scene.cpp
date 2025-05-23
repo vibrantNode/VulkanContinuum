@@ -82,6 +82,7 @@ namespace vkc {
         floor.model = floorModel;
         floor.transform.translation = { 0.f, .5f, 0.f };
         floor.transform.scale = { 9.f, 9.f, 9.f };
+        floor.textureIndex = 0;
         gameObjects.emplace(floor.getId(), std::move(floor));
 
         auto flatVaseModel = assetManager.getModel("flat_vase");
@@ -89,6 +90,7 @@ namespace vkc {
         flatVase.model = flatVaseModel;
         flatVase.transform.translation = { -0.5f, 0.5f, 0.0f };
         flatVase.transform.scale = { 3.0f, 1.5f, 3.0f };
+        flatVase.textureIndex = 0;
         gameObjects.emplace(flatVase.getId(), std::move(flatVase));
 
         auto smoothVaseModel = assetManager.getModel("smooth_vase");
@@ -103,6 +105,7 @@ namespace vkc {
         woodBarrel.model = woodBarrelModel;
         woodBarrel.transform.translation = { 1.f, -.4f, -1.5f };
         woodBarrel.transform.scale = { 1.f, 1.f, 1.f };
+        woodBarrel.textureIndex = 1;
         gameObjects.emplace(woodBarrel.getId(), std::move(woodBarrel));
 
         auto stoneSphereModel = assetManager.getModel("stone_sphere");
@@ -110,6 +113,7 @@ namespace vkc {
         stoneSphere.model = stoneSphereModel;
         stoneSphere.transform.translation = { 1.0f, 0.f, 2.f };
         stoneSphere.transform.scale = { .5f, .5f, .5f };
+        stoneSphere.textureIndex = 2;
         gameObjects.emplace(stoneSphere.getId(), std::move(stoneSphere));
         
  

@@ -41,13 +41,10 @@ namespace vkc {
     Application::~Application() 
     {
     }
-    void Application::RunApp() 
+    void Application::RunApp()
     {
-       
 
-        auto allTextures = _assetManager.getAllTextures();
-        std::vector<VkDescriptorImageInfo> imageInfos;
-        imageInfos.reserve(allTextures.size());
+
 
         std::vector<std::unique_ptr<VkcBuffer>> uboBuffers(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
@@ -63,6 +60,12 @@ namespace vkc {
             uboBuffers[i]->map();
         }
 
+        auto allTextures = _assetManager.getAllTextures();
+        std::vector<VkDescriptorImageInfo> imageInfos;
+        imageInfos.reserve(allTextures.size());
+
+
+
         for (auto& tex : allTextures) {
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -71,21 +74,23 @@ namespace vkc {
             imageInfos.push_back(imageInfo);
         }
 
-       auto globalSetLayout = VkcDescriptorSetLayout::Builder(_device)
+
+
+        auto globalSetLayout = VkcDescriptorSetLayout::Builder(_device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-           .addBinding(
-               2,
-               VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-               VK_SHADER_STAGE_FRAGMENT_BIT,
-               static_cast<uint32_t>(imageInfos.size()),
-               VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT
+            //.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(
+                1,
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                VK_SHADER_STAGE_FRAGMENT_BIT,
+                static_cast<uint32_t>(imageInfos.size()),
+                VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
+                VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT
            )
 
             .build();
 
      
-  
 
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -94,8 +99,8 @@ namespace vkc {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             VkcDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
-                .writeImage(1, &imageInfos[0], 1)
-                .writeImage(2, imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
+                //.writeImage(1, &imageInfos[1], 1)
+                .writeImage(1, imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
                 .build(globalDescriptorSets[i]);
         }
 
