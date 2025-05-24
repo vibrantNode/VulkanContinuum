@@ -36,16 +36,13 @@ namespace vkc {
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
             .build();
         _assetManager.preloadGlobalAssets();
-        _scene.loadSceneData("DefaultScene");
+        _scene.loadSceneData("Level1");
     }
     Application::~Application() 
     {
     }
     void Application::RunApp()
     {
-
-
-
         std::vector<std::unique_ptr<VkcBuffer>> uboBuffers(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<VkcBuffer>
@@ -64,8 +61,6 @@ namespace vkc {
         std::vector<VkDescriptorImageInfo> imageInfos;
         imageInfos.reserve(allTextures.size());
 
-
-
         for (auto& tex : allTextures) {
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -74,11 +69,11 @@ namespace vkc {
             imageInfos.push_back(imageInfo);
         }
 
-
-
         auto globalSetLayout = VkcDescriptorSetLayout::Builder(_device)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            //.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(
+                0,
+                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS
+            )
             .addBinding(
                 1,
                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -87,11 +82,7 @@ namespace vkc {
                 VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
                 VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT
            )
-
             .build();
-
-     
-
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) 
@@ -99,7 +90,6 @@ namespace vkc {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             VkcDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
-                //.writeImage(1, &imageInfos[1], 1)
                 .writeImage(1, imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
                 .build(globalDescriptorSets[i]);
         }

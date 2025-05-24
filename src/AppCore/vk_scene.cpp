@@ -183,6 +183,7 @@ namespace vkc {
         lvl1FlatVase.model = lvl1FlatVaseModel;
         lvl1FlatVase.transform.translation = { -0.5f, 0.5f, 0.0f };
         lvl1FlatVase.transform.scale = { 3.0f, 1.5f, 3.0f };
+        lvl1FlatVase.textureIndex = 2;
         gameObjects.emplace(lvl1FlatVase.getId(), std::move(lvl1FlatVase));
 
         auto lvl1SmoothVaseModel = assetManager.getModel("smooth_vase");
@@ -190,6 +191,7 @@ namespace vkc {
         lvl1SmoothVase.model = lvl1SmoothVaseModel;
         lvl1SmoothVase.transform.translation = { .5f, .5f, 0.f };
         lvl1SmoothVase.transform.scale = { 3.f, 1.5f, 3.f };
+        lvl1SmoothVase.textureIndex = 2;
         gameObjects.emplace(lvl1SmoothVase.getId(), std::move(lvl1SmoothVase));
 
         auto lvl1WoodBarrelModel = assetManager.getModel("barrel");
@@ -197,6 +199,7 @@ namespace vkc {
         lvl1WoodBarrel.model = lvl1WoodBarrelModel;
         lvl1WoodBarrel.transform.translation = { 1.f, -.4f, -1.5f };
         lvl1WoodBarrel.transform.scale = { 1.f, 1.f, 1.f };
+        lvl1WoodBarrel.textureIndex = 1;
         gameObjects.emplace(lvl1WoodBarrel.getId(), std::move(lvl1WoodBarrel));
 
         auto lvl1StoneSphereModel = assetManager.getModel("stone_sphere");
@@ -204,6 +207,7 @@ namespace vkc {
         lvl1StoneSphere.model = lvl1StoneSphereModel;
         lvl1StoneSphere.transform.translation = { 0.f, 1.f, 0.f };
         lvl1StoneSphere.transform.scale = { 10.5f, .5f, 10.5f };
+        lvl1StoneSphere.textureIndex = 0;
         gameObjects.emplace(lvl1StoneSphere.getId(), std::move(lvl1StoneSphere));
 
         // Add colored point lights
@@ -219,7 +223,7 @@ namespace vkc {
         {
             auto pointLights = VkcGameObject::makePointLight(0.2f);
             pointLights.color = lvl1LightColor[i];
-            pointLights.pointLight->lightIntensity = 1.0f;
+            pointLights.pointLight->lightIntensity = 6.0f;
             auto rotateLight = glm::rotate(
                 glm::mat4(1.f),
                 (i * glm::two_pi<float>()) / lvl1LightColor.size(),

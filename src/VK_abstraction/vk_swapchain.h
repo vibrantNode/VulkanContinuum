@@ -85,11 +85,12 @@ namespace vkc
         VkSwapchainKHR swapChain;
         std::shared_ptr<VkcSwapChain> oldSwapChain;
 
-        std::vector<VkSemaphore> imageAvailableSemaphores;
-        std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> inFlightFences;
-        std::vector<VkFence> imagesInFlight;
-        size_t currentFrame = 0;
+        size_t                  swapChainImageCount = 0;
+        std::vector<VkSemaphore> imageAvailableSemaphores; // one per image
+        std::vector<VkSemaphore> renderFinishedSemaphores; // one per image
+        std::vector<VkFence>     inFlightFences;           // one per CPU-frame
+        std::vector<VkFence>     imagesInFlight;           // last-used fence per image
+        size_t                  currentFrame = 0;
     };
 
 }// namespace vkc

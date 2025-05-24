@@ -171,6 +171,7 @@ void VkcDevice::createLogicalDevice() {
     vulkan13Features.dynamicRendering = VK_TRUE;
     vulkan13Features.synchronization2 = VK_TRUE;
     vulkan13Features.maintenance4 = VK_TRUE;
+    vulkan13Features.robustImageAccess = VK_TRUE;
     vulkan13Features.pNext = nullptr;
     // --- Link pNext chain correctly ---
     indexingFeatures.pNext = &vulkan13Features;
