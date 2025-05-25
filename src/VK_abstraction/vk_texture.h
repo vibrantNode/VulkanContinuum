@@ -46,4 +46,24 @@ namespace vkc
 		uint32_t mipLevels = 1;
 		uint32_t layerCount = 1;
 	};
+
+
+
+	class VkcCubemapTexture
+	{
+	public:
+		VkcCubemapTexture(VkcDevice* device);
+		bool LoadFromFiles(const std::array<std::string, 6>& filepaths);
+		VkImageView GetImageView() const;
+		VkSampler GetSampler() const;
+
+	private:
+		VkcDevice* _device;
+		VkImage _image;
+		VkDeviceMemory _imageMemory;
+		VkImageView _imageView;
+		VkSampler _sampler;
+
+		void createCubemap(const std::array<std::string, 6>& filepaths);
+	};
 }

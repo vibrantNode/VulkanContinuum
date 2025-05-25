@@ -1,4 +1,3 @@
-// vk_basicRenerSystem.h
 #pragma once
 
 // Project headers
@@ -15,25 +14,21 @@
 
 
 
-namespace vkc {
-	class SimpleRenderSystem : public VkcRenderSystem {
+namespace vkc
+{
+	class SkyboxRenderSystem : public VkcRenderSystem
+	{
 	public:
-		SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-		~SimpleRenderSystem();
+		SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+		void render(FrameInfo& frameInfo, VkDescriptorSet skyboxDescriptorSet);
 
-		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
-		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
-
-		void render(FrameInfo& frameInfo) override;
-	
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		VkcDevice& vkcDevice;
-
-
 		std::unique_ptr<VkcPipeline> vkcPipeline;
 		VkPipelineLayout pipelineLayout;
+
 	};
-}// namespace vkc
+}

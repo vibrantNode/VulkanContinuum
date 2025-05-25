@@ -170,4 +170,34 @@ namespace vkc
 	{
 		device->copyBufferToImage(buffer, image, width, height, layerCount);
 	}
+
+
+
+
+
+
+
+
+
+
+
+	// Cubemap
+	VkcCubemapTexture::VkcCubemapTexture(VkcDevice* device) : _device(device)
+	{
+	}
+	bool VkcCubemapTexture::LoadFromFiles(const std::array<std::string, 6>& filepaths)
+	{
+		return false;
+	}
+	VkImageView VkcCubemapTexture::GetImageView() const
+	{
+		return VkImageView();
+	}
+	VkSampler VkcCubemapTexture::GetSampler() const
+	{
+		return VkSampler();
+	}
+	void VkcCubemapTexture::createCubemap(const std::array<std::string, 6>& filepaths)
+	{
+	}
 }

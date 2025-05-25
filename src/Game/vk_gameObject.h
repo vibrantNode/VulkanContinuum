@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk_model.h"
+#include "VK_abstraction/vk_model.h"
 
 
 // libs

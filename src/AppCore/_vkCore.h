@@ -7,10 +7,12 @@
 #include "vma/vk_mem_alloc.h"
 #include "VK_abstraction/vk_device.h"
 #include "VK_abstraction/vk_descriptors.h"
-#include "VK_abstraction/vk_gameObject.h"
+#include "Game/vk_gameObject.h"
 #include "Renderer/vk_renderer.h"
 #include "vk_assetManager.h"
-#include "vk_scene.h"
+#include "Game/vk_scene.h"
+#include "Game/vk_game.h"
+#include "Renderer/RendererSystems/vk_renderSystemManager.h"
 
 namespace vkc {
 
@@ -28,22 +30,21 @@ namespace vkc {
 		void RunApp();
 
 	private:
-		//std::vector<std::unique_ptr<Scene>> scenes;
-		size_t activeSceneIndex = 0;
-		//AssetManager assetManager;
-	
 
 		// Private Members
 		VkWindow _window{ WIDTH, HEIGHT, "Vulkan window" };
 		VkcDevice _device{ _window };
 		Renderer _renderer{ _window, _device };
 		AssetManager _assetManager{ _device };
-		Scene _scene{ _device, _assetManager };
+		Game _game{ _device, _assetManager, _renderer };
+
+		RenderSystemManager _rsManager;
+
 
 		std::unique_ptr<VkcDescriptorPool> globalPool{};
 		
 		VkcGameObject::Map gameObjects;
-
+		
 
 	};
 

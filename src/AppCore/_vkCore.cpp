@@ -4,8 +4,8 @@
 #include "_vkCore.h"
 #include "VkBootstrap.h"
 #include "VK_abstraction/vk_buffer.h"
-#include "VK_abstraction/vk_camera.h"
-#include "VK_abstraction/vk_input.h"
+#include "Game/Camera/vk_camera.h"
+#include "Game/Input/vk_input.h"
 #include "Renderer/RendererSystems/vk_basicRenderSystem.h"
 #include "Renderer/RendererSystems/vk_pointLightSystem.h"
 
@@ -26,8 +26,10 @@
 #include <stdexcept>
 
 namespace vkc {
-    Application::Application() 
+    Application::Application()
     {
+
+        // Does this need to be abstracted? if so where?
         globalPool =
             VkcDescriptorPool::Builder(_device)
             .setMaxSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -35,14 +37,19 @@ namespace vkc {
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
             .build();
+
+        // ^*
         _assetManager.preloadGlobalAssets();
-        _scene.loadSceneData("Level1");
+
+     
+        _game.Init(_window.getGLFWwindow());
     }
     Application::~Application() 
     {
     }
     void Application::RunApp()
     {
+        // Does this need to be abstracted? if so where?
         std::vector<std::unique_ptr<VkcBuffer>> uboBuffers(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<VkcBuffer>
@@ -56,7 +63,9 @@ namespace vkc {
 
             uboBuffers[i]->map();
         }
+        // ^*
 
+        // The things below need to be abstracted
         auto allTextures = _assetManager.getAllTextures();
         std::vector<VkDescriptorImageInfo> imageInfos;
         imageInfos.reserve(allTextures.size());
@@ -74,7 +83,7 @@ namespace vkc {
                 0,
                 VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS
             )
-            .addBinding(
+            .addBinding(    
                 1,
                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                 VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -83,7 +92,7 @@ namespace vkc {
                 VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT
            )
             .build();
-
+      
         std::vector<VkDescriptorSet> globalDescriptorSets(VkcSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) 
         {
@@ -93,48 +102,17 @@ namespace vkc {
                 .writeImage(1, imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
                 .build(globalDescriptorSets[i]);
         }
+        // End of things that need to be abstracted*^
 
-        _scene.addRenderSystem(std::make_unique<SimpleRenderSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
-        _scene.addRenderSystem(std::make_unique<PointLightSystem>(_device, _renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()));
-
-        // Camera initialization logic
-        glm::vec3 cameraPos = glm::vec3(0.0f, .0f, -5.0f);
-        glm::vec3 target = glm::vec3(0.0f); // Look at origin
-        glm::vec3 direction = glm::normalize(target - cameraPos);
-
-        float initialYaw = glm::degrees(atan2(direction.x, direction.z));
-        float initialPitch = glm::degrees(asin(-direction.y));
-
-        // Adjust the yaw and pitch
-        initialYaw += .5f;
-        initialPitch += .0f;
-        
-        // fov and movement speed
-        float fov = 80.f;
-        float movementSpeed = 13.f;
-
-
-        VkcCamera camera(
-            cameraPos,
-            initialYaw,
-            initialPitch,
-            fov,
-            movementSpeed   
+        _rsManager.initialize(
+            _device,
+            _renderer.getSwapChainRenderPass(),
+            globalSetLayout->getDescriptorSetLayout()
         );
 
-        auto viewerObject = VkcGameObject::createGameObject();
-        viewerObject.transform.translation = cameraPos;
-        viewerObject.transform.rotation = glm::vec3(
-            glm::radians(initialPitch), // pitch
-            glm::radians(initialYaw),   // yaw
-            0.0f
-        );
+        // Push systems into the games scene
+        _rsManager.registerSystems(_game.getScene());
 
-
-        MNKController cameraController(0.1f, initialYaw, initialPitch);
-
-        glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSetWindowUserPointer(_window.getGLFWwindow(), &cameraController);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!_window.shouldClose()) {
@@ -144,35 +122,27 @@ namespace vkc {
             float frameTime =
                 std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
-
-            cameraController.handleMouseInput(_window.getGLFWwindow());
-            cameraController.updateLook(cameraController.getXOffset(), cameraController.getYOffset(), viewerObject);
-            cameraController.updateMovement(_window.getGLFWwindow(), frameTime, viewerObject);
-
-            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
-
-            float aspect = _renderer.getAspectRatio();
-            camera.setPerspectiveProjection(aspect, 0.1f, 100.f);
            
             if (auto commandBuffer = _renderer.beginFrame()) {
                 int frameIndex = _renderer.getFrameIndex();
 
-                FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], _scene.getGameObjects()};
+                FrameInfo frameInfo{
+                    frameIndex, frameTime, commandBuffer,
+                    _game.getPlayerCamera(), globalDescriptorSets[frameIndex],
+                    _game.getGameObjects()
+                };
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projection = camera.getProjection();
-                ubo.view = camera.getView();
-                ubo.inverseView = camera.getInverseView();
-          
-                _scene.update(frameInfo, ubo, frameTime);
+
+                _game.Update(frameInfo, ubo, frameTime);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 _renderer.beginSwapChainRenderPass(commandBuffer);
 
-                _scene.render(frameInfo);
+                _game.Render(frameInfo);
 
                 _renderer.endSwapChainRenderPass(commandBuffer);
                 _renderer.endFrame();

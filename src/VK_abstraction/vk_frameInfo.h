@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vk_camera.h"
-#include "vk_gameObject.h"
+#include "Game/Camera/vk_camera.h"
+#include "Game/vk_gameObject.h"
 
 // lib
 #include <vulkan/vulkan.h>
@@ -38,7 +38,7 @@ namespace vkc {
 		int frameIndex;
 		float frameTime;
 		VkCommandBuffer commandBuffer;
-		VkcCamera &camera;
+		const VkcCamera &camera;
 		VkDescriptorSet globalDescriptorSet;
 		VkcGameObject::Map &gameObjects;
 	};

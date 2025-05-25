@@ -32,19 +32,19 @@ add_executable(VKContinuum
         # vendor
         vendor/vkbootstrap/VkBootstrap.cpp 
         src/Renderer/RendererSystems/vk_basicRenderSystem.cpp 
-        src/VK_abstraction/vk_camera.cpp
+        "src/Game/Camera/vk_camera.cpp"
         src/VK_abstraction/vk_model.cpp
-        src/VK_abstraction/vk_gameObject.cpp
-        src/VK_abstraction/vk_input.cpp 
+        "src/Game/vk_gameObject.cpp"
+        "src/Game/Input/vk_input.cpp" 
         src/Renderer/RendererSystems/vk_pointLightSystem.cpp
         
         #src/Renderer/RendererSystems/vk_textureRenderSystem.cpp
         
-        "src/AppCore/vk_assetManager.cpp" "src/AppCore/vk_scene.cpp" 
-        #"src/Game/vk_player.cpp"
+        "src/AppCore/vk_assetManager.cpp" "src/Game/vk_scene.cpp" 
+        "src/Game/vk_player.cpp"
         #"src/Renderer/RendererSystems/vk_bindlessTextureManager.cpp" "src/Renderer/RendererSystems/vk_texture.cpp"
         "src/VK_abstraction/vk_texture.cpp"
-)
+ "src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp" "src/Game/vk_game.cpp" "src/Renderer/RendererSystems/vk_renderSystemManager.cpp")
 
 # Define PROJECT_ROOT_DIR for use in the code
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

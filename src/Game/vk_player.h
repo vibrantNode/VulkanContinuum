@@ -1,23 +1,34 @@
 // vk_player.h
 
 #pragma once
-#include "vk_component.h"
-#include "VK_abstraction/vk_camera.h"
-#include "VK_abstraction/vk_input.h"
+#include "Game/Camera/vk_camera.h"
+#include "Game/Input/vk_input.h"
+#include "Game/vk_gameObject.h"
+#include <glm/glm.hpp>
+
+
 
 namespace vkc {
 
-    class Player : public VkcGameObject {
+    class Player {
     public:
         Player(GLFWwindow* window);
 
+        void Init();
+
         void Update(float deltaTime);
 
-        std::shared_ptr<InputComponent> input;
-        std::shared_ptr<CameraComponent> camera;
+        //void handleInput();
 
+        const glm::mat4& getViewMatrix() const;
+        const glm::mat4& getProjectionMatrix() const;
+        VkcGameObject& getGameObject();
+        VkcCamera& GetCamera();
     private:
         GLFWwindow* _window;
+        VkcCamera camera;
+        VkcGameObject viewerObject;
+        MNKController controller;
     };
 
 }

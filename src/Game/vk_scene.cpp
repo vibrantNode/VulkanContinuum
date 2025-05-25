@@ -3,10 +3,10 @@
 // 
 // Project headers
 #include "vk_scene.h"
-#include "vk_assetManager.h"
+#include "AppCore/vk_assetManager.h"
 #include "Renderer/RendererSystems/vk_basicRenderSystem.h"
 #include "Renderer/RendererSystems/vk_pointLightSystem.h"
-#include "VK_abstraction/vk_camera.h"
+#include "Game/Camera/vk_camera.h"
 // External
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -25,6 +25,7 @@ namespace vkc {
 
     void Scene::loadSceneData(const std::string& sceneFile) 
     {
+
         std::cout << "Loading: " << sceneFile << std::endl;
         if (sceneFile == "DefaultScene") {
             loadDefaultScene();
@@ -39,6 +40,7 @@ namespace vkc {
 
     void Scene::update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime) 
     {
+    
         // Update camera or game object logic 
         for (auto& renderSystem : renderSystems) {
             renderSystem->update(frameInfo, ubo);
@@ -71,7 +73,6 @@ namespace vkc {
     void Scene::addPlayer(std::shared_ptr<Player> p)
     {
         player = std::move(p);
-        //addGameObject(player->getId(), *player;
     }
 
     void Scene::loadDefaultScene()
