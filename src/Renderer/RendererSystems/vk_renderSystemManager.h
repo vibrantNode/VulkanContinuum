@@ -3,6 +3,8 @@
 #include "Renderer/RendererSystems/vk_basicRenderSystem.h"
 #include "Renderer/RendererSystems/vk_pointLightSystem.h"
 #include "Game/vk_scene.h"
+#include "Renderer/vk_descriptorManager.h"
+
 
 namespace vkc {
 
@@ -11,7 +13,7 @@ namespace vkc {
         // Call once, after swapchain + descriptor‐layout exist
         void initialize(VkcDevice& device,
             VkRenderPass renderPass,
-            VkDescriptorSetLayout globalLayout);
+            const DescriptorLayouts& layouts);
 
         // Register all systems into a scene
         void registerSystems(Scene& scene);

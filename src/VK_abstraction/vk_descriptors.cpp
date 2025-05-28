@@ -186,7 +186,7 @@ namespace vkc {
     VkcDescriptorWriter::VkcDescriptorWriter(VkcDescriptorSetLayout& setLayout, VkcDescriptorPool& pool)
         : setLayout{ setLayout }, pool{ pool } {
     }
-    uint32_t variableDescriptorCount = 0;
+  
     VkcDescriptorWriter& VkcDescriptorWriter::writeBuffer(
         uint32_t binding, VkDescriptorBufferInfo* bufferInfo) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -208,9 +208,8 @@ namespace vkc {
         return *this;
     }
 
-    VkcDescriptorWriter& VkcDescriptorWriter::writeImage(
-        uint32_t binding, VkDescriptorImageInfo* imageInfo
-        ) {
+    VkcDescriptorWriter& VkcDescriptorWriter::writeImage(uint32_t binding, const VkDescriptorImageInfo* imageInfo)
+    {
         auto& bindingDescription = setLayout.bindings[binding];
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
@@ -230,7 +229,7 @@ namespace vkc {
         writes.push_back(write);
         return *this;
     }
-    VkcDescriptorWriter& VkcDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfos, uint32_t count) {
+    VkcDescriptorWriter& VkcDescriptorWriter::writeImage(uint32_t binding, const VkDescriptorImageInfo* imageInfos, uint32_t count) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
         assert(setLayout.bindings.at(binding).descriptorCount >= count && "Too many image descriptors for binding");
 

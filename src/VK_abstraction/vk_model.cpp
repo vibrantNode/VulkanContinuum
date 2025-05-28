@@ -10,6 +10,7 @@
 #include <tiny_obj_loader.h>
 
 
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -21,42 +22,37 @@
 #include <unordered_set>
 
 
-
-namespace std 
+namespace std
 {
     template <>
     struct hash<vkc::VkcModel::Vertex> {
-        size_t operator()(vkc::VkcModel::Vertex const& vertex) const 
+        size_t operator()(vkc::VkcModel::Vertex const& vertex) const
         {
             size_t seed = 0;
             vkc::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
             return seed;
         }
     };
-}  // namespace std
+}
 
-
-namespace vkc 
+namespace vkc
 {
-    VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder) : vkcDevice{ device } 
+    VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder) : vkcDevice{ device }
     {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
-    VkcModel::~VkcModel() {
-    }
 
-    std::shared_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath) 
+    VkcModel::~VkcModel() {}
+
+    std::shared_ptr<VkcModel> VkcModel::createModelFromFile(VkcDevice& device, const std::string& filepath)
     {
         Builder builder{};
         builder.loadModel(filepath);
-
-
         return std::make_shared<VkcModel>(device, builder);
     }
 
-
-    void VkcModel::createVertexBuffers(const std::vector<Vertex>& vertices) 
+    void VkcModel::createVertexBuffers(const std::vector<Vertex>& vertices)
     {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
@@ -82,20 +78,14 @@ namespace vkc
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
 
-
         vkcDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
-
-
     }
 
-    void VkcModel::createIndexBuffers(const std::vector<uint32_t>& indices) 
+    void VkcModel::createIndexBuffers(const std::vector<uint32_t>& indices)
     {
         indexCount = static_cast<uint32_t>(indices.size());
         hasIndexBuffer = indexCount > 0;
-
-        if (!hasIndexBuffer) {
-            return;
-        }
+        if (!hasIndexBuffer) return;
 
         VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
         uint32_t indexSize = sizeof(indices[0]);
@@ -121,8 +111,7 @@ namespace vkc
         vkcDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     }
 
-
-    void VkcModel::draw(VkCommandBuffer commandBuffer) 
+    void VkcModel::draw(VkCommandBuffer commandBuffer)
     {
         if (hasIndexBuffer) {
             vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
@@ -132,7 +121,7 @@ namespace vkc
         }
     }
 
-    void VkcModel::bind(VkCommandBuffer commandBuffer) 
+    void VkcModel::bind(VkCommandBuffer commandBuffer)
     {
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
@@ -142,29 +131,29 @@ namespace vkc
             vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
-    std::vector<VkVertexInputBindingDescription> VkcModel::Vertex::getBindingDescriptions() 
+
+    std::vector<VkVertexInputBindingDescription> VkcModel::Vertex::getBindingDescriptions()
     {
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions(1, VkVertexInputBindingDescription{});
-
-        bindingDescriptions[0].binding = 0;
-        bindingDescriptions[0].stride = sizeof(Vertex);
-        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescriptions;
-    }
-    std::vector<VkVertexInputAttributeDescription> VkcModel::Vertex::getAttributeDescriptions() 
-    {
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-
-        attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
-        attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
-        attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
-        attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
-
-        return attributeDescriptions;
+        return {
+            VkVertexInputBindingDescription{
+                0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX
+            }
+        };
     }
 
+    std::vector<VkVertexInputAttributeDescription> VkcModel::Vertex::getAttributeDescriptions()
+    {
+        return {
+            { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) },
+            { 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) },
+            { 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) },
+            { 3, 0, VK_FORMAT_R32G32_SFLOAT,    offsetof(Vertex, uv) }
+        };
+    }
 
-    void VkcModel::Builder::loadModel(const std::string& filepath) 
+
+
+    void VkcModel::Builder::loadModel(const std::string& filepath)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;

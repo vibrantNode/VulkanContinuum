@@ -109,8 +109,8 @@ namespace vkc
         VkcDescriptorWriter(VkcDescriptorSetLayout& setLayout, VkcDescriptorPool& pool);
 
         VkcDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
-        VkcDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
-        VkcDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfos, uint32_t count);
+        VkcDescriptorWriter& writeImage(uint32_t binding, const VkDescriptorImageInfo* imageInfo);
+        VkcDescriptorWriter& writeImage(uint32_t binding, const VkDescriptorImageInfo* imageInfos, uint32_t count);
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);

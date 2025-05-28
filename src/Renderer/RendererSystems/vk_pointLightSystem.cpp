@@ -103,7 +103,7 @@ namespace vkc {
             1,
             &frameInfo.globalDescriptorSet,
             0,
-            nullptr);
+            nullptr); // Implement dynamic offset
 
         // iterate through sorted lights in reverse order
         for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
@@ -129,7 +129,7 @@ namespace vkc {
 
     void PointLightSystem::update(FrameInfo& frameInfo, GlobalUbo& ubo)
     {
-        auto rotateLight = glm::rotate(glm::mat4(1.f), 1.8f * frameInfo.frameTime, { 0.f, -1.f, 0.f });
+        auto rotateLight = glm::rotate(glm::mat4(1.f), rotationSpeed * frameInfo.frameTime, { 0.f, -1.f, 0.f });
         int lightIndex = 0;
         for (auto& kv : frameInfo.gameObjects) {
             auto& obj = kv.second;

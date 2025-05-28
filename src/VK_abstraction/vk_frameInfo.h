@@ -40,6 +40,7 @@ namespace vkc {
 		VkCommandBuffer commandBuffer;
 		const VkcCamera &camera;
 		VkDescriptorSet globalDescriptorSet;
+		VkDescriptorSet textureDescriptorSet;
 		VkcGameObject::Map &gameObjects;
 	};
 }// namespace vkc

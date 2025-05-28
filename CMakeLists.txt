@@ -1,56 +1,56 @@
-﻿cmake_minimum_required(VERSION "3.13")
+﻿cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-#set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-
-add_subdirectory("vendor/glfw")
-
-find_package (Vulkan REQUIRED)
+# Set project info early
 project(VKContinuum)
 set(CMAKE_CXX_STANDARD 17)
 
+# MSVC Runtime setting
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+# Vulkan SDK
 set(Vulkan_INCLUDE_DIR "C:/VulkanSDK/1.3.296.0/Include")
 set(Vulkan_LIBRARY "C:/VulkanSDK/1.3.296.0/Lib/vulkan-1.lib")
-include_directories(${Vulkan_INCLUDE_DIR}) 
+find_package(Vulkan REQUIRED)
+include_directories(${Vulkan_INCLUDE_DIR})
 
+# GLFW
+add_subdirectory("vendor/glfw")
+
+
+
+# Executable
 add_executable(VKContinuum
-        # src
-        src/main.cpp
-        "src/AppCore/_vkCore.cpp"
-        src/AppCore/vk_window.cpp 
+    src/main.cpp
+    src/AppCore/_vkCore.cpp
+    src/AppCore/vk_window.cpp
+    src/Renderer/vk_renderer.cpp
+    src/VK_abstraction/vk_initializers.cpp
+    src/VK_abstraction/vk_device.cpp
+    src/VK_abstraction/vk_swapchain.cpp
+    src/VK_abstraction/vk_descriptors.cpp
+    src/VK_abstraction/vk_pipeline.cpp
+    src/VK_abstraction/vk_buffer.h
+    src/VK_abstraction/vk_buffer.cpp
+    vendor/vkbootstrap/VkBootstrap.cpp
+    src/Renderer/RendererSystems/vk_basicRenderSystem.cpp
+    src/Game/Camera/vk_camera.cpp
+    src/VK_abstraction/vk_model.cpp
+    src/Game/vk_gameObject.cpp
+    src/Game/Input/vk_input.cpp
+    src/Renderer/RendererSystems/vk_pointLightSystem.cpp
+    src/AppCore/vk_assetManager.cpp
+    src/Game/vk_scene.cpp
+    src/Game/vk_player.cpp
+    src/VK_abstraction/vk_texture.cpp
+    src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp
+    src/Game/vk_game.cpp
+    src/Renderer/RendererSystems/vk_renderSystemManager.cpp
+ "src/Renderer/vk_descriptorManager.cpp")
 
-        src/Renderer/vk_renderer.cpp 
-
-        src/VK_abstraction/vk_initializers.cpp 
-        src/VK_abstraction/vk_device.cpp 
-        src/VK_abstraction/vk_swapchain.cpp 
-        src/VK_abstraction/vk_descriptors.cpp 
-        src/VK_abstraction/vk_pipeline.cpp 
-        src/VK_abstraction/vk_buffer.h 
-        src/VK_abstraction/vk_buffer.cpp
-
-        # vendor
-        vendor/vkbootstrap/VkBootstrap.cpp 
-        src/Renderer/RendererSystems/vk_basicRenderSystem.cpp 
-        "src/Game/Camera/vk_camera.cpp"
-        src/VK_abstraction/vk_model.cpp
-        "src/Game/vk_gameObject.cpp"
-        "src/Game/Input/vk_input.cpp" 
-        src/Renderer/RendererSystems/vk_pointLightSystem.cpp
-        
-        #src/Renderer/RendererSystems/vk_textureRenderSystem.cpp
-        
-        "src/AppCore/vk_assetManager.cpp" "src/Game/vk_scene.cpp" 
-        "src/Game/vk_player.cpp"
-        #"src/Renderer/RendererSystems/vk_bindlessTextureManager.cpp" "src/Renderer/RendererSystems/vk_texture.cpp"
-        "src/VK_abstraction/vk_texture.cpp"
- "src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp" "src/Game/vk_game.cpp" "src/Renderer/RendererSystems/vk_renderSystemManager.cpp")
-
-# Define PROJECT_ROOT_DIR for use in the code
+# Definitions
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-
-# Include Directories
+# Include paths
 target_include_directories(VKContinuum PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb"
@@ -63,16 +63,20 @@ target_include_directories(VKContinuum PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/ktx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/AppCore"
 )
 
-# Link vendor libs
+# Link libraries
 target_link_libraries(VKContinuum PRIVATE 
     ${Vulkan_LIBRARY} 
     glfw
 )
 
-# Shader Compilation
-file(GLOB SHADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*.vert" "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*.frag")
+# Shader compilation
+file(GLOB SHADER_FILES 
+    "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*.vert" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*.frag"
+)
 
 set(SPIRV_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/spirV")
 file(MAKE_DIRECTORY ${SPIRV_OUTPUT_DIR})
@@ -82,8 +86,7 @@ foreach(SHADER_FILE ${SHADER_FILES})
     add_custom_command(
         OUTPUT ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
         COMMAND ${CMAKE_COMMAND} -E echo "Compiling shader: ${FILE_NAME}"
-       COMMAND glslangValidator -V --target-env vulkan1.3 ${SHADER_FILE} -o ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
-
+        COMMAND glslangValidator -V --target-env vulkan1.3 ${SHADER_FILE} -o ${SPIRV_OUTPUT_DIR}/${FILE_NAME}.spv
         DEPENDS ${SHADER_FILE}
         COMMENT "Compiling ${FILE_NAME} to SPIR-V"
     )
@@ -91,6 +94,4 @@ foreach(SHADER_FILE ${SHADER_FILES})
 endforeach()
 
 add_custom_target(CompileShaders ALL DEPENDS ${SPIRV_BINARIES})
-
-# Ensure shaders are compiled before the VKContinuum executable
 add_dependencies(VKContinuum CompileShaders)

@@ -23,7 +23,7 @@ namespace vkc {
         const glm::mat4& getViewMatrix() const;
         const glm::mat4& getProjectionMatrix() const;
         VkcGameObject& getGameObject();
-        VkcCamera& GetCamera();
+        VkcCamera& getCamera();
     private:
         GLFWwindow* _window;
         VkcCamera camera;

@@ -9,7 +9,7 @@ namespace vkc
 
 	void Game::Init(GLFWwindow* window)
 	{
-		_scene.loadSceneData("Level1");
+		_scene.loadSceneData("DefaultScene");
 
 		_player = std::make_shared<Player>(window);
 		_player->Init();
@@ -20,7 +20,7 @@ namespace vkc
 	void Game::Update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime)
 	{
 		_player->Update(deltaTime);
-		_camera = _player->GetCamera();
+		_camera = _player->getCamera();
 		ubo.view = _camera.getView();
 		ubo.projection = _camera.getProjection();
 		ubo.inverseView = _camera.getInverseView();

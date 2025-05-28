@@ -79,7 +79,7 @@ namespace vkc {
         return viewerObject;
     }
 
-    VkcCamera& Player::GetCamera() {
+    VkcCamera& Player::getCamera() {
         return camera;
     }
 

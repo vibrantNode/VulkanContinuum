@@ -85,7 +85,7 @@ namespace vkc
 		imageInfo.extent.height = height;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
+		imageInfo.arrayLayers = 1;	
 		imageInfo.format = format;
 		imageInfo.tiling = tiling;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;

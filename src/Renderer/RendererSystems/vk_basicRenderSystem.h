@@ -8,6 +8,7 @@
 #include "VK_abstraction/vk_frameInfo.h"
 #include "Game/Camera/vk_camera.h"
 #include "Renderer/RendererSystems/vk_renderSystem.h"
+#include "Renderer/vk_descriptorManager.h"
 
 // STD
 #include <memory>
@@ -18,7 +19,7 @@
 namespace vkc {
 	class SimpleRenderSystem : public VkcRenderSystem {
 	public:
-		SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+		SimpleRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout textureSetLayout);
 		~SimpleRenderSystem();
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -27,10 +28,15 @@ namespace vkc {
 		void render(FrameInfo& frameInfo) override;
 	
 	private:
-		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout textureSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		VkcDevice& vkcDevice;
+
+		//DescriptorManager& _descriptorManager;
+
+		VkDescriptorSetLayout globalSetLayout;
+		VkDescriptorSetLayout textureSetLayout;
 
 
 		std::unique_ptr<VkcPipeline> vkcPipeline;

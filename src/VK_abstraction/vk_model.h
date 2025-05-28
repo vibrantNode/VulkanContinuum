@@ -1,7 +1,7 @@
 #pragma once
 #include "vk_device.h"
 #include "VK_abstraction/vk_buffer.h"
-
+#include "VK_abstraction/vk_texture.h"
 // libs
 #define GLM_FORCE_RADIANS	
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -11,15 +11,15 @@
 // std
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
-namespace vkc 
-{
 
-    class VkcModel
-    {
+
+namespace vkc {
+
+    class VkcModel {
     public:
-        struct Vertex 
-        {
+        struct Vertex {
             glm::vec3 position{};
             glm::vec3 color{};
             glm::vec3 normal{};
@@ -28,41 +28,40 @@ namespace vkc
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
-            bool operator==(const Vertex& other) const { return position == other.position && normal == other.normal && uv == other.uv; }
+            bool operator==(Vertex const& o) const {
+                return position == o.position &&
+                    normal == o.normal &&
+                    uv == o.uv;
+            }
         };
 
-        struct Builder 
-        {
+        struct Builder {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
 
             void loadModel(const std::string& filepath);
+
+     
         };
 
+        static std::shared_ptr<VkcModel> createModelFromFile(
+            VkcDevice& device, std::string const& filepath);
 
-
-
-        static std::shared_ptr<VkcModel> createModelFromFile(VkcDevice& device, const std::string& filepath);
-
-
-        VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder);
+        VkcModel(VkcDevice& device, Builder const& builder);
         ~VkcModel();
 
-        VkcModel(const VkcModel&) = delete;
-        void operator=(const VkcModel&) = delete;
+        VkcModel(VkcModel const&) = delete;
+        void operator=(VkcModel const&) = delete;
 
-        void draw(VkCommandBuffer commandBuffer);
         void bind(VkCommandBuffer commandBuffer);
+        void draw(VkCommandBuffer commandBuffer);
 
     private:
-        void createVertexBuffers(const std::vector<Vertex>& vertices);
-        void createIndexBuffers(const std::vector<uint32_t>& indices);
+        void createVertexBuffers(std::vector<Vertex> const& vertices);
+        void createIndexBuffers(std::vector<uint32_t> const& indices);
 
-        bool hasIndexBuffer = false;
         VkcDevice& vkcDevice;
-
-        
-
+        bool hasIndexBuffer{ false };
 
         std::unique_ptr<VkcBuffer> vertexBuffer;
         uint32_t vertexCount;
@@ -70,4 +69,5 @@ namespace vkc
         std::unique_ptr<VkcBuffer> indexBuffer;
         uint32_t indexCount;
     };
-}// namespace vkc
+
+} // namespace vkc

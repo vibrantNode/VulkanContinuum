@@ -1,26 +1,30 @@
 #include "vk_renderSystemManager.h"
 
+
 namespace vkc {
 
     void RenderSystemManager::initialize(VkcDevice& device,
         VkRenderPass renderPass,
-        VkDescriptorSetLayout globalLayout)
+        const DescriptorLayouts& layouts)
     {
-        // Build each system
         systems.push_back(std::make_unique<SimpleRenderSystem>(
-            device, renderPass, globalLayout));
+            device,
+            renderPass,
+            layouts.globalLayout,
+            layouts.textureLayout));
 
         systems.push_back(std::make_unique<PointLightSystem>(
-            device, renderPass, globalLayout));
+            device,
+            renderPass,
+            layouts.globalLayout));
 
-        // … later you can add shadow, postprocess, UI, etc.
     }
 
     void RenderSystemManager::registerSystems(Scene& scene) {
         for (auto& sys : systems) {
             scene.addRenderSystem(std::move(sys));
         }
-        systems.clear();  // ownership moved into scene
+        systems.clear(); 
     }
 
-}
+} // namespace vkc

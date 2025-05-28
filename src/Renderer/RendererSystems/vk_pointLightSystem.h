@@ -26,6 +26,8 @@ namespace vkc {
         void render(FrameInfo& frameInfo) override;
         void update(FrameInfo& framInfo, GlobalUbo& ubo) override;
 
+
+        void setRotationSpeed(float speed) { rotationSpeed = speed; }
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void createPipeline(VkRenderPass renderPass);
@@ -34,5 +36,7 @@ namespace vkc {
 
         std::unique_ptr<VkcPipeline> vkcPipeline;
         VkPipelineLayout pipelineLayout;
+
+        float rotationSpeed = .5f;
     };
 }// namespace vkc

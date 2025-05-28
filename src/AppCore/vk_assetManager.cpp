@@ -17,6 +17,7 @@ namespace vkc {
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
+        //loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/viking_room.obj");
         loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
         loadTexture("texture2", PROJECT_ROOT_DIR "/res/textures/container2.png");
         loadTexture("texture3", PROJECT_ROOT_DIR "/res/textures/stoneWall.jpg");

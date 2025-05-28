@@ -13,6 +13,8 @@
 #include "Game/vk_scene.h"
 #include "Game/vk_game.h"
 #include "Renderer/RendererSystems/vk_renderSystemManager.h"
+#include "Renderer/vk_descriptorManager.h"
+
 
 namespace vkc {
 
@@ -37,11 +39,9 @@ namespace vkc {
 		Renderer _renderer{ _window, _device };
 		AssetManager _assetManager{ _device };
 		Game _game{ _device, _assetManager, _renderer };
-
-		RenderSystemManager _rsManager;
-
-
-		std::unique_ptr<VkcDescriptorPool> globalPool{};
+		DescriptorManager _descriptorManager{ _device };
+		RenderSystemManager _renderSystemManager;
+		//std::unique_ptr<VkcDescriptorPool> globalPool{};
 		
 		VkcGameObject::Map gameObjects;
 		
