@@ -50,7 +50,10 @@ namespace vkc {
         _renderSystemManager.initialize(
             _device,
             _renderer.getSwapChainRenderPass(),
-            _descriptorManager.getAllLayouts()
+            _descriptorManager.getAllLayouts(),
+            _descriptorManager,
+            _assetManager
+
         );
 
         _renderSystemManager.registerSystems(_game.getScene());
@@ -76,6 +79,7 @@ namespace vkc {
                     _game.getPlayerCamera(),
                     _descriptorManager.getGlobalDescriptorSets()[frameIndex],
                     _descriptorManager.getTextureDescriptorSet(),
+                    _descriptorManager.getSkyboxDescriptorSet(),
                     _game.getGameObjects()
                 };
 
@@ -88,6 +92,7 @@ namespace vkc {
 
                 // render
                 _renderer.beginSwapChainRenderPass(commandBuffer);
+              
                 _game.Render(frameInfo);
                 _renderer.endSwapChainRenderPass(commandBuffer);
                 _renderer.endFrame();

@@ -49,6 +49,8 @@ namespace vkc {
      
     void Scene::render(FrameInfo& frameInfo) 
     {
+        //auto skyboxSet = _descriptorManager.getSkyboxDescriptorSet();
+        //skyboxSystem->render(frameInfo, skyboxSet);
         // Render scene
         for (auto& renderSystem : renderSystems) {
             renderSystem->render(frameInfo);
@@ -77,6 +79,13 @@ namespace vkc {
 
     void Scene::loadDefaultScene()
     {
+
+        auto skyboxModel = assetManager.getModel("cube");
+        auto skybox = VkcGameObject::createGameObject();
+        skybox.model = skyboxModel;
+        skybox.transform.scale = { 25.f, 25.f, 25.f };
+        gameObjects.emplace(skybox.getId(), std::move(skybox));
+
 
         auto floorModel = assetManager.getModel("quad");
         auto floor = VkcGameObject::createGameObject();

@@ -17,6 +17,8 @@ namespace vkc {
         addGlobalUniforms(config.maxFrames, config.uniformBufferSize);
         if (config.assetManager) {
             addBindlessTextures(*config.assetManager);
+
+            addSkyboxTextures(config.assetManager->getTexture("skybox"));
         }
         buildLayouts();
     }
@@ -35,6 +37,7 @@ namespace vkc {
         _imageInfos.reserve(_maxTextures);
 
         for (auto& tex : allTextures) {
+            if (tex->IsCubemap()) continue;
             VkDescriptorImageInfo info{};
             info.sampler = tex->GetSampler();
             info.imageView = tex->GetImageView();
@@ -44,24 +47,22 @@ namespace vkc {
 
         return *this;
     }
-    DescriptorManager& DescriptorManager::setupGlobalResources(
-        uint32_t maxFrames,
-        size_t uboSizeBytes,
-        const AssetManager& assetManager)
-    {
-        addGlobalUniforms(maxFrames, uboSizeBytes);
-        addBindlessTextures(assetManager);
-        buildLayouts();
+
+    DescriptorManager& DescriptorManager::addSkyboxTextures(const std::shared_ptr<VkcTexture>& tex) {
+        _skyboxImageInfo = {
+            tex->GetSampler(),
+            tex->GetImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
         return *this;
     }
-
 
     void DescriptorManager::buildLayouts() {
         // === Create Pool ===
         _pool = VkcDescriptorPool::Builder(_device)
-            .setMaxSets(_maxFrames + 1)  // frame sets + 1 texture set
+            .setMaxSets(_maxFrames + 2)  // frame sets + 1 texture set
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _maxFrames)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, _maxTextures)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, _maxTextures + 1)
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
             .build();
 
@@ -80,6 +81,16 @@ namespace vkc {
                 VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT |
                 VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
                 VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
+            .build();
+
+        // === Skybox Cubemap Layout ===
+        _skyboxLayout = VkcDescriptorSetLayout::Builder(_device)
+            .addBinding(
+                0,
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                VK_SHADER_STAGE_FRAGMENT_BIT,
+                1,
+                0)
             .build();
 
         // === UBO Buffers ===
@@ -109,6 +120,14 @@ namespace vkc {
         VkcDescriptorWriter(*_textureLayout, *_pool)
             .writeImage(0, _imageInfos.data(), static_cast<uint32_t>(_imageInfos.size()))
             .build(_textureDescriptorSet);
+
+        if (!VkcDescriptorWriter(*_skyboxLayout, *_pool)
+            .writeImage(0, &_skyboxImageInfo)
+            .build(_skyboxDescriptorSet))
+        {
+            throw std::runtime_error("Failed to allocate skybox descriptor set");
+        }
+
     }
 
 
@@ -159,6 +178,9 @@ namespace vkc {
 
     VkDescriptorSet DescriptorManager::getTextureDescriptorSet() const {
         return _textureDescriptorSet;
+    }
+    VkDescriptorSet DescriptorManager::getSkyboxDescriptorSet() const {
+        return _skyboxDescriptorSet;
     }
 
     const std::vector<std::unique_ptr<VkcBuffer>>& DescriptorManager::getUboBuffers() const {

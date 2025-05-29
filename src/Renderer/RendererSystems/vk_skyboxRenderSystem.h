@@ -14,21 +14,28 @@
 
 
 
-namespace vkc
-{
-	class SkyboxRenderSystem : public VkcRenderSystem
-	{
-	public:
-		SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-		void render(FrameInfo& frameInfo, VkDescriptorSet skyboxDescriptorSet);
+namespace vkc {
 
-	private:
-		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-		void createPipeline(VkRenderPass renderPass);
+    class SkyboxRenderSystem : public VkcRenderSystem {
+    public:
+        SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::shared_ptr<VkcModel> sbModel, VkDescriptorSetLayout skyboxLayout);
+        ~SkyboxRenderSystem();
 
-		VkcDevice& vkcDevice;
-		std::unique_ptr<VkcPipeline> vkcPipeline;
-		VkPipelineLayout pipelineLayout;
+        SkyboxRenderSystem(const SkyboxRenderSystem&) = delete;
+        SkyboxRenderSystem& operator=(const SkyboxRenderSystem&) = delete;
 
-	};
-}
+        // Call this inside your scene render loop, after global descriptors are bound
+        void render(FrameInfo& frameInfo) override;
+
+    private:
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout skyboxSetLayout);
+        void createPipeline(VkRenderPass renderPass);
+
+        std::shared_ptr<VkcModel> skyboxModel;
+        VkDescriptorSetLayout skyboxLayout;
+        VkcDevice& vkcDevice;
+        std::unique_ptr<VkcPipeline> vkcPipeline;
+        VkPipelineLayout pipelineLayout;
+    };
+
+} // namespace vkc

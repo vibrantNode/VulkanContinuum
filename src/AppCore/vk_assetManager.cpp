@@ -17,12 +17,40 @@ namespace vkc {
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
-        //loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/viking_room.obj");
+        loadModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
+       
+        loadCubemap("skybox", { {
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/right.png",
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/left.png",
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/top.png",
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/bot.png",
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/front.png",
+         PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/back.png"
+         } });
+
         loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
         loadTexture("texture2", PROJECT_ROOT_DIR "/res/textures/container2.png");
         loadTexture("texture3", PROJECT_ROOT_DIR "/res/textures/stoneWall.jpg");
      
     }
+
+    std::shared_ptr<VkcTexture> AssetManager::loadCubemap(
+        const std::string& name,
+        const std::array<std::string, 6>& faces)
+    {
+        auto it = textureCache.find(name);
+        if (it != textureCache.end())
+            return it->second;
+
+        auto texture = std::make_shared<VkcTexture>(&_device);
+        if (!texture->LoadCubemap(faces)) {
+            throw std::runtime_error("Failed to load cubemap: " + name);
+        }
+
+        textureCache[name] = texture;
+        return texture;
+    }
+
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(const std::string& textureName, const std::string& filepath)
     {
         // Check if texture is already loaded
@@ -70,7 +98,7 @@ namespace vkc {
             throw std::runtime_error("Model not found in cache: " + modelName);
         }
     }
-    std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& filename)
+    std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& filename) const
     {
         auto it = textureCache.find(filename);
         if (it != textureCache.end()) {

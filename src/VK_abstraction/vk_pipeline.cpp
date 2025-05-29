@@ -222,4 +222,13 @@ namespace vkc
 		configInfo.bindingDescriptions = VkcModel::Vertex::getBindingDescriptions();
 		configInfo.attributeDescriptions = VkcModel::Vertex::getAttributeDescriptions();
 	}
+
+	void VkcPipeline::defaultSkyboxConfigInfo(PipelineConfigInfo& configInfo)
+	{
+		defaultPipelineConfigInfo(configInfo);
+
+		configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
+		configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
+		configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	}
 }// namespace vkc

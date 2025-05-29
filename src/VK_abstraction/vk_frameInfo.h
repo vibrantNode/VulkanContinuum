@@ -41,6 +41,7 @@ namespace vkc {
 		const VkcCamera &camera;
 		VkDescriptorSet globalDescriptorSet;
 		VkDescriptorSet textureDescriptorSet;
+		VkDescriptorSet skyboxDescriptorSet;
 		VkcGameObject::Map &gameObjects;
 	};
 }// namespace vkc

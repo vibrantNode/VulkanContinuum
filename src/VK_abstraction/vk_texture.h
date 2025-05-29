@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <string>
 
+#include <array>
 namespace vkc
 {
 	class VkcDevice; // Forward declare your device wrapper
@@ -15,6 +16,8 @@ namespace vkc
 		~VkcTexture();
 
 		bool LoadFromFile(const std::string& filename);
+		bool LoadCubemap(const std::array<std::string, 6>& faceFilePaths);
+
 		void Destroy();
 		void UpdateDescriptor();
 
@@ -22,12 +25,25 @@ namespace vkc
 		VkSampler GetSampler() const { return sampler; }
 		VkImageView GetImageView() const { return view; }
 	private:
-		bool CreateImage(uint32_t width, uint32_t height, VkFormat format,
-			VkImageTiling tiling, VkImageUsageFlags usage,
-			VkMemoryPropertyFlags properties);
-		void CreateImageView(VkFormat format);
+		bool CreateImage(
+			uint32_t width, uint32_t height,
+			VkFormat format,
+			VkImageTiling tiling,
+			VkImageUsageFlags usage,
+			VkMemoryPropertyFlags properties,
+			uint32_t arrayLayers,
+			VkImageCreateFlags flags = 0);
+		void CreateImageView(
+			VkFormat format,
+			VkImageViewType viewType,
+			uint32_t layerCount);
+
 		void CreateSampler();
-		void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
+		void TransitionImageLayout(
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout,
+			uint32_t    layerCount);
+
 		void CopyBufferToImage(VkBuffer buffer, uint32_t width, uint32_t height, uint32_t layerCount);
 		VkDeviceMemory AllocateMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags properties);
 
@@ -45,25 +61,9 @@ namespace vkc
 		VkFormat format = VK_FORMAT_UNDEFINED;
 		uint32_t mipLevels = 1;
 		uint32_t layerCount = 1;
+
+		bool isCubemap{ false };
+		bool IsCubemap() const { return isCubemap; }   
 	};
 
-
-
-	class VkcCubemapTexture
-	{
-	public:
-		VkcCubemapTexture(VkcDevice* device);
-		bool LoadFromFiles(const std::array<std::string, 6>& filepaths);
-		VkImageView GetImageView() const;
-		VkSampler GetSampler() const;
-
-	private:
-		VkcDevice* _device;
-		VkImage _image;
-		VkDeviceMemory _imageMemory;
-		VkImageView _imageView;
-		VkSampler _sampler;
-
-		void createCubemap(const std::array<std::string, 6>& filepaths);
-	};
 }

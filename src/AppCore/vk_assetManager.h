@@ -8,7 +8,7 @@
 
 // STD
 #include <unordered_map>
-
+#include <array>
 
 
 
@@ -17,12 +17,14 @@ namespace vkc {
     public:
         AssetManager(VkcDevice& device);
         std::shared_ptr<VkcModel> loadModel(const std::string& modelName, const std::string& filepath);
-        //loadShader(const std::string& vertexPath, const std::string& fragmentPath);
         void preloadGlobalAssets();
+    
+        std::shared_ptr<VkcTexture> loadCubemap(const std::string& name, const std::array<std::string, 6>& faces);
+        std::shared_ptr<VkcTexture> loadTexture(const std::string& textureName, const std::string& filename);
+
         // Getters
         std::shared_ptr<VkcModel> getModel(const std::string& modelName);
-        std::shared_ptr<VkcTexture> loadTexture(const std::string& textureName, const std::string& filename);
-        std::shared_ptr < VkcTexture> getTexture(const std::string& textureName);
+        std::shared_ptr < VkcTexture> getTexture(const std::string& textureName) const;
         std::vector<std::shared_ptr<VkcTexture>> getAllTextures()const;
     private:
         std::unordered_map<std::string, std::shared_ptr<VkcModel>> modelCache;

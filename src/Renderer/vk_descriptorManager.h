@@ -9,12 +9,13 @@ namespace vkc {
     struct DescriptorLayouts {
         VkDescriptorSetLayout globalLayout;
         VkDescriptorSetLayout textureLayout;
+        VkDescriptorSetLayout skyboxLayout;
     };
 
     struct DescriptorConfig {
         uint32_t maxFrames;
         size_t uniformBufferSize;
-        const AssetManager* assetManager;  // pointer or reference
+        const AssetManager* assetManager; 
         // Add other config params here as needed
     };
 
@@ -25,25 +26,14 @@ namespace vkc {
 
         void Initialize(const DescriptorConfig& config);
 
-        // Configure what this manager should support:
         DescriptorManager& addGlobalUniforms(uint32_t maxFrames, size_t uboSizeBytes);
         DescriptorManager& addBindlessTextures(const AssetManager& assetManager);
+        DescriptorManager& addSkyboxTextures(const std::shared_ptr<VkcTexture>& tex);
 
-        DescriptorManager& setupGlobalResources(
-            uint32_t maxFrames,
-            size_t uboSizeBytes,
-            const AssetManager& assetManager);
-
-
-        // Actually create the Vulkan objects:
         void buildLayouts();
 
         void createDescriptorSets();
 
-  
-     
-
-        // Allocate+update descriptor sets:
         std::vector<VkDescriptorSet> createFrameUniformSets();
         VkDescriptorSet              createTextureSet(
             const std::vector<VkDescriptorImageInfo>& infos);
@@ -56,6 +46,7 @@ namespace vkc {
         const std::vector<VkDescriptorSet>& getGlobalDescriptorSets() const;
 
         VkDescriptorSet getTextureDescriptorSet() const;
+        VkDescriptorSet getSkyboxDescriptorSet() const;
 
         const std::vector<std::unique_ptr<VkcBuffer>>& getUboBuffers() const;
 
@@ -64,6 +55,7 @@ namespace vkc {
         std::unique_ptr<VkcDescriptorPool>                   _pool;
         std::unique_ptr<VkcDescriptorSetLayout>              _globalLayout;
         std::unique_ptr<VkcDescriptorSetLayout>              _textureLayout;
+        std::unique_ptr<VkcDescriptorSetLayout>              _skyboxLayout;
 
         size_t                                               _uboSize           = 0;
    
@@ -75,6 +67,9 @@ namespace vkc {
         std::vector<VkDescriptorSet>                           _frameDescriptorSets;
         VkDescriptorSet                     _textureDescriptorSet{ VK_NULL_HANDLE };
         std::vector<VkDescriptorImageInfo>                              _imageInfos;
+        
+        VkDescriptorSet                                        _skyboxDescriptorSet;
+        VkDescriptorImageInfo                                      _skyboxImageInfo;
     };
 
 } // namespace vkc
