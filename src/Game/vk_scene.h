@@ -10,6 +10,9 @@
 #include "Renderer/RendererSystems/vk_renderSystem.h"
 #include "Game/vk_player.h"
 
+
+#include <optional>
+
 namespace vkc {
 	class Scene {
 
@@ -28,17 +31,20 @@ namespace vkc {
 			return (it != gameObjects.end()) ? &it->second : nullptr;
 		}
 
-	
 		// Misc
 		void addGameObject(uint32_t id, VkcGameObject obj);
 		void removeGameObject(uint32_t id);
 		void addPlayer(std::shared_ptr<Player> player);
+		void setSkyboxObject(VkcGameObject obj);
+		std::optional<std::reference_wrapper<VkcGameObject>> getSkyboxObject();
 	private:
 		VkcDevice& device;
 		VkcCamera activeCamera;
 		AssetManager& assetManager;
 		std::vector<std::unique_ptr<VkcRenderSystem>> renderSystems;
 		std::unordered_map <uint32_t, VkcGameObject> gameObjects;
+		std::optional<uint32_t> skyboxId;
+
 		std::shared_ptr<Player> player;
 
 

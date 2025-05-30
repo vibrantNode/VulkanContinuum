@@ -121,12 +121,10 @@ namespace vkc {
             .writeImage(0, _imageInfos.data(), static_cast<uint32_t>(_imageInfos.size()))
             .build(_textureDescriptorSet);
 
-        if (!VkcDescriptorWriter(*_skyboxLayout, *_pool)
+        // === Texture set (Skybox) ===
+        VkcDescriptorWriter(*_skyboxLayout, *_pool)
             .writeImage(0, &_skyboxImageInfo)
-            .build(_skyboxDescriptorSet))
-        {
-            throw std::runtime_error("Failed to allocate skybox descriptor set");
-        }
+            .build(_skyboxDescriptorSet);
 
     }
 
@@ -158,7 +156,8 @@ namespace vkc {
     {
         return DescriptorLayouts{
              _globalLayout ? _globalLayout->getDescriptorSetLayout() : VK_NULL_HANDLE,
-             _textureLayout ? _textureLayout->getDescriptorSetLayout() : VK_NULL_HANDLE
+             _textureLayout ? _textureLayout->getDescriptorSetLayout() : VK_NULL_HANDLE,
+             _skyboxLayout ? _skyboxLayout->getDescriptorSetLayout() : VK_NULL_HANDLE
         };
     }
 

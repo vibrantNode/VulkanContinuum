@@ -49,8 +49,6 @@ namespace vkc {
      
     void Scene::render(FrameInfo& frameInfo) 
     {
-        //auto skyboxSet = _descriptorManager.getSkyboxDescriptorSet();
-        //skyboxSystem->render(frameInfo, skyboxSet);
         // Render scene
         for (auto& renderSystem : renderSystems) {
             renderSystem->render(frameInfo);
@@ -60,6 +58,20 @@ namespace vkc {
     void Scene::addRenderSystem(std::unique_ptr<VkcRenderSystem> renderSystem) 
     {
         renderSystems.push_back(std::move(renderSystem));
+    }
+
+    void Scene::setSkyboxObject(VkcGameObject obj) {
+        skyboxId = obj.getId();
+        gameObjects.emplace(obj.getId(), std::move(obj));
+    }
+
+    std::optional<std::reference_wrapper<VkcGameObject>> Scene::getSkyboxObject() {
+        if (!skyboxId) return std::nullopt;
+        auto it = gameObjects.find(*skyboxId);
+        if (it != gameObjects.end()) {
+            return std::ref(it->second);
+        }
+        return std::nullopt;
     }
 
     void Scene::addGameObject(uint32_t id, VkcGameObject obj) 
@@ -81,10 +93,12 @@ namespace vkc {
     {
 
         auto skyboxModel = assetManager.getModel("cube");
+
         auto skybox = VkcGameObject::createGameObject();
         skybox.model = skyboxModel;
-        skybox.transform.scale = { 25.f, 25.f, 25.f };
-        gameObjects.emplace(skybox.getId(), std::move(skybox));
+
+        // Register to scene with special ID
+        setSkyboxObject(std::move(skybox));
 
 
         auto floorModel = assetManager.getModel("quad");

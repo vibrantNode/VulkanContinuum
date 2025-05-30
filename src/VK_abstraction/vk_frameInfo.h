@@ -2,9 +2,9 @@
 
 #include "Game/Camera/vk_camera.h"
 #include "Game/vk_gameObject.h"
-
 // lib
 #include <vulkan/vulkan.h>
+
 
 namespace vkc {
 
@@ -33,6 +33,7 @@ namespace vkc {
 		int numLights;
 	};
 
+	class Scene;
 	struct FrameInfo 
 	{
 		int frameIndex;
@@ -43,5 +44,6 @@ namespace vkc {
 		VkDescriptorSet textureDescriptorSet;
 		VkDescriptorSet skyboxDescriptorSet;
 		VkcGameObject::Map &gameObjects;
+		Scene* scene;
 	};
 }// namespace vkc

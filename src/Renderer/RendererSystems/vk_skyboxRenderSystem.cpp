@@ -13,9 +13,8 @@
 
 namespace vkc {
 
-    SkyboxRenderSystem::SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::shared_ptr<VkcModel> sbModel, VkDescriptorSetLayout skyboxLayout)
+    SkyboxRenderSystem::SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout skyboxLayout)
         : vkcDevice{ device },
-        skyboxModel{ sbModel },
         skyboxLayout{ skyboxLayout }
     {
         createPipelineLayout(globalSetLayout, skyboxLayout);
@@ -27,6 +26,12 @@ namespace vkc {
     }
 
     void SkyboxRenderSystem::render(FrameInfo& frameInfo) {
+
+        auto skyboxOpt = frameInfo.scene->getSkyboxObject();
+        if (!skyboxOpt.has_value()) return;
+
+        auto& skybox = skyboxOpt.value().get();
+
         // Bind the skybox pipeline
         vkcPipeline->bind(frameInfo.commandBuffer);
 
@@ -46,15 +51,18 @@ namespace vkc {
             0,
             nullptr
         );
-        // Ensure you have a Skybox model/mesh loaded separately and available
-        skyboxModel->bind(frameInfo.commandBuffer);
-        skyboxModel->draw(frameInfo.commandBuffer);
+        if (skybox.model)
+        {
+            skybox.model->bind(frameInfo.commandBuffer);
+            skybox.model->draw(frameInfo.commandBuffer);
+        }
+  
 
     }
 
     void SkyboxRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout skyboxSetLayout) {
         // Single descriptor set layout for global UBO (view/proj) and cubemap sampler
-        std::vector<VkDescriptorSetLayout> layouts = { globalSetLayout, /* skybox sampler layout */ };
+        std::vector<VkDescriptorSetLayout> layouts = { globalSetLayout, skyboxSetLayout};
 
         VkPipelineLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -75,6 +83,9 @@ namespace vkc {
 
         PipelineConfigInfo config{};
         VkcPipeline::defaultSkyboxConfigInfo(config);
+
+        //config.bindingDescriptions = VkcModel::SkyboxVertex::getBindingDescriptions();
+        //config.attributeDescriptions = VkcModel::SkyboxVertex::getAttributeDescriptions();
 
         config.renderPass = renderPass;
         config.pipelineLayout = pipelineLayout;

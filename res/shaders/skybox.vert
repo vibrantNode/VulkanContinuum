@@ -18,7 +18,8 @@ void main() {
     // Strip translation from the view matrix so the cube follows the camera
     mat4 rotView = mat4(mat3(ubo.view));
 
-    vec4 pos = rotView * vec4(position, 1.0);
+     vec4 pos = rotView * vec4(position * 100.0, 1.0); // exaggerate to test
+
     gl_Position = ubo.projection * pos;
     vTexCoords = position; // direction vector into the cubemap
 }

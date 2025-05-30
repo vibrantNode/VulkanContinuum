@@ -35,17 +35,24 @@ namespace vkc {
             }
         };
 
+        struct SkyboxVertex {
+            glm::vec3 position;
+            static std::vector<VkVertexInputBindingDescription>   getBindingDescriptions();
+            static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+        };
+
         struct Builder {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
 
-            void loadModel(const std::string& filepath);
+            void loadModel(const std::string& filepath, bool isSkybox = false);
 
+            bool                   isSkybox = false;
      
         };
 
         static std::shared_ptr<VkcModel> createModelFromFile(
-            VkcDevice& device, std::string const& filepath);
+            VkcDevice& device, std::string const& filepath, bool isSkybox = false);
 
         VkcModel(VkcDevice& device, Builder const& builder);
         ~VkcModel();
@@ -56,12 +63,15 @@ namespace vkc {
         void bind(VkCommandBuffer commandBuffer);
         void draw(VkCommandBuffer commandBuffer);
 
+
+        bool isSkybox() const { return isSkyboxModel; }
     private:
         void createVertexBuffers(std::vector<Vertex> const& vertices);
         void createIndexBuffers(std::vector<uint32_t> const& indices);
 
         VkcDevice& vkcDevice;
         bool hasIndexBuffer{ false };
+        bool isSkyboxModel{ false };
 
         std::unique_ptr<VkcBuffer> vertexBuffer;
         uint32_t vertexCount;
@@ -70,4 +80,6 @@ namespace vkc {
         uint32_t indexCount;
     };
 
+
 } // namespace vkc
+

@@ -22,17 +22,13 @@ namespace vkc {
             renderPass,
             layouts.globalLayout));
 
- /*       auto skyboxModel = assetManager.getModel("cube");
-        if (!skyboxModel) {
-            throw std::runtime_error("Skybox model 'cube' not found! Did you forget to load it?");
-        }
+  
         systems.push_back(std::make_unique<SkyboxRenderSystem>(
             device,
             renderPass,
             layouts.globalLayout,
-            skyboxModel,
             layouts.skyboxLayout
-        ));*/
+        ));
 
     }
 

@@ -17,7 +17,7 @@ namespace vkc {
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
-        loadModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
+        loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
        
         loadCubemap("skybox", { {
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/right.png",
@@ -50,6 +50,8 @@ namespace vkc {
         textureCache[name] = texture;
         return texture;
     }
+
+
 
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(const std::string& textureName, const std::string& filepath)
     {
@@ -84,6 +86,18 @@ namespace vkc {
 
         // Load the model and store it in the cache
         auto model = VkcModel::createModelFromFile(_device, filepath);
+        modelCache[modelName] = model;
+        return model;
+    }
+
+    std::shared_ptr<VkcModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
+    {
+        auto it = modelCache.find(modelName);
+        if (it != modelCache.end()) {
+            return it->second;
+        }
+
+        auto model = VkcModel::createModelFromFile(_device, filepath, true);
         modelCache[modelName] = model;
         return model;
     }

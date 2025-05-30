@@ -80,7 +80,8 @@ namespace vkc {
                     _descriptorManager.getGlobalDescriptorSets()[frameIndex],
                     _descriptorManager.getTextureDescriptorSet(),
                     _descriptorManager.getSkyboxDescriptorSet(),
-                    _game.getGameObjects()
+                    _game.getGameObjects(),
+                    &_game.getScene()
                 };
 
                 // update

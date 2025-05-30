@@ -5,8 +5,10 @@
 #include "VK_abstraction/vk_pipeline.h"
 #include "Game/vk_gameObject.h"
 #include "VK_abstraction/vk_frameInfo.h"
+#include "VK_abstraction/vk_model.h"
 #include "Game/Camera/vk_camera.h"
 #include "Renderer/RendererSystems/vk_renderSystem.h"
+#include "Game/vk_scene.h"
 
 // STD
 #include <memory>
@@ -18,7 +20,7 @@ namespace vkc {
 
     class SkyboxRenderSystem : public VkcRenderSystem {
     public:
-        SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::shared_ptr<VkcModel> sbModel, VkDescriptorSetLayout skyboxLayout);
+        SkyboxRenderSystem(VkcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout skyboxLayout);
         ~SkyboxRenderSystem();
 
         SkyboxRenderSystem(const SkyboxRenderSystem&) = delete;
@@ -31,7 +33,6 @@ namespace vkc {
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout skyboxSetLayout);
         void createPipeline(VkRenderPass renderPass);
 
-        std::shared_ptr<VkcModel> skyboxModel;
         VkDescriptorSetLayout skyboxLayout;
         VkcDevice& vkcDevice;
         std::unique_ptr<VkcPipeline> vkcPipeline;
