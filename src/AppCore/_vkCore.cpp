@@ -1,30 +1,8 @@
 // vk_core.cpp
-
-// Project source specific includes
 #include "_vkCore.h"
-#include "VkBootstrap.h"
-#include "VK_abstraction/vk_buffer.h"
-#include "Game/Camera/vk_camera.h"
-#include "Game/Input/vk_input.h"
-#include "Renderer/RendererSystems/vk_basicRenderSystem.h"
-#include "Renderer/RendererSystems/vk_pointLightSystem.h"
-
-
-// Vulkan
-#include <vulkan/vulkan.h>
-
-// External
-#define GLM_FORCE_RADIANS	
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
 // STD
-#include <iostream>
 #include <chrono>
-#include <array>
-#include <cassert>
-#include <stdexcept>
 
 namespace vkc {
     Application::Application()
@@ -60,17 +38,14 @@ namespace vkc {
 
         while (!_window.shouldClose()) 
         {
-            glfwPollEvents();
-
+            //glfwPollEvents();
             auto newTime = std::chrono::high_resolution_clock::now();
-            float frameTime =
-                std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
            
             if (auto commandBuffer = _renderer.beginFrame()) 
             {
                 int frameIndex = _renderer.getFrameIndex();
-
                 FrameInfo frameInfo{
                     frameIndex, frameTime, commandBuffer,
                     _game.getPlayerCamera(),
@@ -90,7 +65,6 @@ namespace vkc {
 
                 // render
                 _renderer.beginSwapChainRenderPass(commandBuffer);
-              
                 _game.Render(frameInfo);
                 _renderer.endSwapChainRenderPass(commandBuffer);
                 _renderer.endFrame();
@@ -99,5 +73,3 @@ namespace vkc {
         vkDeviceWaitIdle(_device.device());
     }
 }// namespace vkc
-
-

@@ -62,6 +62,7 @@ target_include_directories(VKContinuum PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/ktx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/json"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/AppCore"
 )

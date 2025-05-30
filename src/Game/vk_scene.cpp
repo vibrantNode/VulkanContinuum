@@ -1,6 +1,5 @@
 // vk_scene.cpp
-// 
-// 
+
 // Project headers
 #include "vk_scene.h"
 #include "AppCore/vk_assetManager.h"
