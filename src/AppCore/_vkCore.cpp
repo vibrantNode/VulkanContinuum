@@ -37,7 +37,7 @@ namespace vkc {
             &_assetManager
         };
         _descriptorManager.Initialize(config);
-      
+
         _game.Init(_window.getGLFWwindow());
     }
     Application::~Application() 
@@ -46,18 +46,15 @@ namespace vkc {
     void Application::RunApp()
     {
         _descriptorManager.createDescriptorSets();
-     
         _renderSystemManager.initialize(
             _device,
             _renderer.getSwapChainRenderPass(),
             _descriptorManager.getAllLayouts(),
             _descriptorManager,
             _assetManager
-
         );
 
         _renderSystemManager.registerSystems(_game.getScene());
-
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 

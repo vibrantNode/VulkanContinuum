@@ -1,16 +1,18 @@
 // vk_player.cpp
-
 #include "vk_player.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace vkc {
 
-   
     Player::Player(GLFWwindow* window)
-        : _window(window),
-        controller(0.1f, 0.0f, 0.0f),
-        camera({ 0.0f,0.0f,0.0f }, 0.0f, 0.0f, 80.f, 10.f)
+        : _window(window)
+        , controller(0.1f, 0.0f, 0.0f)
+        , camera({ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, 80.f, 10.f)
     {
     }
+
     void Player::Init() {
         // 1) Setup viewer object
         glm::vec3 startPos(0.0f, 0.0f, -5.0f);
@@ -28,43 +30,34 @@ namespace vkc {
         camera = VkcCamera(startPos, yaw, pitch, 80.f, 13.f);
         controller = MNKController(0.1f, yaw, pitch);
 
-        // 4) Lock/hide cursor
+        // 4) Lock/hide cursor and set callback
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(_window, &controller);
-
-        // 5) Seed the controller's last mouse position to avoid jump
-        int w, h;
-        glfwGetFramebufferSize(_window, &w, &h);
-        double cx = w * 0.5, cy = h * 0.5;
-        glfwSetCursorPos(_window, cx, cy);
-        controller.resetLastMousePos(cx, cy);
+        glfwSetCursorPosCallback(_window, [](GLFWwindow* window, double x, double y) {
+            static_cast<MNKController*>(glfwGetWindowUserPointer(window))->mouseCallback(x, y);
+            });
     }
 
     void Player::Update(float deltaTime) {
-        // a) Mouse look
-        controller.handleMouseInput(_window);
-        controller.updateLook(controller.getXOffset(),
-            controller.getYOffset(),
-            viewerObject);
+        // 1) Pump OS events
+        glfwPollEvents();
 
-        // b) Recenter cursor & sync controller
+        // 2) Apply look from raw mouse data
+        controller.applyLook(viewerObject);
+
+        // 3) Apply movement with frame-time
+        controller.applyMovement(_window, deltaTime, viewerObject);
+
+        // 4) Sync camera to the object
+        camera.setViewYXZ(
+            viewerObject.transform.translation,
+            viewerObject.transform.rotation
+        );
+
+        // 5) Update projection on resize
         int w, h;
         glfwGetFramebufferSize(_window, &w, &h);
-        double cx = w * 0.5, cy = h * 0.5;
-        glfwSetCursorPos(_window, cx, cy);
-        controller.resetLastMousePos(cx, cy);
-
-        // c) Keyboard movement
-        controller.updateMovement(_window, deltaTime, viewerObject);
-
-        // d) Sync camera to the object
-        camera.setViewYXZ(viewerObject.transform.translation,
-            viewerObject.transform.rotation);
-
-        // e) Update projection for correct aspect
-        glfwGetFramebufferSize(_window, &w, &h);
-        float aspect = w / float(h);
-        camera.setPerspectiveProjection(aspect, 0.1f, 100.f);
+        camera.setPerspectiveProjection(w / static_cast<float>(h), 0.1f, 100.f);
     }
 
     const glm::mat4& Player::getViewMatrix() const {
@@ -83,4 +76,4 @@ namespace vkc {
         return camera;
     }
 
-}
+} // namespace vkc

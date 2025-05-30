@@ -1,9 +1,6 @@
-// vk_input.h (MNKController)
-
 #pragma once
 #include "Game/vk_gameObject.h"
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 
 namespace vkc {
 
@@ -11,13 +8,14 @@ namespace vkc {
     public:
         MNKController(float sensitivity = 0.1f, float yaw = -90.0f, float pitch = 0.0f);
 
-        void handleMouseInput(GLFWwindow* window);
-        void updateLook(float xOffset, float yOffset, VkcGameObject& gameObject);
-        void updateMovement(GLFWwindow* window, float dt, VkcGameObject& gameObject);
-        void resetLastMousePos(double x, double y);
+        // GLFW cursor callback for raw mouse movement
+        void mouseCallback(double xpos, double ypos);
 
-        float getXOffset() const { return _xOffset; }
-        float getYOffset() const { return _yOffset; }
+        // Apply look (called once per frame)
+        void applyLook(VkcGameObject& gameObject);
+
+        // Apply keyboard movement (called once per frame)
+        void applyMovement(GLFWwindow* window, float deltaTime, VkcGameObject& gameObject);
 
     private:
         // Mouse state
