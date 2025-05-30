@@ -69,7 +69,7 @@ namespace vkc {
         layoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
         layoutInfo.pSetLayouts = layouts.data();
 
-        // No push constants for skybox
+
         layoutInfo.pushConstantRangeCount = 0;
         layoutInfo.pPushConstantRanges = nullptr;
 
@@ -84,8 +84,8 @@ namespace vkc {
         PipelineConfigInfo config{};
         VkcPipeline::defaultSkyboxConfigInfo(config);
 
-        //config.bindingDescriptions = VkcModel::SkyboxVertex::getBindingDescriptions();
-        //config.attributeDescriptions = VkcModel::SkyboxVertex::getAttributeDescriptions();
+        config.bindingDescriptions = VkcModel::SkyboxVertex::getBindingDescriptions();
+        config.attributeDescriptions = VkcModel::SkyboxVertex::getAttributeDescriptions();
 
         config.renderPass = renderPass;
         config.pipelineLayout = pipelineLayout;

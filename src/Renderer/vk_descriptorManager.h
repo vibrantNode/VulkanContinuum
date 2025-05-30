@@ -16,7 +16,6 @@ namespace vkc {
         uint32_t maxFrames;
         size_t uniformBufferSize;
         const AssetManager* assetManager; 
-        // Add other config params here as needed
     };
 
     class DescriptorManager {
@@ -58,7 +57,6 @@ namespace vkc {
         std::unique_ptr<VkcDescriptorSetLayout>              _skyboxLayout;
 
         size_t                                               _uboSize           = 0;
-   
         uint32_t                                             _maxFrames         = 0;
         uint32_t                                             _maxTextures       = 1000;
 

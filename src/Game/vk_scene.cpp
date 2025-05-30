@@ -93,11 +93,9 @@ namespace vkc {
     {
 
         auto skyboxModel = assetManager.getModel("cube");
-
         auto skybox = VkcGameObject::createGameObject();
         skybox.model = skyboxModel;
-
-        // Register to scene with special ID
+        skybox.isSkybox = true; // Tell game object that this is a skybox (special case)
         setSkyboxObject(std::move(skybox));
 
 

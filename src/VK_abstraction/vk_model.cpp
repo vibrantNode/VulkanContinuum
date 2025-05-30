@@ -37,11 +37,18 @@ namespace std
 
 namespace vkc
 {
-    VkcModel::VkcModel(VkcDevice& device, const VkcModel::Builder& builder) : vkcDevice{ device },
-        isSkyboxModel{ builder.isSkybox }
-    {
-        createVertexBuffers(builder.vertices);
-        createIndexBuffers(builder.indices);
+    VkcModel::VkcModel(VkcDevice& device, const Builder& builder)
+        : vkcDevice{ device }, isSkyboxModel{ builder.isSkybox } {
+
+        if (builder.isSkybox) {
+            createVertexBuffers(builder.skyboxVertices); // <- overload handles this
+        }
+        else {
+            createVertexBuffers(builder.vertices);
+            createIndexBuffers(builder.indices);
+        }
+      
+    
     }
 
     VkcModel::~VkcModel() {}
@@ -71,6 +78,33 @@ namespace vkc
         stagingBuffer.map();
         stagingBuffer.writeToBuffer((void*)vertices.data());
 
+        vertexBuffer = std::make_unique<VkcBuffer>(
+            vkcDevice,
+            vertexSize,
+            vertexCount,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
+
+        vkcDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    }
+    void VkcModel::createVertexBuffers(const std::vector<SkyboxVertex>& vertices) {
+        vertexCount = static_cast<uint32_t>(vertices.size());
+        assert(vertexCount >= 3 && "Skybox vertex count must be at least 3");
+        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+        uint32_t vertexSize = sizeof(vertices[0]);
+
+        VkcBuffer stagingBuffer{
+            vkcDevice,
+            vertexSize,
+            vertexCount,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
+
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void*)vertices.data()); 
+     
         vertexBuffer = std::make_unique<VkcBuffer>(
             vkcDevice,
             vertexSize,
@@ -172,6 +206,8 @@ namespace vkc
 
     void VkcModel::Builder::loadModel(const std::string& filepath, bool isSkybox)
     {
+        this->isSkybox = isSkybox;
+
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -182,24 +218,39 @@ namespace vkc
         }
 
         vertices.clear();
+        skyboxVertices.clear();
         indices.clear();
-        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-        for (const auto& shape : shapes) {
-            for (const auto& index : shape.mesh.indices) {
-                Vertex vertex{};
-
-                // Always load position
-                if (index.vertex_index >= 0) {
+        if (isSkybox) {
+            // Skybox doesn't need unique vertex hashing — use raw positions
+            for (const auto& shape : shapes) {
+                for (const auto& index : shape.mesh.indices) {
+                    SkyboxVertex vertex{};
                     vertex.position = {
                         attrib.vertices[3 * index.vertex_index + 0],
                         attrib.vertices[3 * index.vertex_index + 1],
                         attrib.vertices[3 * index.vertex_index + 2],
                     };
+                    skyboxVertices.push_back(vertex);
+                    indices.push_back(static_cast<uint32_t>(skyboxVertices.size() - 1));
                 }
+            }
+        }
+        else {
+            std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-                if (!isSkybox) {
-                    // Optional: If colors are present
+            for (const auto& shape : shapes) {
+                for (const auto& index : shape.mesh.indices) {
+                    Vertex vertex{};
+
+                    if (index.vertex_index >= 0) {
+                        vertex.position = {
+                            attrib.vertices[3 * index.vertex_index + 0],
+                            attrib.vertices[3 * index.vertex_index + 1],
+                            attrib.vertices[3 * index.vertex_index + 2],
+                        };
+                    }
+
                     if (!attrib.colors.empty()) {
                         vertex.color = {
                             attrib.colors[3 * index.vertex_index + 0],
@@ -222,14 +273,14 @@ namespace vkc
                             attrib.texcoords[2 * index.texcoord_index + 1],
                         };
                     }
-                }
 
-                if (uniqueVertices.count(vertex) == 0) {
-                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                    vertices.push_back(vertex);
-                }
+                    if (uniqueVertices.count(vertex) == 0) {
+                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                        vertices.push_back(vertex);
+                    }
 
-                indices.push_back(uniqueVertices[vertex]);
+                    indices.push_back(uniqueVertices[vertex]);
+                }
             }
         }
     }

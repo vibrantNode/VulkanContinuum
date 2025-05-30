@@ -6,15 +6,13 @@ layout(location = 0) in vec3 position;
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 projection;
     mat4 view;
-    mat4 invView; // optional
+    mat4 invView; 
     vec4 ambientLightColor;
-    // … other members …
 } ubo;
 
 layout(location = 0) out vec3 vDirection;
 
 void main() {
-    // Remove translation from view matrix
     mat4 rotView = mat4(mat3(ubo.view));
     
     vec4 clipPos = ubo.projection * rotView * vec4(position, 1.0);

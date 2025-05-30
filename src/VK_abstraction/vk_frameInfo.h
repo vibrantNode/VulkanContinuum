@@ -34,6 +34,7 @@ namespace vkc {
 	};
 
 	class Scene;
+
 	struct FrameInfo 
 	{
 		int frameIndex;

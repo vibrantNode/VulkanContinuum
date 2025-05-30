@@ -60,6 +60,7 @@ namespace vkc
 		);
 
 		for (auto& kv : frameInfo.gameObjects) {
+		
 			auto& obj = kv.second;
 
 			SimplePushConstantData push{};
@@ -75,6 +76,7 @@ namespace vkc
 				sizeof(SimplePushConstantData),
 				&push);
 			if (obj.model) {
+				if (obj.isSkybox) continue;
 				obj.model->bind(frameInfo.commandBuffer);
 				obj.model->draw(frameInfo.commandBuffer);
 			}
