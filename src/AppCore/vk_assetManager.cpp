@@ -17,6 +17,7 @@ namespace vkc {
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
+        loadModel("living_room", PROJECT_ROOT_DIR "/res/models/InteriorTest.obj");
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
        
         loadCubemap("skybox", { {
