@@ -1,6 +1,6 @@
 //vk_device.h
 #pragma once
-#include "vk_window.h"
+#include "AppCore/vk_window.h"
  
 // std lib headers
 #include <string>

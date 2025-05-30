@@ -1,0 +1,54 @@
+
+{
+  "objects": [
+    {
+      "name": "Skybox",
+      "model": "cube",
+      "isSkybox": true,
+      "position": [ 0, 0, 0 ],
+      "rotation": [ 0, 0, 0 ],
+      "scale": [ 1, 1, 1 ],
+      "textureIndex": 5
+    },
+    {
+      "name": "Floor",
+      "model": "quad",
+      "position": [ 0, 0.5, 0 ],
+      "rotation": [ 0, 0, 0 ],
+      "scale": [ 9, 9, 9 ],
+      "textureIndex": 0
+    },
+    {
+      "name": "Vase",
+      "model": "flat_vase",
+      "position": [ -0.5, 0.5, 0 ],
+      "rotation": [ 0, 0, 0 ],
+      "scale": [ 3, 1.5, 3 ],
+      "textureIndex": 0
+    },
+    {
+      "name": "smoothVase",
+      "model": "smooth_vase",
+      "position": [ 3.5, 0.5, -2 ],
+      "rotation": [ 0, 0, 0 ],
+      "scale": [ 3, 1.5, 3 ],
+      "textureIndex": 0
+    },
+    {
+      "name": "Light1",
+      "special": "spinning_lights",
+      "count": 6,
+      "radius": 4.8,
+      "height": -2.5,
+      "colors": [
+        [ 0.1, 1.0, 0.1 ],
+        [ 0.0, 1.0, 0.8 ],
+        [ 0.5, 0.0, 0.4 ],
+        [ 0.1, 1.0, 0.1 ],
+        [ 0.0, 1.0, 0.8 ],
+        [ 0.5, 0.0, 0.4 ]
+      ],
+      "intensity": 35.8
+    }
+  ]
+}

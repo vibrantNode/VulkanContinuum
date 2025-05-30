@@ -1,10 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <deque>
-#include <functional>
 
-#include "vma/vk_mem_alloc.h"
 #include "VK_abstraction/vk_device.h"
 #include "VK_abstraction/vk_descriptors.h"
 #include "Game/vk_gameObject.h"
@@ -20,12 +17,10 @@ namespace vkc {
 
 	class Application {
 	public:
-		static constexpr int WIDTH = 800;
-		static constexpr int HEIGHT = 600;
+		static constexpr int WIDTH = 1440;
+		static constexpr int HEIGHT = 810;
 
 		Application();
-		~Application();
-
 		Application(const Application&) = delete;
 		Application& operator=(const Application&) = delete;
 
