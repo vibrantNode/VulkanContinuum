@@ -81,5 +81,29 @@ namespace vkc {
     };
 
 
+ 
+
+    class VkcSkyboxModel {
+    public:
+
+        struct SkyboxVertex {
+            glm::vec3 position;
+            static std::vector<VkVertexInputBindingDescription>   getBindingDescriptions();
+            static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+        };
+
+        VkcSkyboxModel(VkcDevice& device, const std::vector<SkyboxVertex>& verts);
+        ~VkcSkyboxModel();
+
+        void bind(VkCommandBuffer cmd);
+        void draw(VkCommandBuffer cmd);
+
+    private:
+        void createVertexBuffer(const std::vector<SkyboxVertex>& verts);
+
+        VkcDevice& device;
+        std::unique_ptr<VkcBuffer> vertexBuffer;
+        uint32_t vertexCount;
+    };
 } // namespace vkc
 
