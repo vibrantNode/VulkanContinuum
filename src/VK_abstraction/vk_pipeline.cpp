@@ -219,8 +219,8 @@ namespace vkc
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
 
-		configInfo.bindingDescriptions = VkcModel::Vertex::getBindingDescriptions();
-		configInfo.attributeDescriptions = VkcModel::Vertex::getAttributeDescriptions();
+		configInfo.bindingDescriptions = VkcOBJmodel::Vertex::getBindingDescriptions();
+		configInfo.attributeDescriptions = VkcOBJmodel::Vertex::getAttributeDescriptions();
 	}
 
 	void VkcPipeline::defaultSkyboxConfigInfo(PipelineConfigInfo& configInfo)

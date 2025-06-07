@@ -20,10 +20,25 @@ add_subdirectory("vendor/glfw")
 
 # Executable
 add_executable(VKContinuum
+    # Core
     src/main.cpp
     src/AppCore/_vkCore.cpp
     src/AppCore/vk_window.cpp
+    src/AppCore/vk_assetManager.cpp
+
+    # Renderer
     src/Renderer/vk_renderer.cpp
+    src/Renderer/vk_descriptorManager.cpp
+    src/Renderer/Types/GBuffer.cpp 
+
+    # Render Systems
+    src/Renderer/RendererSystems/vk_renderSystemManager.cpp
+    src/Renderer/RendererSystems/vk_basicRenderSystem.cpp
+    src/Renderer/RendererSystems/vk_pointLightSystem.cpp
+    src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp
+    #src/Renderer/RendererSystems/vk_deferredGeomRenderSystem.cpp 
+
+    # Vulkan
     src/VK_abstraction/vk_initializers.cpp
     src/VK_abstraction/vk_device.cpp
     src/VK_abstraction/vk_swapchain.cpp
@@ -31,27 +46,25 @@ add_executable(VKContinuum
     src/VK_abstraction/vk_pipeline.cpp
     src/VK_abstraction/vk_buffer.h
     src/VK_abstraction/vk_buffer.cpp
-    vendor/vkbootstrap/VkBootstrap.cpp
-    src/Renderer/RendererSystems/vk_basicRenderSystem.cpp
-    src/Game/Camera/vk_camera.cpp
     src/VK_abstraction/vk_model.cpp
+    src/VK_abstraction/vk_texture.cpp
+
+    # Game Engine
+    src/Game/vk_game.cpp
+    src/Game/Camera/vk_camera.cpp
     src/Game/vk_gameObject.cpp
     src/Game/Input/vk_input.cpp
-    src/Renderer/RendererSystems/vk_pointLightSystem.cpp
-    src/AppCore/vk_assetManager.cpp
     src/Game/vk_scene.cpp
     src/Game/vk_player.cpp
-    src/VK_abstraction/vk_texture.cpp
-    src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp
-    src/Game/vk_game.cpp
-    src/Renderer/RendererSystems/vk_renderSystemManager.cpp
- "src/Renderer/vk_descriptorManager.cpp")
+
+ "src/VK_abstraction/vk_tools.cpp")
 
 # Definitions
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Include paths
 target_include_directories(VKContinuum PUBLIC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW"
@@ -63,7 +76,7 @@ target_include_directories(VKContinuum PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/ktx"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/json"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+  
 )
 
 # Link libraries

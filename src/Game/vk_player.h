@@ -29,6 +29,8 @@ namespace vkc {
         VkcCamera camera;
         VkcGameObject viewerObject;
         MNKController controller;
+
+        float defaultFovY = 80.0f;
     };
 
 }

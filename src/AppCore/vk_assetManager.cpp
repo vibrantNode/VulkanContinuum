@@ -18,6 +18,9 @@ namespace vkc {
         loadModel("barrel", PROJECT_ROOT_DIR "/res/models/Barrel_OBJ.obj");
         loadModel("stone_sphere", PROJECT_ROOT_DIR "/res/models/StoneSphere.obj");
         loadModel("living_room", PROJECT_ROOT_DIR "/res/models/InteriorTest.obj");
+        loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/VikingRoom.obj");
+        //loadModel("gltf_test", PROJECT_ROOT_DIR "/res/models/gltf/test/scene.gltf");
+
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
        
         loadCubemap("skybox", { {
@@ -32,6 +35,7 @@ namespace vkc {
         loadTexture("texture", PROJECT_ROOT_DIR "/res/textures/spaceFloor.jpg");
         loadTexture("texture2", PROJECT_ROOT_DIR "/res/textures/container2.png");
         loadTexture("texture3", PROJECT_ROOT_DIR "/res/textures/stoneWall.jpg");
+        loadTexture("texture4", PROJECT_ROOT_DIR "/res/textures/viking_room.png");
      
     }
 
@@ -77,7 +81,7 @@ namespace vkc {
     }
 
 
-    std::shared_ptr<VkcModel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath) 
+    std::shared_ptr<VkcOBJmodel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath)
     {
         // Check if the model is already loaded
         auto it = modelCache.find(modelName);
@@ -86,24 +90,24 @@ namespace vkc {
         }
 
         // Load the model and store it in the cache
-        auto model = VkcModel::createModelFromFile(_device, filepath);
+        auto model = VkcOBJmodel::createModelFromFile(_device, filepath);
         modelCache[modelName] = model;
         return model;
     }
 
-    std::shared_ptr<VkcModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
+    std::shared_ptr<VkcOBJmodel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
     {
         auto it = modelCache.find(modelName);
         if (it != modelCache.end()) {
             return it->second;
         }
 
-        auto model = VkcModel::createModelFromFile(_device, filepath, true);
+        auto model = VkcOBJmodel::createModelFromFile(_device, filepath, true);
         modelCache[modelName] = model;
         return model;
     }
   
-    std::shared_ptr<VkcModel> AssetManager::getModel(const std::string& modelName) 
+    std::shared_ptr<VkcOBJmodel> AssetManager::getModel(const std::string& modelName) 
     {
         auto it = modelCache.find(modelName);
         if (it != modelCache.end()) {

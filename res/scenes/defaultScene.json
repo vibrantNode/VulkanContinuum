@@ -20,6 +20,14 @@
     },
     {
       "name": "Room",
+      "model": "viking_room",
+      "position": [ -2.9, 3.9, -7.6 ],
+      "rotation": [ 1.55, 0, -5 ],
+      "scale": [ 3, -2.5, 3 ],
+      "textureIndex": 3
+    }, 
+    {
+      "name": "Room",
       "model": "living_room",
       "position": [ -0.5, 4.5, 0 ],
       "rotation": [ 0, 0, 0 ],

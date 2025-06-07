@@ -23,19 +23,19 @@ namespace vkc {
         void preloadGlobalAssets();
 
 
-        std::shared_ptr<VkcModel> loadModel(const std::string& modelName, const std::string& filepath);
-        std::shared_ptr<VkcModel> loadSkyboxModel(const std::string& modelName, const std::string& filepath);
+        std::shared_ptr<VkcOBJmodel> loadModel(const std::string& modelName, const std::string& filepath);
+        std::shared_ptr<VkcOBJmodel> loadSkyboxModel(const std::string& modelName, const std::string& filepath);
         std::shared_ptr<VkcTexture> loadCubemap(const std::string& name, const std::array<std::string, 6>& faces);
         std::shared_ptr<VkcTexture> loadTexture(const std::string& textureName, const std::string& filename);
 
         // Getters
-        std::shared_ptr<VkcModel> getModel(const std::string& modelName);
+        std::shared_ptr<VkcOBJmodel> getModel(const std::string& modelName);
         std::shared_ptr < VkcTexture> getTexture(const std::string& textureName) const;
         std::vector<std::shared_ptr<VkcTexture>> getAllTextures()const;
 
 
     private:
-        std::unordered_map<std::string, std::shared_ptr<VkcModel>> modelCache;
+        std::unordered_map<std::string, std::shared_ptr<VkcOBJmodel>> modelCache;
         std::unordered_map<std::string, std::shared_ptr<VkcTexture>> textureCache;
         //std::unordered_map<std::string, std::shared_ptr<Shader>> shaderCache;
 

@@ -145,8 +145,4 @@ namespace vkc {
     {
         player = std::move(p);
     }
-
-  
-
- 
 } // namespace vkc

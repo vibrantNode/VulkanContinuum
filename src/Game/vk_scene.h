@@ -9,7 +9,7 @@
 #include "VK_abstraction/vk_device.h"
 #include "Renderer/RendererSystems/vk_renderSystem.h"
 #include "Game/vk_player.h"
-
+#include "VK_abstraction/vk_model.h"
 
 #include <optional>
 
@@ -47,10 +47,6 @@ namespace vkc {
 
 		std::shared_ptr<Player> player;
 
-
-		void loadDefaultScene();
-		void loadEmptyPlanes();
-		void loadLevel1();
 	
 	};
 }

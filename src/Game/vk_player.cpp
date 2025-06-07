@@ -8,8 +8,6 @@ namespace vkc {
 
     Player::Player(GLFWwindow* window)
         : _window(window)
-        , controller(0.1f, 0.0f, 0.0f)
-        , camera({ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, 80.f, 10.f)
     {
     }
 
@@ -27,8 +25,8 @@ namespace vkc {
         float pitch = glm::degrees(asin(-dir.y));
 
         // 3) Init camera & controller
-        camera = VkcCamera(startPos, yaw, pitch, 80.f, 13.f);
-        controller = MNKController(0.1f, yaw, pitch);
+        camera = VkcCamera(startPos, yaw, pitch, defaultFovY);
+        controller = MNKController(0.1f, yaw, pitch, 13.0f);
 
         // 4) Lock/hide cursor and set callback
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -39,10 +37,8 @@ namespace vkc {
     }
 
     void Player::Update(float deltaTime) {
-        // 1) Pump OS events
-        glfwPollEvents();
+        // 1) Apply look from raw mouse data
 
-        // 2) Apply look from raw mouse data
         controller.applyLook(viewerObject);
 
         // 3) Apply movement with frame-time

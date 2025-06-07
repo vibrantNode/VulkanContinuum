@@ -1,7 +1,7 @@
 //vk_device.h
 #pragma once
 #include "AppCore/vk_window.h"
- 
+#include "vk_initializers.h"
 // std lib headers
 #include <string>
 #include <vector>
@@ -44,7 +44,10 @@ namespace vkc
         VkcDevice& operator=(VkcDevice&&) = delete;
 
         VkCommandPool getCommandPool() { return commandPool; }
-        VkDevice device() { return device_; }
+
+        uint32_t getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound = nullptr) const;
+
+        VkDevice device() { return logicalDevice; }
 
         VkSurfaceKHR surface() { return surface_; }
         VkQueue graphicsQueue() { return graphicsQueue_; }
@@ -83,7 +86,14 @@ namespace vkc
             uint32_t mipLevels,
             uint32_t layerCount);
 
-        VkPhysicalDeviceProperties properties;
+        VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, bool begin = false);
+        VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, VkCommandPool pool, bool begin = false);
+
+
+
+        VkPhysicalDeviceProperties vkproperties;
+
+        VkPhysicalDeviceMemoryProperties memoryProperties;
 
     private:
         void createInstance();
@@ -105,9 +115,11 @@ namespace vkc
         bool hasStencilComponent(VkFormat format);
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
+
+       
     public:
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device_;
+        VkDevice logicalDevice;
     private:
         VkWindow& window;
         VkCommandPool commandPool;

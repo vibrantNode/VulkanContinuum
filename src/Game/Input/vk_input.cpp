@@ -8,13 +8,13 @@
 
 namespace vkc {
 
-    MNKController::MNKController(float sensitivity, float yaw, float pitch)
+    MNKController::MNKController(float sensitivity, float yaw, float pitch, float moveSpeed)
         : _sensitivity(sensitivity)
         , _yaw(yaw)
         , _pitch(pitch)
+        , moveSpeed(moveSpeed)
     {
     }
-
     void MNKController::mouseCallback(double xpos, double ypos) {
         if (_firstMouse) {
             _lastX = xpos;

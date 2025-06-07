@@ -84,8 +84,8 @@ namespace vkc {
         PipelineConfigInfo config{};
         VkcPipeline::defaultSkyboxConfigInfo(config);
 
-        config.bindingDescriptions = VkcModel::SkyboxVertex::getBindingDescriptions();
-        config.attributeDescriptions = VkcModel::SkyboxVertex::getAttributeDescriptions();
+        config.bindingDescriptions = VkcOBJmodel::SkyboxVertex::getBindingDescriptions();
+        config.attributeDescriptions = VkcOBJmodel::SkyboxVertex::getAttributeDescriptions();
 
         config.renderPass = renderPass;
         config.pipelineLayout = pipelineLayout;

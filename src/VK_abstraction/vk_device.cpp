@@ -58,8 +58,8 @@ namespace vkc {
     }
 
     VkcDevice::~VkcDevice() {
-        vkDestroyCommandPool(device_, commandPool, nullptr);
-        vkDestroyDevice(device_, nullptr);
+        vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+        vkDestroyDevice(logicalDevice, nullptr);
 
         if (enableValidationLayers) {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
@@ -131,8 +131,8 @@ namespace vkc {
             throw std::runtime_error("failed to find a suitable GPU!");
         }
 
-        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-        std::cout << "physical device: " << properties.deviceName << std::endl;
+        vkGetPhysicalDeviceProperties(physicalDevice, &vkproperties);
+        std::cout << "physical device: " << vkproperties.deviceName << std::endl;
     }
 
     void VkcDevice::createLogicalDevice() {
@@ -193,12 +193,12 @@ namespace vkc {
 
         createInfo.pEnabledFeatures = nullptr;
 
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
+        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
             throw std::runtime_error("failed to create logical device!");
         }
 
-        vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-        vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+        vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue_);
+        vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue_);
     }
 
     void VkcDevice::createCommandPool() {
@@ -209,7 +209,7 @@ namespace vkc {
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create command pool!");
         }
     }
@@ -403,23 +403,23 @@ namespace vkc {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device_, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to create vertex buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device_, buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(device_, buffer, bufferMemory, 0);
+        vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
     }
 
     VkCommandBuffer VkcDevice::beginSingleTimeCommands() {
@@ -430,7 +430,7 @@ namespace vkc {
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -451,7 +451,7 @@ namespace vkc {
         vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(graphicsQueue_);
 
-        vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
     }
 
     void VkcDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -503,23 +503,23 @@ namespace vkc {
         VkMemoryPropertyFlags properties,
         VkImage& image,
         VkDeviceMemory& imageMemory) {
-        if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+        if (vkCreateImage(logicalDevice, &imageInfo, nullptr, &image) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device_, image, &memRequirements);
+        vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate image memory!");
         }
 
-        if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS) {
+        if (vkBindImageMemory(logicalDevice, image, imageMemory, 0) != VK_SUCCESS) {
             throw std::runtime_error("failed to bind image memory!");
         }
     }
@@ -595,6 +595,55 @@ namespace vkc {
 
     bool VkcDevice::hasStencilComponent(VkFormat format) {
         return (format == VK_FORMAT_D32_SFLOAT_S8_UINT) || (format == VK_FORMAT_D24_UNORM_S8_UINT);
+    }
+
+
+    VkCommandBuffer VkcDevice::createCommandBuffer(VkCommandBufferLevel level, bool begin)
+    {
+        return createCommandBuffer(level, commandPool, begin);
+    }
+
+    VkCommandBuffer VkcDevice::createCommandBuffer(VkCommandBufferLevel level, VkCommandPool pool, bool begin)
+    {
+        VkCommandBufferAllocateInfo cmdBufAllocateInfo = vkc::vkinit::commandBufferAllocateInfo(pool, level, 1);
+        VkCommandBuffer cmdBuffer;
+        vkAllocateCommandBuffers(logicalDevice, &cmdBufAllocateInfo, &cmdBuffer);
+        // If requested, also start recording for the new command buffer
+        if (begin)
+        {
+            VkCommandBufferBeginInfo cmdBufInfo = vkc::vkinit::commandBufferBeginInfo();
+            vkBeginCommandBuffer(cmdBuffer, &cmdBufInfo);
+        }
+        return cmdBuffer;
+    }
+
+    uint32_t VkcDevice::getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound) const
+    {
+        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+        {
+            if ((typeBits & 1) == 1)
+            {
+                if ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+                {
+                    if (memTypeFound)
+                    {
+                        *memTypeFound = true;
+                    }
+                    return i;
+                }
+            }
+            typeBits >>= 1;
+        }
+
+        if (memTypeFound)
+        {
+            *memTypeFound = false;
+            return 0;
+        }
+        else
+        {
+            throw std::runtime_error("Could not find a matching memory type");
+        }
     }
 
 } // namespace vkc

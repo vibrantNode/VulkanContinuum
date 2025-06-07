@@ -6,7 +6,7 @@ namespace vkc {
 
     class MNKController {
     public:
-        MNKController(float sensitivity = 0.1f, float yaw = -90.0f, float pitch = 0.0f);
+        MNKController(float sensitivity = 0.1f, float yaw = -90.0f, float pitch = 0.0f, float moveSpeed = 10.f);
 
         // GLFW cursor callback for raw mouse movement
         void mouseCallback(double xpos, double ypos);
@@ -27,7 +27,7 @@ namespace vkc {
         float _sensitivity;
         float _yaw;
         float _pitch;
-        float moveSpeed = 3.0f;
+        float moveSpeed;
     };
 
 } // namespace vkc

@@ -58,7 +58,7 @@ namespace vkc
 		TransformComponent transform;
 		glm::vec3 color{};
 		int textureIndex = 0; 
-		std::shared_ptr<VkcModel> model{};
+		std::shared_ptr<VkcOBJmodel> model{};
 		bool isSkybox{ false };
 		
 		std::unique_ptr<PointLightComponent> pointLight = nullptr;

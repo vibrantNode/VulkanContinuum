@@ -12,61 +12,21 @@
 namespace vkc 
 {
 
-    VkcCamera::VkcCamera(glm::vec3 position, float yaw, float pitch, float zoom, float movementSpeed)
+    VkcCamera::VkcCamera(glm::vec3 position, float yaw, float pitch, float zoom)
         : m_Position(position),
-        m_Yaw(yaw),
-        m_Pitch(pitch),
         m_WorldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-        m_Zoom(zoom),
-        m_MovementSpeed(movementSpeed),
-        m_Target(glm::vec3(0.0f))
+        m_Zoom(zoom)
     {
         UpdateCameraVectors();
     }
-
 
     void VkcCamera::UpdateCameraVectors()
     {
         glm::vec3 front;
-        front.x = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
-        front.y = sin(glm::radians(m_Pitch));
-        front.z = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
         m_Front = glm::normalize(front);
 
         m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
         m_Up = glm::normalize(glm::cross(m_Right, m_Front));
-    }
-
-
-
-    // Mouse movement processing
-    void VkcCamera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch) 
-    {
-        const float sensitivity = 0.1f;  // Adjust this value to your liking
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
-
-        m_Yaw += xoffset;
-        m_Pitch += yoffset;
-
-        if (constrainPitch) {
-            if (m_Pitch > 89.0f) m_Pitch = 89.0f;
-            if (m_Pitch < -89.0f) m_Pitch = -89.0f;
-        }
-
-        UpdateCameraVectors();
-    }
-    void VkcCamera::ProcessKeyboardInput(int direction, float deltaTime) 
-    {
-        float velocity = m_MovementSpeed * deltaTime;  // Use movement speed
-        if (direction == FORWARD)
-            m_Position += m_Front * velocity;
-        if (direction == BACKWARD)
-            m_Position -= m_Front * velocity;
-        if (direction == LEFT)
-            m_Position -= m_Right * velocity;
-        if (direction == RIGHT)
-            m_Position += m_Right * velocity;
     }
 
     void VkcCamera::setOrthographicProjection(
@@ -174,7 +134,10 @@ namespace vkc
         inverseViewMatrix[3][2] = position.z;
     }
 
-
+    void VkcCamera::SetTarget(const glm::vec3& target) {
+        m_Target = target;
+        setViewTarget(m_Position, m_Target, m_Up);  // Use current position and up vector
+    }
 
     // Get the camera's zoom (field of view)
     float VkcCamera::GetZoom() const
@@ -182,11 +145,6 @@ namespace vkc
         return m_Zoom;
     }
 
-    // Set the movement speed of the camera
-    void VkcCamera::SetMovementSpeed(float speed) 
-    {
-        m_MovementSpeed = speed;
-    }
     // Get the view matrix
     glm::mat4 VkcCamera::GetViewMatrix() const 
     {

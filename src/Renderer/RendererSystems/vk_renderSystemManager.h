@@ -2,6 +2,7 @@
 #include "VK_abstraction/vk_device.h"
 #include "Renderer/RendererSystems/vk_basicRenderSystem.h"
 #include "Renderer/RendererSystems/vk_pointLightSystem.h"
+#include "Renderer/RendererSystems/vk_skyboxRenderSystem.h"
 #include "Game/vk_scene.h"
 #include "Renderer/vk_descriptorManager.h"
 #include "AppCore/vk_assetManager.h"
