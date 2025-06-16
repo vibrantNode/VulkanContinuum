@@ -23,10 +23,16 @@
 #include <stdexcept>
 #include <fstream>
 #include <algorithm>
+
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
 #if defined(_WIN32)
 #include <windows.h>
 #include <fcntl.h>
 #include <io.h>
+
+
 
  // Custom define for better code readability
 #define VK_FLAGS_NONE 0

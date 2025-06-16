@@ -13,10 +13,24 @@ set(Vulkan_LIBRARY "C:/VulkanSDK/1.3.296.0/Lib/vulkan-1.lib")
 find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIR})
 
+
 # GLFW
 add_subdirectory("vendor/glfw")
 
-
+# KTX library
+set(KTX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ktx)
+set(KTX_SOURCES
+    ${KTX_DIR}/lib/texture.c
+    ${KTX_DIR}/lib/hashlist.c
+    ${KTX_DIR}/lib/checkheader.c
+    ${KTX_DIR}/lib/swap.c
+    ${KTX_DIR}/lib/memstream.c
+    ${KTX_DIR}/lib/filestream.c
+    ${KTX_DIR}/lib/vkloader.c
+)
+add_library(ktx STATIC ${KTX_SOURCES})
+target_include_directories(ktx PUBLIC "${KTX_DIR}/other_include")
+target_include_directories(ktx PUBLIC "${KTX_DIR}/include")
 
 # Executable
 add_executable(VKContinuum
@@ -29,16 +43,16 @@ add_executable(VKContinuum
     # Renderer
     src/Renderer/vk_renderer.cpp
     src/Renderer/vk_descriptorManager.cpp
-    src/Renderer/Types/GBuffer.cpp 
+    src/Renderer/Types/GBuffer.cpp
 
     # Render Systems
     src/Renderer/RendererSystems/vk_renderSystemManager.cpp
     src/Renderer/RendererSystems/vk_basicRenderSystem.cpp
     src/Renderer/RendererSystems/vk_pointLightSystem.cpp
     src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp
-    #src/Renderer/RendererSystems/vk_deferredGeomRenderSystem.cpp 
+    #src/Renderer/RendererSystems/vk_deferredGeomRenderSystem.cpp
 
-    # Vulkan
+    # Vulkan Abstraction
     src/VK_abstraction/vk_initializers.cpp
     src/VK_abstraction/vk_device.cpp
     src/VK_abstraction/vk_swapchain.cpp
@@ -46,8 +60,10 @@ add_executable(VKContinuum
     src/VK_abstraction/vk_pipeline.cpp
     src/VK_abstraction/vk_buffer.h
     src/VK_abstraction/vk_buffer.cpp
-    src/VK_abstraction/vk_model.cpp
+    src/VK_abstraction/vk_obj_model.cpp
     src/VK_abstraction/vk_texture.cpp
+    src/VK_abstraction/vk_tools.cpp
+    src/VK_abstraction/vk_glTFModel.cpp
 
     # Game Engine
     src/Game/vk_game.cpp
@@ -56,8 +72,7 @@ add_executable(VKContinuum
     src/Game/Input/vk_input.cpp
     src/Game/vk_scene.cpp
     src/Game/vk_player.cpp
-
- "src/VK_abstraction/vk_tools.cpp")
+)
 
 # Definitions
 target_compile_definitions(VKContinuum PRIVATE PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -79,12 +94,11 @@ target_include_directories(VKContinuum PUBLIC
   
 )
 
-# Link libraries
 target_link_libraries(VKContinuum PRIVATE 
     ${Vulkan_LIBRARY} 
     glfw
+    ktx 
 )
-
 # Shader compilation
 file(GLOB SHADER_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/*.vert" 

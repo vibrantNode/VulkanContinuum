@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VK_abstraction/vk_model.h"
+#include "VK_abstraction/vk_obj_model.h"
 
 
 // libs
@@ -58,6 +58,7 @@ namespace vkc
 		TransformComponent transform;
 		glm::vec3 color{};
 		int textureIndex = 0; 
+		std::shared_ptr<VkcTexture> texture{};
 		std::shared_ptr<VkcOBJmodel> model{};
 		bool isSkybox{ false };
 		

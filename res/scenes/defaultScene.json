@@ -7,40 +7,40 @@
       "isSkybox": true,
       "position": [ 0, 0, 0 ],
       "rotation": [ 0, 0, 0 ],
-      "scale": [ 1, 1, 1 ],
-      "textureIndex": 5
+      "scale": [ 1, 1, 1 ]
+
     },
     {
       "name": "Floor",
       "model": "quad",
+      "textureName": "floor",
       "position": [ 0, 15.5, 0 ],
       "rotation": [ 0, 0, 0 ],
-      "scale": [ 9, 9, 9 ],
-      "textureIndex": 0
+      "scale": [ 9, 9, 9 ]
     },
     {
       "name": "Room",
       "model": "viking_room",
+      "textureName": "vikingRoom",
       "position": [ -2.9, 3.9, -7.6 ],
       "rotation": [ 1.55, 0, -5 ],
-      "scale": [ 3, -2.5, 3 ],
-      "textureIndex": 3
-    }, 
+      "scale": [ 3, -2.5, 3 ]
+    },
     {
       "name": "Room",
       "model": "living_room",
+      "textureName": "fireplaceColorMap",
       "position": [ -0.5, 4.5, 0 ],
       "rotation": [ 0, 0, 0 ],
-      "scale": [ 3, -2.5, 3 ],
-      "textureIndex": 0
+      "scale": [ 3, -2.5, 3 ]
     },
     {
       "name": "smoothVase",
-      "model": "smooth_vase",
-      "position": [ 3.5, 4.5, -2 ],
+      "model": "character",
+      "textureName": "stoneFloor01",
+      "position": [ 3.5, -4.5, -2 ],
       "rotation": [ 0, 0, 0 ],
-      "scale": [ 5, 5, 5 ],
-      "textureIndex": 2
+      "scale": [ 0.1, -0.1, 0.1 ]
     },
     {
       "name": "Light1",

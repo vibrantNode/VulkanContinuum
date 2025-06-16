@@ -38,10 +38,8 @@ namespace vkc {
 
         // Parse game objects
         for (auto& objJson : sceneJson["objects"]) {
-            bool isLight = false;
-
-            // Special handling for spinning point lights group
-            if (objJson.find("special") != objJson.end() && objJson["special"] == "spinning_lights") {
+            // Special handling for spinning point lights
+            if (objJson.value("special", "") == "spinning_lights") {
                 int count = objJson.value("count", 6);
                 float radius = objJson.value("radius", 4.8f);
                 float height = objJson.value("height", -2.5f);
@@ -49,51 +47,61 @@ namespace vkc {
                 auto colorsJson = objJson["colors"];
 
                 glm::vec3 basePosition = glm::normalize(glm::vec3(-1.f, 0.f, -1.f)) * radius;
-
                 for (int i = 0; i < count; i++) {
                     auto pointLight = VkcGameObject::makePointLight(intensity);
-
-                    // Read color from JSON array with wrap-around safety
                     auto c = colorsJson[i % colorsJson.size()];
                     pointLight.color = { c[0].get<float>(), c[1].get<float>(), c[2].get<float>() };
 
                     float angle = (i * glm::two_pi<float>()) / count;
-                    glm::mat4 rotate = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, -1.f, 0.f));
-                    glm::vec3 rotatedPosition = glm::vec3(rotate * glm::vec4(basePosition, 1.f));
-                    rotatedPosition.y = height;
+                    glm::mat4 rot = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, -1.f, 0.f));
+                    glm::vec3 pos = glm::vec3(rot * glm::vec4(basePosition, 1.f));
+                    pos.y = height;
+                    pointLight.transform.translation = pos;
 
-                    pointLight.transform.translation = rotatedPosition;
                     gameObjects.emplace(pointLight.getId(), std::move(pointLight));
                 }
+                continue;
             }
 
-            if (!isLight) {
-                auto go = VkcGameObject::createGameObject();
+            // Game object
+            auto go = VkcGameObject::createGameObject();
 
-                if (objJson.find("model") != objJson.end()) {
-                    std::string modelName = objJson["model"].get<std::string>();
-                    go.model = assetManager.getModel(modelName);
-                }
+            // Model
+            if (auto it = objJson.find("model"); it != objJson.end()) {
+                go.model = assetManager.getModel(it->get<std::string>());
+            }
 
-                auto pos = objJson.value("position", std::vector<float>{0.f, 0.f, 0.f});
-                auto rot = objJson.value("rotation", std::vector<float>{0.f, 0.f, 0.f});
-                auto scl = objJson.value("scale", std::vector<float>{1.f, 1.f, 1.f});
-                go.transform.translation = { pos[0], pos[1], pos[2] };
-                go.transform.rotation = { rot[0], rot[1], rot[2] };
-                go.transform.scale = { scl[0], scl[1], scl[2] };
+            // Transform
+            auto pos = objJson.value("position", std::vector<float>{0.f, 0.f, 0.f});
+            auto rot = objJson.value("rotation", std::vector<float>{0.f, 0.f, 0.f});
+            auto scl = objJson.value("scale", std::vector<float>{1.f, 1.f, 1.f});
+            go.transform.translation = { pos[0], pos[1], pos[2] };
+            go.transform.rotation = { rot[0], rot[1], rot[2] };
+            go.transform.scale = { scl[0], scl[1], scl[2] };
 
-                go.isSkybox = objJson.value("isSkybox", false);
-                go.textureIndex = objJson.value("textureIndex", 0);
+            // Skybox
+            go.isSkybox = objJson.value("isSkybox", false);
 
-                if (go.isSkybox) {
-                    setSkyboxObject(std::move(go));
-                }
-                else {
-                    gameObjects.emplace(go.getId(), std::move(go));
-                }
+            // Name-based texture lookup
+            if (auto texIt = objJson.find("textureName"); texIt != objJson.end()) {
+                std::string name = texIt->get<std::string>();
+                go.texture = assetManager.getTexture(name);
+                go.textureIndex = static_cast<int>(assetManager.getTextureIndex(name));
+            }
+            else {
+                go.texture = nullptr;
+            }
+
+            // Insert into scene
+            if (go.isSkybox) {
+                setSkyboxObject(std::move(go));
+            }
+            else {
+                gameObjects.emplace(go.getId(), std::move(go));
             }
         }
     }
+
 
     void Scene::update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime) 
     {

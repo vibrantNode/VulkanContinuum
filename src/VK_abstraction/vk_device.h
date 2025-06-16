@@ -89,11 +89,15 @@ namespace vkc
         VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, bool begin = false);
         VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, VkCommandPool pool, bool begin = false);
 
+        /// Ends, submits and frees a one‑time command buffer
+        void flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue);
 
 
-        VkPhysicalDeviceProperties vkproperties;
+        VkPhysicalDeviceProperties properties;
 
         VkPhysicalDeviceMemoryProperties memoryProperties;
+        VkPhysicalDeviceFeatures enabledFeatures{};
+        
 
     private:
         void createInstance();

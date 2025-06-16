@@ -36,7 +36,6 @@ namespace vkc {
 		Game _game{ _device, _assetManager, _renderer };
 		DescriptorManager _descriptorManager{ _device };
 		RenderSystemManager _renderSystemManager;
-		VkcGameObject::Map gameObjects;
 	};
 
 

@@ -2,12 +2,19 @@
 
 
 #include <vulkan/vulkan.h>
-#include <string>
 
+#include <string>
+#include <fstream>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 #include <array>
 
 #include "vk_initializers.h"
 #include "vk_tools.h"
+
+#include "ktx.h"
+#include "ktxvulkan.h"
 
 
 namespace vkc
@@ -21,7 +28,16 @@ namespace vkc
 		VkcTexture(VkcDevice* device);
 		~VkcTexture();
 
-		bool LoadFromFile(const std::string& filename);
+		bool STBLoadFromFile(const std::string& filename);
+		bool KTXLoadFromFile(
+			const std::string& filename,
+			VkFormat           format,
+			VkcDevice*         device,
+			VkQueue            copyQueue,
+			VkImageUsageFlags  imageUsageFlags,
+			VkImageLayout      imageLayout,
+			bool               forceLinear
+		);
 		bool LoadCubemap(const std::array<std::string, 6>& faceFilePaths);
 
 		void Destroy();
@@ -32,12 +48,12 @@ namespace vkc
 			VkFormat           format,
 			uint32_t           texWidth,
 			uint32_t           texHeight,
-			VkcDevice*         device,
+			VkcDevice* device,
 			VkQueue            copyQueue,
 			VkFilter           filter = VK_FILTER_LINEAR,
 			VkImageUsageFlags  imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
 			VkImageLayout      imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			
+
 		VkDescriptorImageInfo GetDescriptor() const { return descriptor; }
 		VkSampler GetSampler() const { return sampler; }
 		VkImageView GetImageView() const { return view; }
@@ -65,12 +81,12 @@ namespace vkc
 		VkDeviceMemory AllocateMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags properties);
 
 
-		
+
 	public:
-		VkcDevice* device;
-		uint32_t              width, height;
+		VkcDevice* m_pdevice;
+		uint32_t              width{ 0 }, height{ 0 };
 		VkImage image = VK_NULL_HANDLE;
-		VkDeviceMemory memory = VK_NULL_HANDLE;
+		VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 		VkImageView view = VK_NULL_HANDLE;
 		VkSampler sampler = VK_NULL_HANDLE;
 
@@ -81,8 +97,12 @@ namespace vkc
 		uint32_t mipLevels = 1;
 		uint32_t layerCount = 1;
 
+		void updateDescriptor();
+		void destroy();
+		ktxResult loadKTXFile(std::string filename, ktxTexture** target);
+
 		bool isCubemap{ false };
-		bool IsCubemap() const { return isCubemap; }   
+		bool IsCubemap() const { return isCubemap; }
 	};
 
 }

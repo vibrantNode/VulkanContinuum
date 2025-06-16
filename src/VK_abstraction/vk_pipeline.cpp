@@ -1,5 +1,5 @@
 #include "vk_pipeline.h"
-#include "vk_model.h"
+#include "vk_obj_model.h"
 
 // std
 #include <fstream>

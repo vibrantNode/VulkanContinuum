@@ -131,8 +131,10 @@ namespace vkc {
             throw std::runtime_error("failed to find a suitable GPU!");
         }
 
-        vkGetPhysicalDeviceProperties(physicalDevice, &vkproperties);
-        std::cout << "physical device: " << vkproperties.deviceName << std::endl;
+        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+        std::cout << "physical device: " << properties.deviceName << std::endl;
+
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
     }
 
     void VkcDevice::createLogicalDevice() {
@@ -192,6 +194,7 @@ namespace vkc {
         }
 
         createInfo.pEnabledFeatures = nullptr;
+        enabledFeatures = features2.features;
 
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
             throw std::runtime_error("failed to create logical device!");
@@ -616,6 +619,25 @@ namespace vkc {
         }
         return cmdBuffer;
     }
+
+    void VkcDevice::flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue) {
+        // 1) finish recording
+        vkEndCommandBuffer(commandBuffer);
+
+        // 2) submit to the given queue
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+        // 3) wait for it to finish
+        vkQueueWaitIdle(queue);
+
+        // 4) free the command buffer back into our pool
+        vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+    }
+
 
     uint32_t VkcDevice::getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound) const
     {
