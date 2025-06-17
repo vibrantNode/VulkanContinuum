@@ -3,13 +3,16 @@
 
 // Project headers
 #include "VK_abstraction/vk_obj_model.h"
+#include "VK_abstraction/vk_glTFModel.h"
 #include "VK_abstraction/vk_device.h"
 #include "VK_abstraction/vk_texture.h"
-
+#include "VK_abstraction/vk_IModel.hpp"
 // STD
 #include <unordered_map>
 #include <array>
-
+#include <filesystem>
+#include <algorithm>   
+#include <cctype> 
 
 
 namespace vkc {
@@ -21,8 +24,12 @@ namespace vkc {
         void preloadGlobalAssets();
 
 
-        std::shared_ptr<VkcOBJmodel> loadModel(const std::string& modelName, const std::string& filepath);
-        std::shared_ptr<VkcOBJmodel> loadSkyboxModel(const std::string& modelName, const std::string& filepath);
+        std::shared_ptr<IModel> loadModel(const std::string& name,
+            const std::string& filepath,
+            uint32_t gltfFlags = 0u,
+            float scale = 1.0f);
+
+        std::shared_ptr<IModel> loadSkyboxModel(const std::string& modelName, const std::string& filepath);
         std::shared_ptr<VkcTexture> loadCubemap(const std::string& name, const std::array<std::string, 6>& faces);
         std::shared_ptr<VkcTexture> loadTexture(
             const std::string& name,
@@ -34,8 +41,7 @@ namespace vkc {
         );
 
         // Getters
-        std::shared_ptr<VkcOBJmodel> getModel(const std::string& modelName);
-
+		std::shared_ptr<IModel> getModel(const std::string& name) const;
 
         // name → texture lookup
         std::shared_ptr<VkcTexture> getTexture(const std::string& name) const;
@@ -51,7 +57,7 @@ namespace vkc {
 
 
     private:
-        std::unordered_map<std::string, std::shared_ptr<VkcOBJmodel>> modelCache;
+        std::unordered_map<std::string, std::shared_ptr<IModel>> modelCache;
 
         std::unordered_map<std::string, std::shared_ptr<VkcTexture>> textureCache;   // fast name→texture
         std::vector   <std::shared_ptr<VkcTexture>>                   textureList;    // stable index

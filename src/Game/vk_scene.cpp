@@ -68,7 +68,7 @@ namespace vkc {
 
             // Model
             if (auto it = objJson.find("model"); it != objJson.end()) {
-                go.model = assetManager.getModel(it->get<std::string>());
+                go.model = assetManager.getModel(it->get<std::string>()); // ******************************** on this line
             }
 
             // Transform

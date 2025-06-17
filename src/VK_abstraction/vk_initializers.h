@@ -115,7 +115,38 @@ namespace vkc
             imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             return imageMemoryBarrier;
         }
+        inline VkSamplerCreateInfo samplerCreateInfo()
+        {
+            VkSamplerCreateInfo samplerCreateInfo{};
+            samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+            samplerCreateInfo.maxAnisotropy = 1.0f;
+            return samplerCreateInfo;
+        }
+        inline VkImageViewCreateInfo imageViewCreateInfo()
+        {
+            VkImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            return imageViewCreateInfo;
+        }
 
-
+        inline VkDescriptorSetLayoutBinding descriptorSetLayoutBinding(
+            VkDescriptorType type,
+            VkShaderStageFlags stageFlags,
+            uint32_t binding,
+            uint32_t descriptorCount = 1)
+        {
+            VkDescriptorSetLayoutBinding setLayoutBinding{};
+            setLayoutBinding.descriptorType = type;
+            setLayoutBinding.stageFlags = stageFlags;
+            setLayoutBinding.binding = binding;
+            setLayoutBinding.descriptorCount = descriptorCount;
+            return setLayoutBinding;
+        }
+        inline VkMappedMemoryRange mappedMemoryRange()
+        {
+            VkMappedMemoryRange mappedMemoryRange{};
+            mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+            return mappedMemoryRange;
+        }
     }
 }

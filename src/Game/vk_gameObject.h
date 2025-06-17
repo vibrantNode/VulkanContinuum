@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VK_abstraction/vk_obj_model.h"
 
-
+#include "VK_abstraction/vk_IModel.hpp"
+#include "VK_abstraction/vk_texture.h"
 // libs
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -59,7 +59,7 @@ namespace vkc
 		glm::vec3 color{};
 		int textureIndex = 0; 
 		std::shared_ptr<VkcTexture> texture{};
-		std::shared_ptr<VkcOBJmodel> model{};
+		std::shared_ptr<IModel> model{};
 		bool isSkybox{ false };
 		
 		std::unique_ptr<PointLightComponent> pointLight = nullptr;

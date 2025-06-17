@@ -2,6 +2,8 @@
 #pragma once
 #include "AppCore/vk_window.h"
 #include "vk_initializers.h"
+#include "VK_abstraction/vk_tools.h"
+
 // std lib headers
 #include <string>
 #include <vector>
@@ -98,7 +100,7 @@ namespace vkc
         VkPhysicalDeviceMemoryProperties memoryProperties;
         VkPhysicalDeviceFeatures enabledFeatures{};
         
-
+        VkResult createBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* memory, void* data = nullptr);
     private:
         void createInstance();
         void setupDebugMessenger();

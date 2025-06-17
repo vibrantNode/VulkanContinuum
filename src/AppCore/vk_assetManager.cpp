@@ -12,6 +12,7 @@ namespace vkc {
     }
     void AssetManager::preloadGlobalAssets() 
     {
+        // Now all these first ones don't have enough arguments being passed..
         loadModel("quad", PROJECT_ROOT_DIR "/res/models/quad.obj");
         loadModel("flat_vase", PROJECT_ROOT_DIR "/res/models/flat_vase.obj");
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
@@ -20,7 +21,9 @@ namespace vkc {
         loadModel("living_room", PROJECT_ROOT_DIR "/res/models/InteriorTest.obj");
         loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/VikingRoom.obj");
         loadModel("character", PROJECT_ROOT_DIR "/res/models/Square Character/Square Character.obj");
-        //loadModel("gltf_test", PROJECT_ROOT_DIR "/res/models/gltf/test/scene.gltf");
+        const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
+        loadModel("space_station", PROJECT_ROOT_DIR "/res/models/gltf/test/scene.gltf", glTFLoadingFlags, 0.01f);
+
 
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
        
@@ -39,6 +42,8 @@ namespace vkc {
         loadTexture("vikingRoom", PROJECT_ROOT_DIR "/res/textures/viking_room.png");
 		loadTexture("stoneFloor01", PROJECT_ROOT_DIR "/res/textures/ktx/stonefloor01_color_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
 		loadTexture("fireplaceColorMap", PROJECT_ROOT_DIR "/res/textures/ktx/fireplace_colormap_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+		loadTexture("rock_array", PROJECT_ROOT_DIR "/res/textures/ktx/particle_gradient_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+		loadTexture("metal_plate", PROJECT_ROOT_DIR "/res/textures/ktx/metalplate01_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
         
     }
 
@@ -115,21 +120,35 @@ namespace vkc {
     }
 
 
-    std::shared_ptr<VkcOBJmodel> AssetManager::loadModel(const std::string& modelName, const std::string& filepath)
-    {
-        // Check if the model is already loaded
-        auto it = modelCache.find(modelName);
-        if (it != modelCache.end()) {
+    std::shared_ptr<IModel> AssetManager::loadModel(const std::string& name,
+        const std::string& filepath,
+        uint32_t gltfFlags,
+        float scale) {
+        if (auto it = modelCache.find(name); it != modelCache.end())
             return it->second;
+
+        // Determine extension
+        auto ext = filepath.substr(filepath.find_last_of('.') + 1);
+        for (auto& c : ext) c = char(::tolower(c));
+
+        std::shared_ptr<IModel> model;
+        if (ext == "obj") {
+            model = VkcOBJmodel::createModelFromFile(_device, filepath);
+        }
+        else if (ext == "gltf" || ext == "glb") {
+            auto gltf = std::make_shared<vkglTF::Model>();
+            gltf->loadFromFile(filepath, &_device, _device.graphicsQueue(), gltfFlags, scale);
+            model = gltf;
+        }
+        else {
+            throw std::runtime_error("Unsupported format: " + ext);
         }
 
-        // Load the model and store it in the cache
-        auto model = VkcOBJmodel::createModelFromFile(_device, filepath);
-        modelCache[modelName] = model;
+        modelCache[name] = model;
         return model;
     }
 
-    std::shared_ptr<VkcOBJmodel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
+    std::shared_ptr<IModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
     {
         auto it = modelCache.find(modelName);
         if (it != modelCache.end()) {
@@ -141,16 +160,17 @@ namespace vkc {
         return model;
     }
   
-    std::shared_ptr<VkcOBJmodel> AssetManager::getModel(const std::string& modelName) 
+    std::shared_ptr<IModel> AssetManager::getModel(const std::string& name) const
     {
-        auto it = modelCache.find(modelName);
-        if (it != modelCache.end()) {
-            return it->second;
+        auto it = modelCache.find(name);
+        if (it == modelCache.end()) {
+            throw std::runtime_error("Model not found: " + name);
         }
-        else {
-            throw std::runtime_error("Model not found in cache: " + modelName);
-        }
+        return it->second;
     }
+
+
+
     std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& filename) const
     {
         auto it = textureCache.find(filename);
