@@ -9,7 +9,7 @@ namespace vkc
 
 	void Game::Init(GLFWwindow* window)
 	{
-		_scene.loadSceneData("DefaultScene");
+		_scene.loadSceneData("defaultScene");
 
 		_player = std::make_shared<Player>(window);
 		_player->Init();

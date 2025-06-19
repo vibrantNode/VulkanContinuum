@@ -1394,6 +1394,7 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 			if (descriptorBindingFlags & DescriptorBindingFlags::ImageBaseColor) {
 				setLayoutBindings.push_back(vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(setLayoutBindings.size())));
 			}
+
 			if (descriptorBindingFlags & DescriptorBindingFlags::ImageNormalMap) {
 				setLayoutBindings.push_back(vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(setLayoutBindings.size())));
 			}
@@ -1403,6 +1404,7 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 			descriptorLayoutCI.pBindings = setLayoutBindings.data();
 			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device->logicalDevice, &descriptorLayoutCI, nullptr, &descriptorSetLayoutImage));
 		}
+
 		for (auto& material : materials) {
 			if (material.baseColorTexture != nullptr) {
 				material.createDescriptorSet(descriptorPool, vkglTF::descriptorSetLayoutImage, descriptorBindingFlags);
@@ -1460,7 +1462,7 @@ void vkglTF::Model::draw(VkCommandBuffer commandBuffer, uint32_t renderFlags, Vk
 }
 void vkglTF::Model::draw(VkCommandBuffer commandBuffer) 
 {
-	draw(commandBuffer, 0, VK_NULL_HANDLE, 1);
+	draw(commandBuffer, 0, VK_NULL_HANDLE, 1); // needs fixing
 }
 
 void vkglTF::Model::getNodeDimensions(Node* node, glm::vec3& min, glm::vec3& max)

@@ -9,6 +9,5 @@ namespace vkc
 		virtual ~IModel() = default;
 		virtual void bind(VkCommandBuffer commandBuffer) = 0;
 		virtual void draw(VkCommandBuffer commandBuffer) = 0;
-		
 	};
 }

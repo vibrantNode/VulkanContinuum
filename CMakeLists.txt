@@ -50,6 +50,7 @@ add_executable(VKContinuum
     src/Renderer/RendererSystems/vk_basicRenderSystem.cpp
     src/Renderer/RendererSystems/vk_pointLightSystem.cpp
     src/Renderer/RendererSystems/vk_skyboxRenderSystem.cpp
+    src/Renderer/RendererSystems/vk_glTFRenderSystem.cpp
     #src/Renderer/RendererSystems/vk_deferredGeomRenderSystem.cpp
 
     # Vulkan Abstraction

@@ -4,5 +4,4 @@ int main()
 {
 	vkc::Application app;
 	app.RunApp();
-	return 0;
 }

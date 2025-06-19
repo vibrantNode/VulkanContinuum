@@ -12,7 +12,6 @@ namespace vkc {
     }
     void AssetManager::preloadGlobalAssets() 
     {
-        // Now all these first ones don't have enough arguments being passed..
         loadModel("quad", PROJECT_ROOT_DIR "/res/models/quad.obj");
         loadModel("flat_vase", PROJECT_ROOT_DIR "/res/models/flat_vase.obj");
         loadModel("smooth_vase", PROJECT_ROOT_DIR "/res/models/smooth_vase.obj");
@@ -22,11 +21,8 @@ namespace vkc {
         loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/VikingRoom.obj");
         loadModel("character", PROJECT_ROOT_DIR "/res/models/Square Character/Square Character.obj");
         const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-        loadModel("space_station", PROJECT_ROOT_DIR "/res/models/gltf/test/scene.gltf", glTFLoadingFlags, 0.01f);
-
-
+        loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf", glTFLoadingFlags, 0.01f);
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
-       
         loadCubemap("skybox", { {
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/right.png",
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/left.png",
