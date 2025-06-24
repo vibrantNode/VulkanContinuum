@@ -10,6 +10,7 @@
 #include "Renderer/RendererSystems/vk_renderSystem.h"
 #include "Game/vk_player.h"
 #include "VK_abstraction/vk_obj_model.h"
+#include "VK_abstraction/vk_glTFModel.h"
 
 #include <optional>
 

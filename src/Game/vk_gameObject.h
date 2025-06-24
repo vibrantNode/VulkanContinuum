@@ -61,7 +61,9 @@ namespace vkc
 		std::shared_ptr<VkcTexture> texture{};
 		std::shared_ptr<IModel> model{};
 		bool isSkybox{ false };
-		
+		bool isOBJ{ false };
+		bool isglTF{ false };
+
 		std::unique_ptr<PointLightComponent> pointLight = nullptr;
 	private:
 		VkcGameObject(id_t objId) : id{ objId } {}

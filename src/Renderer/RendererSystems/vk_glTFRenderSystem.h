@@ -4,7 +4,7 @@
 #include "Renderer/vk_descriptorManager.h"
 #include "VK_abstraction/vk_pipeline.h"
 #include "VK_abstraction/vk_device.h"
-
+#include "VK_abstraction/vk_glTFModel.h"
 
 // STD
 #include <memory>
@@ -18,22 +18,18 @@ namespace vkc
 		glTFRenderSystem(
 			VkcDevice& device,
 			VkRenderPass renderPass,
-			VkDescriptorSetLayout globalSetLayout,
-			VkDescriptorSetLayout materialSetLayout
+			VkDescriptorSetLayout globalSetLayout
 		);
 		~glTFRenderSystem();
 		void render(FrameInfo& frameInfo) override;
 
 	private:
-		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout materialSetLayout);
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
-
+		void drawNodeRecursive(vkglTF::Node* node, VkCommandBuffer cmd);
 		VkcDevice& vkcDevice;
-
-
 		VkDescriptorSetLayout globalSetLayout;
 		VkDescriptorSetLayout textureSetLayout;
-		VkDescriptorSetLayout materialSetLayout;
 
 
 		std::unique_ptr<VkcPipeline> vkcPipeline;

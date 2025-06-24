@@ -26,7 +26,7 @@ namespace vkc {
 
         // 3) Init camera & controller
         camera = VkcCamera(startPos, yaw, pitch, defaultFovY);
-        controller = MNKController(0.1f, yaw, pitch, 13.0f);
+        controller = MNKController(0.1f, yaw, pitch, 6.0f);
 
         // 4) Lock/hide cursor and set callback
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

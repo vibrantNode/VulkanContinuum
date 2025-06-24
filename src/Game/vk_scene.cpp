@@ -68,7 +68,14 @@ namespace vkc {
 
             // Model
             if (auto it = objJson.find("model"); it != objJson.end()) {
-                go.model = assetManager.getModel(it->get<std::string>()); // ******************************** on this line
+                go.model = assetManager.getModel(it->get<std::string>());
+
+                if (std::dynamic_pointer_cast<VkcOBJmodel>(go.model)) {
+                    go.isOBJ = true;
+                }
+				if (std::dynamic_pointer_cast<vkglTF::Model>(go.model)) {
+					go.isglTF = true;
+				}   
             }
 
             // Transform
@@ -83,13 +90,20 @@ namespace vkc {
             go.isSkybox = objJson.value("isSkybox", false);
 
             // Name-based texture lookup
-            if (auto texIt = objJson.find("textureName"); texIt != objJson.end()) {
-                std::string name = texIt->get<std::string>();
-                go.texture = assetManager.getTexture(name);
-                go.textureIndex = static_cast<int>(assetManager.getTextureIndex(name));
+            if (!go.isglTF) {
+                if (auto texIt = objJson.find("textureName"); texIt != objJson.end()) {
+                    std::string name = texIt->get<std::string>();
+                    go.texture = assetManager.getTexture(name);
+                    go.textureIndex = static_cast<int>(assetManager.getTextureIndex(name));
+                }
+                else {
+                    go.texture = nullptr;
+                    go.textureIndex = -1;
+                }
             }
             else {
                 go.texture = nullptr;
+                go.textureIndex = -1;
             }
 
             // Insert into scene

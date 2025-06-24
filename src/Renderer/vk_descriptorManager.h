@@ -10,6 +10,7 @@ namespace vkc {
         VkDescriptorSetLayout globalLayout;
         VkDescriptorSetLayout textureLayout;
         VkDescriptorSetLayout skyboxLayout;
+        VkDescriptorSetLayout descriptorSetLayoutImage;
     };
 
     struct DescriptorConfig {

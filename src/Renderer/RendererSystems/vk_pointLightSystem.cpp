@@ -133,7 +133,7 @@ namespace vkc {
         int lightIndex = 0;
         for (auto& kv : frameInfo.gameObjects) {
             auto& obj = kv.second;
-            if (obj.pointLight == nullptr) continue;
+            if (obj.pointLight == nullptr || obj.isOBJ || obj.isSkybox) continue;
 
             assert(lightIndex < MAX_LIGHTS && "Point lights exceed maximum specified");
 

@@ -290,12 +290,18 @@ namespace vkglTF
 		void loadFromFile(std::string filename, vkc::VkcDevice* device, VkQueue transferQueue, uint32_t fileLoadingFlags = vkglTF::FileLoadingFlags::None, float scale = 1.0f);
 
 		void bind(VkCommandBuffer commandBuffer)override;
-		void draw(VkCommandBuffer commandBuffer, uint32_t renderFlags = 0, VkPipelineLayout pipelineLayout = VK_NULL_HANDLE, uint32_t bindImageSet = 1);
-		void draw(VkCommandBuffer commandBuffer)override;
+		void draw(VkCommandBuffer commandBuffer)override {}
 
+		void draw(
+			VkCommandBuffer commandBuffer,
+			uint32_t renderFlags = 0,
+			VkPipelineLayout pipelineLayout = VK_NULL_HANDLE,
+			uint32_t bindImageSet = 1
+		);
 
 		void drawNode(Node* node, VkCommandBuffer commandBuffer, uint32_t renderFlags = 0, VkPipelineLayout pipelineLayout = VK_NULL_HANDLE, uint32_t bindImageSet = 1);
 
+		
 		void getNodeDimensions(Node* node, glm::vec3& min, glm::vec3& max);
 		void getSceneDimensions();
 		void updateAnimation(uint32_t index, float time);

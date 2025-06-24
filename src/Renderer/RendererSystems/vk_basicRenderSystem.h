@@ -37,7 +37,7 @@ namespace vkc {
 
 		VkDescriptorSetLayout globalSetLayout;
 		VkDescriptorSetLayout textureSetLayout;
-
+	
 
 		std::unique_ptr<VkcPipeline> vkcPipeline;
 		VkPipelineLayout pipelineLayout;

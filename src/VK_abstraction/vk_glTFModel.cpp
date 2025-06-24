@@ -1172,6 +1172,7 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 {
 	tinygltf::Model gltfModel;
 	tinygltf::TinyGLTF gltfContext;
+
 	if (fileLoadingFlags & FileLoadingFlags::DontLoadImages) {
 		gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
 	}
@@ -1460,10 +1461,7 @@ void vkglTF::Model::draw(VkCommandBuffer commandBuffer, uint32_t renderFlags, Vk
 		drawNode(node, commandBuffer, renderFlags, pipelineLayout, bindImageSet);
 	}
 }
-void vkglTF::Model::draw(VkCommandBuffer commandBuffer) 
-{
-	draw(commandBuffer, 0, VK_NULL_HANDLE, 1); // needs fixing
-}
+
 
 void vkglTF::Model::getNodeDimensions(Node* node, glm::vec3& min, glm::vec3& max)
 {

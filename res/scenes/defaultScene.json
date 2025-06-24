@@ -27,20 +27,11 @@
       "scale": [ 3, -2.5, 3 ]
     },
     {
-      "name": "Room",
-      "model": "living_room",
-      "textureName": "metal_plate",
-      "position": [ -0.5, 4.5, 0 ],
+      "name": "Helmet",
+      "model": "helmet",
+      "position": [ 0, 5.5, 0 ],
       "rotation": [ 0, 0, 0 ],
-      "scale": [ 3, -2.5, 3 ]
-    },
-    {
-      "name": "smoothVase",
-      "model": "character",
-      "textureName": "stoneFloor01",
-      "position": [ 3.5, -4.5, -2 ],
-      "rotation": [ 0, 0, 0 ],
-      "scale": [ 0.1, -0.1, 0.1 ]
+      "scale": [ -9, -9, -9 ]
     },
     {
       "name": "Light1",

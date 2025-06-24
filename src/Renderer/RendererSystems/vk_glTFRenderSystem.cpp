@@ -7,14 +7,12 @@ namespace vkc
 	glTFRenderSystem::glTFRenderSystem(
 		VkcDevice& device,
 		VkRenderPass renderPass,
-		VkDescriptorSetLayout globalSetLayout,
-		VkDescriptorSetLayout materialSetLayout
+		VkDescriptorSetLayout globalSetLayout
 	)
 		: vkcDevice(device),
-		globalSetLayout(globalSetLayout),
-		materialSetLayout(materialSetLayout)
+		globalSetLayout(globalSetLayout)
 	{
-		createPipelineLayout(globalSetLayout, materialSetLayout);
+		createPipelineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
@@ -25,46 +23,74 @@ namespace vkc
 
 
 	void glTFRenderSystem::render(FrameInfo& frameInfo) {
+
+		// bind pipeline
+		vkcPipeline->bind(frameInfo.commandBuffer);
+
+		vkCmdBindDescriptorSets(
+			frameInfo.commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineLayout,
+			/*firstSet=*/0, 1,
+			&frameInfo.globalDescriptorSet,
+			0, nullptr);
+
+
 		for (auto& [id, go] : frameInfo.gameObjects) {
-			if (!go.model || go.isSkybox) continue;
+			if (!go.model || go.isSkybox || go.isOBJ) continue;
 			auto gltfModel = std::static_pointer_cast<vkglTF::Model>(go.model);
 
-			// bind pipeline
-			vkcPipeline->bind(frameInfo.commandBuffer);
-
-			vkCmdBindDescriptorSets(
-				frameInfo.commandBuffer,
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout,
-				0,
-				1,
-				&frameInfo.globalDescriptorSet,
-				0, nullptr);
-
-			constexpr uint32_t renderFlags = vkglTF::RenderFlags::BindImages;
-			constexpr uint32_t bindImageSet = 1;
 
 			gltfModel->bind(frameInfo.commandBuffer);
-			gltfModel->draw(
-				frameInfo.commandBuffer,
-				renderFlags,
-				pipelineLayout,
-				bindImageSet);
+
+			for (auto* node : gltfModel->linearNodes) {
+				if (!node->mesh) continue;
+
+				// Update per-node UBO
+				glm::mat4 world = go.transform.mat4() * node->getMatrix();
+				glm::mat4 normalMat = glm::transpose(glm::inverse(world));
+				memcpy(node->mesh->uniformBuffer.mapped, &world, sizeof(world));// exception thrown read access violation
+				memcpy((char*)node->mesh->uniformBuffer.mapped + sizeof(world), &normalMat, sizeof(normalMat));
+
+				// Bind descriptor sets: 0 = global, 1 = per-node UBO
+				vkCmdBindDescriptorSets(
+					frameInfo.commandBuffer,
+					VK_PIPELINE_BIND_POINT_GRAPHICS,
+					pipelineLayout,
+					1, 1,
+					&node->mesh->uniformBuffer.descriptorSet,
+					0, nullptr);
+
+				// Draw just this node (it binds set 2 inside for material)
+				gltfModel->drawNode(
+					node,
+					frameInfo.commandBuffer,
+					vkglTF::RenderFlags::BindImages,
+					pipelineLayout,
+					2
+				);
+				//std::cout << "Vertex count: " << gltfModel->vertices.count << std::endl;
+				//std::cout << "Index count: " << gltfModel->indices.count << std::endl;
+				//std::cout << "Node count: " << gltfModel->nodes.size() << std::endl;
+
+			}
+			
 		}
 	}
 
 
 
-	void glTFRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout materialSetLayout)
+	void glTFRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(glm::mat4) * 2;
 
-		std::vector<VkDescriptorSetLayout> layouts = {
+		const std::vector<VkDescriptorSetLayout> layouts = {
 			globalSetLayout,
-			materialSetLayout
+			vkglTF::descriptorSetLayoutUbo,
+			vkglTF::descriptorSetLayoutImage
 		};
 
 		VkPipelineLayoutCreateInfo pipelineLayoutCI = {};
@@ -90,17 +116,23 @@ namespace vkc
 		config.pipelineLayout = pipelineLayout;
 		config.renderPass = renderPass;
 		config.attributeDescriptions = {
-		vkc::vkinit::vertexInputAttributeDescription(
-		0, 0, VK_FORMAT_R32G32B32_SFLOAT,
-		offsetof(vkglTF::Vertex, pos)),
-		vkc::vkinit::vertexInputAttributeDescription(
-		0, 1, VK_FORMAT_R32G32B32_SFLOAT,
-		offsetof(vkglTF::Vertex, normal)),
-		vkc::vkinit::vertexInputAttributeDescription(
-		0, 2, VK_FORMAT_R32G32_SFLOAT,
-		offsetof(vkglTF::Vertex, uv)),
-		vkc::vkinit::vertexInputAttributeDescription(
-		0, 3, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, color)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkglTF::Vertex, pos)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkglTF::Vertex, normal)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 2, VK_FORMAT_R32G32_SFLOAT, offsetof(vkglTF::Vertex, uv)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 3, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, color)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, joint0)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 5, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, weight0)),
+			vkc::vkinit::vertexInputAttributeDescription(
+				0, 6, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, tangent))
+		};
+		config.bindingDescriptions = {
+		vkc::vkinit::vertexInputBindingDescription(0, sizeof(vkglTF::Vertex), VK_VERTEX_INPUT_RATE_VERTEX)
 		};
 
 		vkcPipeline = std::make_unique<VkcPipeline>(

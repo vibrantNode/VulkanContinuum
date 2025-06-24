@@ -1,7 +1,8 @@
+// glTFfrag.frag
 #version 450
 
-//— Set 1: single sampler bound per material
-layout(set = 1, binding = 0) uniform sampler2D materialSampler;
+//— Set 2: per-material sampler (Sascha’s descriptorSetLayoutImage)
+layout(set = 2, binding = 0) uniform sampler2D materialSampler;
 
 //— Interpolated inputs
 layout(location = 0) in vec3  fragNormal;
@@ -19,12 +20,13 @@ void main() {
     vec3 V = normalize(fragViewVec);
     vec3 R = reflect(-L, N);
 
-    // Sample that one bound texture
+    // sample your glTF base-color texture
     vec4 texColor = texture(materialSampler, fragUV);
-    // Modulate by vertex color
+
+    // combine with vertex color if present
     vec3 baseColor = texColor.rgb * fragColor.rgb;
 
-    // Simple Blinn‑Phong
+    // simple Blinn-Phong
     float diff = max(dot(N, L), 0.15);
     float spec = pow(max(dot(R, V), 0.0), 16.0) * 0.75;
     vec3 lighting = diff * baseColor + spec;

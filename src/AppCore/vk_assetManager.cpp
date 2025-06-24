@@ -20,8 +20,10 @@ namespace vkc {
         loadModel("living_room", PROJECT_ROOT_DIR "/res/models/InteriorTest.obj");
         loadModel("viking_room", PROJECT_ROOT_DIR "/res/models/VikingRoom.obj");
         loadModel("character", PROJECT_ROOT_DIR "/res/models/Square Character/Square Character.obj");
-        const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-        loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf", glTFLoadingFlags, 0.01f);
+        //const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
+
+        loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf");
+        
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
         loadCubemap("skybox", { {
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/right.png",
@@ -42,6 +44,34 @@ namespace vkc {
 		loadTexture("metal_plate", PROJECT_ROOT_DIR "/res/textures/ktx/metalplate01_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
         
     }
+    std::shared_ptr<IModel> AssetManager::loadModel(const std::string& name,
+        const std::string& filepath,
+        uint32_t gltfFlags,
+        float scale) {
+        if (auto it = modelCache.find(name); it != modelCache.end())
+            return it->second;
+
+        // Determine extension
+        auto ext = filepath.substr(filepath.find_last_of('.') + 1);
+        for (auto& c : ext) c = char(::tolower(c));
+
+        std::shared_ptr<IModel> model;
+        if (ext == "obj") {
+            model = VkcOBJmodel::createModelFromFile(_device, filepath);
+        }
+        else if (ext == "gltf" || ext == "glb") {
+            auto gltf = std::make_shared<vkglTF::Model>();
+            gltf->loadFromFile(filepath, &_device, _device.graphicsQueue(), gltfFlags, scale);
+            model = gltf;
+        }
+        else {
+            throw std::runtime_error("Unsupported format: " + ext);
+        }
+
+        modelCache[name] = model;
+        return model;
+    }
+
 
     std::shared_ptr<VkcTexture> AssetManager::loadCubemap(
         const std::string& name,
@@ -116,33 +146,7 @@ namespace vkc {
     }
 
 
-    std::shared_ptr<IModel> AssetManager::loadModel(const std::string& name,
-        const std::string& filepath,
-        uint32_t gltfFlags,
-        float scale) {
-        if (auto it = modelCache.find(name); it != modelCache.end())
-            return it->second;
-
-        // Determine extension
-        auto ext = filepath.substr(filepath.find_last_of('.') + 1);
-        for (auto& c : ext) c = char(::tolower(c));
-
-        std::shared_ptr<IModel> model;
-        if (ext == "obj") {
-            model = VkcOBJmodel::createModelFromFile(_device, filepath);
-        }
-        else if (ext == "gltf" || ext == "glb") {
-            auto gltf = std::make_shared<vkglTF::Model>();
-            gltf->loadFromFile(filepath, &_device, _device.graphicsQueue(), gltfFlags, scale);
-            model = gltf;
-        }
-        else {
-            throw std::runtime_error("Unsupported format: " + ext);
-        }
-
-        modelCache[name] = model;
-        return model;
-    }
+    
 
     std::shared_ptr<IModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
     {

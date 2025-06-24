@@ -17,6 +17,11 @@ namespace vkc {
             layouts.globalLayout,
             layouts.textureLayout));
 
+        systems.push_back(std::make_unique<glTFRenderSystem>(
+            device,
+            renderPass,
+            layouts.globalLayout));
+
         systems.push_back(std::make_unique<PointLightSystem>(
             device,
             renderPass,
