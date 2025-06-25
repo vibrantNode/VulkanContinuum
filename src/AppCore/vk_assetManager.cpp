@@ -23,6 +23,8 @@ namespace vkc {
         //const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
 
         loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf");
+        loadModel("dragon", PROJECT_ROOT_DIR "/res/models/gltf/chinesedragon.gltf");
+        loadModel("sponza", PROJECT_ROOT_DIR "/res/models/gltf/sponza/sponza.gltf");
         
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
         loadCubemap("skybox", { {

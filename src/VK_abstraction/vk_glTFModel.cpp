@@ -25,7 +25,7 @@
 VkDescriptorSetLayout vkglTF::descriptorSetLayoutImage = VK_NULL_HANDLE;
 VkDescriptorSetLayout vkglTF::descriptorSetLayoutUbo = VK_NULL_HANDLE;
 VkMemoryPropertyFlags vkglTF::memoryPropertyFlags = 0;
-uint32_t vkglTF::descriptorBindingFlags = vkglTF::DescriptorBindingFlags::ImageBaseColor;
+uint32_t vkglTF::descriptorBindingFlags = vkglTF::DescriptorBindingFlags::ImageBaseColor | vkglTF::DescriptorBindingFlags::ImageNormalMap;
 
 /*
 	We use a custom image loading function with tinyglTF, so we can do custom stuff loading ktx textures
@@ -436,40 +436,68 @@ void vkglTF::Texture::fromglTfImage(tinygltf::Image& gltfimage, std::string path
 /*
 	glTF material
 */
-void vkglTF::Material::createDescriptorSet(VkDescriptorPool descriptorPool, VkDescriptorSetLayout descriptorSetLayout, uint32_t descriptorBindingFlags)
-{
-	VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
-	descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	descriptorSetAllocInfo.descriptorPool = descriptorPool;
-	descriptorSetAllocInfo.pSetLayouts = &descriptorSetLayout;
-	descriptorSetAllocInfo.descriptorSetCount = 1;
-	VK_CHECK_RESULT(vkAllocateDescriptorSets(device->logicalDevice, &descriptorSetAllocInfo, &descriptorSet));
-	std::vector<VkDescriptorImageInfo> imageDescriptors{};
-	std::vector<VkWriteDescriptorSet> writeDescriptorSets{};
-	if (descriptorBindingFlags & DescriptorBindingFlags::ImageBaseColor) {
-		imageDescriptors.push_back(baseColorTexture->descriptor);
-		VkWriteDescriptorSet writeDescriptorSet{};
-		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writeDescriptorSet.descriptorCount = 1;
-		writeDescriptorSet.dstSet = descriptorSet;
-		writeDescriptorSet.dstBinding = static_cast<uint32_t>(writeDescriptorSets.size());
-		writeDescriptorSet.pImageInfo = &baseColorTexture->descriptor;
-		writeDescriptorSets.push_back(writeDescriptorSet);
+void vkglTF::Material::createDescriptorSet(
+	VkDescriptorPool descriptorPool,
+	VkDescriptorSetLayout descriptorSetLayout,
+	uint32_t descriptorBindingFlags,
+	vkglTF::Texture* fallbackTexture
+) {
+	// Allocate descriptor set
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &descriptorSetLayout;
+	VK_CHECK_RESULT(vkAllocateDescriptorSets(device->logicalDevice, &allocInfo, &descriptorSet));
+
+	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+
+	// Base Color Texture
+	if ((descriptorBindingFlags & vkglTF::DescriptorBindingFlags::ImageBaseColor) && baseColorTexture) {
+		VkDescriptorImageInfo baseColorImageInfo = baseColorTexture->descriptor;
+		writeDescriptorSets.push_back({
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,       // sType
+			nullptr,                                      // pNext
+			descriptorSet,                                // dstSet
+			0,                                            // dstBinding (base color = 0)
+			0,                                            // dstArrayElement
+			1,                                            // descriptorCount
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,    // descriptorType
+			&baseColorImageInfo,                          // pImageInfo
+			nullptr, nullptr                              // pBufferInfo, pTexelBufferView
+			});
 	}
-	if (normalTexture && descriptorBindingFlags & DescriptorBindingFlags::ImageNormalMap) {
-		imageDescriptors.push_back(normalTexture->descriptor);
-		VkWriteDescriptorSet writeDescriptorSet{};
-		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writeDescriptorSet.descriptorCount = 1;
-		writeDescriptorSet.dstSet = descriptorSet;
-		writeDescriptorSet.dstBinding = static_cast<uint32_t>(writeDescriptorSets.size());
-		writeDescriptorSet.pImageInfo = &normalTexture->descriptor;
-		writeDescriptorSets.push_back(writeDescriptorSet);
+
+	// Normal Map Texture
+	if (descriptorBindingFlags & vkglTF::DescriptorBindingFlags::ImageNormalMap) {
+		// Always bind something
+		vkglTF::Texture* tex = (normalTexture != nullptr) ? normalTexture : fallbackTexture;
+		VkDescriptorImageInfo normalImageInfo = tex->descriptor;
+
+		writeDescriptorSets.push_back({
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			descriptorSet,
+			1,  // binding = 1 for normal map
+			0,
+			1,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			&normalImageInfo,
+			nullptr, nullptr
+			});
 	}
-	vkUpdateDescriptorSets(device->logicalDevice, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+
+	// Update descriptors
+	if (!writeDescriptorSets.empty()) {
+		vkUpdateDescriptorSets(
+			device->logicalDevice,
+			static_cast<uint32_t>(writeDescriptorSets.size()),
+			writeDescriptorSets.data(),
+			0, nullptr
+		);
+	}
 }
+
 
 
 /*
@@ -627,6 +655,9 @@ vkglTF::Texture* vkglTF::Model::getTexture(uint32_t index)
 
 void vkglTF::Model::createEmptyTexture(VkQueue transferQueue)
 {
+	// Define the static member here (outside any class/function)
+	
+
 	emptyTexture.device = device;
 	emptyTexture.width = 1;
 	emptyTexture.height = 1;
@@ -1001,8 +1032,8 @@ void vkglTF::Model::loadImages(tinygltf::Model& gltfModel, vkc::VkcDevice* devic
 	}
 	// Create an empty texture to be used for empty material images
 	createEmptyTexture(transferQueue);
+	emptyTexture.descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
-
 void vkglTF::Model::loadMaterials(tinygltf::Model& gltfModel)
 {
 	for (tinygltf::Material& mat : gltfModel.materials) {
@@ -1035,14 +1066,18 @@ void vkglTF::Model::loadMaterials(tinygltf::Model& gltfModel)
 		if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end()) {
 			material.occlusionTexture = getTexture(gltfModel.textures[mat.additionalValues["occlusionTexture"].TextureIndex()].source);
 		}
-		if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end()) {
-			tinygltf::Parameter param = mat.additionalValues["alphaMode"];
-			if (param.string_value == "BLEND") {
+		material.alphaMode = Material::ALPHAMODE_OPAQUE;
+
+		auto itAlpha = mat.additionalValues.find("alphaMode");
+		if (itAlpha != mat.additionalValues.end()) {
+			const std::string& mode = itAlpha->second.string_value;
+			if (mode == "BLEND") {
 				material.alphaMode = Material::ALPHAMODE_BLEND;
 			}
-			if (param.string_value == "MASK") {
+			else if (mode == "MASK") {
 				material.alphaMode = Material::ALPHAMODE_MASK;
 			}
+			// else leave as OPAQUE
 		}
 		if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end()) {
 			material.alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
@@ -1053,6 +1088,7 @@ void vkglTF::Model::loadMaterials(tinygltf::Model& gltfModel)
 	// Push a default material at the end of the list for meshes with no material assigned
 	materials.push_back(Material(device));
 }
+
 
 void vkglTF::Model::loadAnimations(tinygltf::Model& gltfModel)
 {
@@ -1371,44 +1407,61 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 
 	// Descriptors for per-node uniform buffers
 	{
-		// Layout is global, so only create if it hasn't already been created before
-		if (descriptorSetLayoutUbo == VK_NULL_HANDLE) {
-			std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
-				vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0),
-			};
-			VkDescriptorSetLayoutCreateInfo descriptorLayoutCI{};
-			descriptorLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			descriptorLayoutCI.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-			descriptorLayoutCI.pBindings = setLayoutBindings.data();
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device->logicalDevice, &descriptorLayoutCI, nullptr, &descriptorSetLayoutUbo));
+		{
+			// Layout is global, so only create if it hasn't already been created before
+			if (descriptorSetLayoutUbo == VK_NULL_HANDLE) {
+				std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
+					vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0),
+				};
+				VkDescriptorSetLayoutCreateInfo descriptorLayoutCI{};
+				descriptorLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				descriptorLayoutCI.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+				descriptorLayoutCI.pBindings = setLayoutBindings.data();
+				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device->logicalDevice, &descriptorLayoutCI, nullptr, &descriptorSetLayoutUbo));
+			}
+			for (auto node : nodes) {
+				prepareNodeDescriptor(node, descriptorSetLayoutUbo);
+			}
 		}
-		for (auto node : nodes) {
-			prepareNodeDescriptor(node, descriptorSetLayoutUbo);
-		}
-	}
 
-	// Descriptors for per-material images
-	{
-		// Layout is global, so only create if it hasn't already been created before
-		if (descriptorSetLayoutImage == VK_NULL_HANDLE) {
-			std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-			if (descriptorBindingFlags & DescriptorBindingFlags::ImageBaseColor) {
-				setLayoutBindings.push_back(vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(setLayoutBindings.size())));
+		// Descriptors for per-material images
+		{
+			// Layout is global, so only create if it hasn't already been created before
+			if (descriptorSetLayoutImage == VK_NULL_HANDLE) {
+				// Always push exactly two bindings:
+				//  • binding 0 = base-color sampler
+				//  • binding 1 = normal-map sampler
+				std::array<VkDescriptorSetLayoutBinding, 2> setLayoutBindings = {
+					// binding 0 → base-color
+					vkc::vkinit::descriptorSetLayoutBinding(
+						VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+						VK_SHADER_STAGE_FRAGMENT_BIT,
+						/*binding=*/ 0
+					),
+						// binding 1 → normal map
+						vkc::vkinit::descriptorSetLayoutBinding(
+							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+							VK_SHADER_STAGE_FRAGMENT_BIT,
+							/*binding=*/ 1
+						)
+				};
+
+				VkDescriptorSetLayoutCreateInfo descriptorLayoutCI{};
+				descriptorLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				descriptorLayoutCI.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+				descriptorLayoutCI.pBindings = setLayoutBindings.data();
+				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(
+					device->logicalDevice,
+					&descriptorLayoutCI,
+					nullptr,
+					&descriptorSetLayoutImage
+				));
 			}
 
-			if (descriptorBindingFlags & DescriptorBindingFlags::ImageNormalMap) {
-				setLayoutBindings.push_back(vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(setLayoutBindings.size())));
-			}
-			VkDescriptorSetLayoutCreateInfo descriptorLayoutCI{};
-			descriptorLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			descriptorLayoutCI.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-			descriptorLayoutCI.pBindings = setLayoutBindings.data();
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device->logicalDevice, &descriptorLayoutCI, nullptr, &descriptorSetLayoutImage));
-		}
-
-		for (auto& material : materials) {
-			if (material.baseColorTexture != nullptr) {
-				material.createDescriptorSet(descriptorPool, vkglTF::descriptorSetLayoutImage, descriptorBindingFlags);
+			for (auto& material : materials) {
+				if (material.baseColorTexture != nullptr) {
+					material.createDescriptorSet(descriptorPool, vkglTF::descriptorSetLayoutImage, descriptorBindingFlags, &emptyTexture);
+				}
 			}
 		}
 	}

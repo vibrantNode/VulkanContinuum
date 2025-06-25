@@ -19,6 +19,13 @@
       "scale": [ 9, 9, 9 ]
     },
     {
+      "name": "Sponza",
+      "model": "sponza",
+      "position": [ 10, 15.5, 0 ],
+      "rotation": [ 0, 0, 0 ],
+      "scale": [ 9, -9, 9 ]
+    },
+    {
       "name": "Room",
       "model": "viking_room",
       "textureName": "vikingRoom",
@@ -26,13 +33,7 @@
       "rotation": [ 1.55, 0, -5 ],
       "scale": [ 3, -2.5, 3 ]
     },
-    {
-      "name": "Helmet",
-      "model": "helmet",
-      "position": [ 0, 5.5, 0 ],
-      "rotation": [ 0, 0, 0 ],
-      "scale": [ -9, -9, -9 ]
-    },
+ 
     {
       "name": "Light1",
       "special": "spinning_lights",

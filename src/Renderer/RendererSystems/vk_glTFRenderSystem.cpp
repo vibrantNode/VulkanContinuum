@@ -62,6 +62,7 @@ namespace vkc
 					0, nullptr);
 
 				// Draw just this node (it binds set 2 inside for material)
+
 				gltfModel->drawNode(
 					node,
 					frameInfo.commandBuffer,
@@ -82,23 +83,19 @@ namespace vkc
 
 	void glTFRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
-		VkPushConstantRange pushConstantRange{};
-		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-		pushConstantRange.offset = 0;
-		pushConstantRange.size = sizeof(glm::mat4) * 2;
 
 		const std::vector<VkDescriptorSetLayout> layouts = {
 			globalSetLayout,
 			vkglTF::descriptorSetLayoutUbo,
 			vkglTF::descriptorSetLayoutImage
 		};
+		
 
 		VkPipelineLayoutCreateInfo pipelineLayoutCI = {};
 		pipelineLayoutCI.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutCI.setLayoutCount = static_cast<uint32_t>(layouts.size());
 		pipelineLayoutCI.pSetLayouts = layouts.data();
-		pipelineLayoutCI.pushConstantRangeCount = 1;
-		pipelineLayoutCI.pPushConstantRanges = &pushConstantRange;
+		pipelineLayoutCI.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(vkcDevice.device(), &pipelineLayoutCI, nullptr, &pipelineLayout) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create GLTF pipeline layout");
 		}
@@ -115,6 +112,8 @@ namespace vkc
 
 		config.pipelineLayout = pipelineLayout;
 		config.renderPass = renderPass;
+
+
 		config.attributeDescriptions = {
 			vkc::vkinit::vertexInputAttributeDescription(
 				0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkglTF::Vertex, pos)),
@@ -124,17 +123,16 @@ namespace vkc
 				0, 2, VK_FORMAT_R32G32_SFLOAT, offsetof(vkglTF::Vertex, uv)),
 			vkc::vkinit::vertexInputAttributeDescription(
 				0, 3, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, color)),
-			vkc::vkinit::vertexInputAttributeDescription(
+		/*	vkc::vkinit::vertexInputAttributeDescription(
 				0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, joint0)),
 			vkc::vkinit::vertexInputAttributeDescription(
-				0, 5, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, weight0)),
+				0, 5, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, weight0)),*/
 			vkc::vkinit::vertexInputAttributeDescription(
-				0, 6, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, tangent))
+				0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, tangent))
 		};
 		config.bindingDescriptions = {
 		vkc::vkinit::vertexInputBindingDescription(0, sizeof(vkglTF::Vertex), VK_VERTEX_INPUT_RATE_VERTEX)
 		};
-
 		vkcPipeline = std::make_unique<VkcPipeline>(
 			vkcDevice,
 			vertPath.c_str(),

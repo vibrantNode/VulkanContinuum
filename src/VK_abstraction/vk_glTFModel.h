@@ -83,7 +83,7 @@ namespace vkglTF
 		VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
 		Material(vkc::VkcDevice* device) : device(device) {};
-		void createDescriptorSet(VkDescriptorPool descriptorPool, VkDescriptorSetLayout descriptorSetLayout, uint32_t descriptorBindingFlags);
+		void createDescriptorSet(VkDescriptorPool descriptorPool, VkDescriptorSetLayout descriptorSetLayout, uint32_t descriptorBindingFlags, vkglTF::Texture* fallbackTexture);
 	};
 
 	/*
@@ -246,7 +246,7 @@ namespace vkglTF
 	public:
 		vkc::VkcDevice* device;
 		VkDescriptorPool descriptorPool;
-
+		
 		struct Vertices {
 			int count;
 			VkBuffer buffer;
