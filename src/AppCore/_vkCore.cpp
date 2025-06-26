@@ -55,8 +55,8 @@ namespace vkc {
 
                 // update
                 GlobalUbo ubo{};
-                auto& uboBuffer = _descriptorManager.getUboBuffers()[frameIndex];
                 _game.Update(frameInfo, ubo, frameTime);
+                auto& uboBuffer = _descriptorManager.getUboBuffers()[frameIndex];
                 uboBuffer->writeToBuffer(&ubo);
                 uboBuffer->flush();
 

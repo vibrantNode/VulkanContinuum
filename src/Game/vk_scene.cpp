@@ -39,7 +39,7 @@ namespace vkc {
         // Parse game objects
         for (auto& objJson : sceneJson["objects"]) {
             // Special handling for spinning point lights
-            if (objJson.value("special", "") == "spinning_lights") {
+            if (objJson.value("special", "") == "lights") {
                 int count = objJson.value("count", 6);
                 float radius = objJson.value("radius", 4.8f);
                 float height = objJson.value("height", -2.5f);
@@ -77,7 +77,7 @@ namespace vkc {
 					go.isglTF = true;
 				}   
             }
-
+         
             // Transform
             auto pos = objJson.value("position", std::vector<float>{0.f, 0.f, 0.f});
             auto rot = objJson.value("rotation", std::vector<float>{0.f, 0.f, 0.f});

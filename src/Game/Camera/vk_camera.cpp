@@ -43,14 +43,23 @@ namespace vkc
  
     void VkcCamera::setPerspectiveProjection(float aspect, float near, float far)
     {
-        assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
+        assert(glm::abs(aspect) > std::numeric_limits<float>::epsilon());
         float fovy = glm::radians(m_Zoom);
         const float tanHalfFovy = tan(fovy / 2.f);
+
+        // Zero out, then set up a reversed-Z Vulkan projection with Y flipped
         projectionMatrix = glm::mat4{ 0.0f };
+
+        // X
         projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
-        projectionMatrix[1][1] = 1.f / (tanHalfFovy);
+        // Y (note the minus to flip the Y axis)
+        projectionMatrix[1][1] = -1.f / (tanHalfFovy);
+
+        // Z (reversed-Z: far/(far−near))
         projectionMatrix[2][2] = far / (far - near);
         projectionMatrix[2][3] = 1.f;
+
+        // W (reversed-Z depth)
         projectionMatrix[3][2] = -(far * near) / (far - near);
     }
 

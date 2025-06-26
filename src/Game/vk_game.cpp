@@ -17,15 +17,17 @@ namespace vkc
 		_scene.addPlayer(_player);	
 	}
 
-	void Game::Update(FrameInfo& frameInfo, GlobalUbo& ubo, float deltaTime)
+	void Game::Update(FrameInfo& frameInfo, GlobalUbo& ubo, float dt)
 	{
-		_player->Update(deltaTime);
+		_player->Update(dt);
 		_camera = _player->getCamera();
+
 		ubo.view = _camera.getView();
 		ubo.projection = _camera.getProjection();
 		ubo.inverseView = _camera.getInverseView();
-
-		_scene.update(frameInfo, ubo, deltaTime);
+		ubo.viewPos = glm::vec4(_camera.getPosition(), 1.0f);
+	
+		_scene.update(frameInfo, ubo, dt);
 	}
 	void Game::Render(FrameInfo& frameInfo)
 	{

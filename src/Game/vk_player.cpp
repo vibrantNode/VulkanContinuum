@@ -26,7 +26,7 @@ namespace vkc {
 
         // 3) Init camera & controller
         camera = VkcCamera(startPos, yaw, pitch, defaultFovY);
-        controller = MNKController(0.1f, yaw, pitch, 6.0f);
+        controller = MNKController(0.1f, yaw, pitch, 9.0f);
 
         // 4) Lock/hide cursor and set callback
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -53,7 +53,7 @@ namespace vkc {
         // 5) Update projection on resize
         int w, h;
         glfwGetFramebufferSize(_window, &w, &h);
-        camera.setPerspectiveProjection(w / static_cast<float>(h), 0.1f, 100.f);
+        camera.setPerspectiveProjection(w / static_cast<float>(h), 0.1f, 300.f);
     }
 
     const glm::mat4& Player::getViewMatrix() const {

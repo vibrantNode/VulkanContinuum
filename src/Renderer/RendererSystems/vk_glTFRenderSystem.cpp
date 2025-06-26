@@ -49,7 +49,7 @@ namespace vkc
 				// Update per-node UBO
 				glm::mat4 world = go.transform.mat4() * node->getMatrix();
 				glm::mat4 normalMat = glm::transpose(glm::inverse(world));
-				memcpy(node->mesh->uniformBuffer.mapped, &world, sizeof(world));// exception thrown read access violation
+				memcpy(node->mesh->uniformBuffer.mapped, &world, sizeof(world));
 				memcpy((char*)node->mesh->uniformBuffer.mapped + sizeof(world), &normalMat, sizeof(normalMat));
 
 				// Bind descriptor sets: 0 = global, 1 = per-node UBO
@@ -70,9 +70,6 @@ namespace vkc
 					pipelineLayout,
 					2
 				);
-				//std::cout << "Vertex count: " << gltfModel->vertices.count << std::endl;
-				//std::cout << "Index count: " << gltfModel->indices.count << std::endl;
-				//std::cout << "Node count: " << gltfModel->nodes.size() << std::endl;
 
 			}
 			
@@ -123,13 +120,14 @@ namespace vkc
 				0, 2, VK_FORMAT_R32G32_SFLOAT, offsetof(vkglTF::Vertex, uv)),
 			vkc::vkinit::vertexInputAttributeDescription(
 				0, 3, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, color)),
-		/*	vkc::vkinit::vertexInputAttributeDescription(
-				0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, joint0)),
-			vkc::vkinit::vertexInputAttributeDescription(
-				0, 5, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, weight0)),*/
-			vkc::vkinit::vertexInputAttributeDescription(
-				0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, tangent))
+				/*	vkc::vkinit::vertexInputAttributeDescription(
+						0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, joint0)),
+					vkc::vkinit::vertexInputAttributeDescription(
+						0, 5, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, weight0)),*/
+					vkc::vkinit::vertexInputAttributeDescription(
+						0, 4, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(vkglTF::Vertex, tangent))
 		};
+
 		config.bindingDescriptions = {
 		vkc::vkinit::vertexInputBindingDescription(0, sizeof(vkglTF::Vertex), VK_VERTEX_INPUT_RATE_VERTEX)
 		};

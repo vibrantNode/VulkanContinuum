@@ -1387,22 +1387,27 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 			imageCount++;
 		}
 	}
-	std::vector<VkDescriptorPoolSize> poolSizes = {
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uboCount },
-	};
-	if (imageCount > 0) {
-		if (descriptorBindingFlags & DescriptorBindingFlags::ImageBaseColor) {
-			poolSizes.push_back({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageCount });
-		}
-		if (descriptorBindingFlags & DescriptorBindingFlags::ImageNormalMap) {
-			poolSizes.push_back({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageCount });
-		}
+	uint32_t materialCount = 0;
+	for (auto& m : materials) {
+		if (m.baseColorTexture) ++materialCount;
 	}
+
+	std::vector<VkDescriptorPoolSize> poolSizes;
+
+	if (uboCount > 0) {
+		poolSizes.push_back({ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uboCount });
+	}
+
+	uint32_t samplerCount = materialCount * 2;  // baseColor + normal per material
+	if (samplerCount > 0) {
+		poolSizes.push_back({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, samplerCount });
+	}
+
 	VkDescriptorPoolCreateInfo descriptorPoolCI{};
 	descriptorPoolCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptorPoolCI.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	descriptorPoolCI.pPoolSizes = poolSizes.data();
-	descriptorPoolCI.maxSets = uboCount + imageCount;
+	descriptorPoolCI.maxSets = uboCount + materialCount;
 	VK_CHECK_RESULT(vkCreateDescriptorPool(device->logicalDevice, &descriptorPoolCI, nullptr, &descriptorPool));
 
 	// Descriptors for per-node uniform buffers

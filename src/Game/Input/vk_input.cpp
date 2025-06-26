@@ -22,7 +22,7 @@ namespace vkc {
             _firstMouse = false;
         }
         _xOffset = static_cast<float>(xpos - _lastX);
-        _yOffset = static_cast<float>(_lastY - ypos);
+        _yOffset = static_cast<float>(ypos - _lastY);
         _lastX = xpos;
         _lastY = ypos;
     }
@@ -54,8 +54,8 @@ namespace vkc {
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) dir -= forward;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) dir += right;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir -= right;
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) dir += up;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) dir -= up;
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) dir -= up;
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) dir += up;
 
         if (glm::length(dir) > 0.0f) {
             gameObject.transform.translation += glm::normalize(dir) * (moveSpeed * dt);
