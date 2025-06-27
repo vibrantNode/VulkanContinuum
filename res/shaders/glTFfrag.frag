@@ -12,7 +12,7 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inViewVec;
 layout(location = 4) in vec3 inLightVec;
 layout(location = 5) in vec4 inTangent;
-
+layout(location = 6) in vec4 inLightColor;
 // Final output
 layout(location = 0) out vec4 outFragColor;
 
@@ -41,9 +41,15 @@ void main()
     vec3 V = normalize(inViewVec);
     vec3 R = reflect(-L, N);
 
-    const float ambient = 0.1;
-    vec3 diffuse  = max(dot(N, L), ambient).rrr;
-    float specular = pow(max(dot(R, V), 0.0), 32.0);
+    // unpack light color & intensity
+    vec3 lightCol = inLightColor.rgb * inLightColor.a;
+    const float ambientFactor = 0.1;
+    vec3 ambient  = ambientFactor * lightCol;
+    vec3 diffuse  = max(dot(N, L), 0.0) * lightCol;
+    float specAmt = pow(max(dot(R, V), 0.0), 32.0) * inLightColor.a;
+    vec3 specular = specAmt * lightCol;
 
-    outFragColor = vec4(diffuse * texColor.rgb + specular, texColor.a);
+    // combine with texture
+    vec3 result = texColor.rgb * (ambient + diffuse) + specular;
+    outFragColor = vec4(result, texColor.a);
 }

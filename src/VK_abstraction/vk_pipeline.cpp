@@ -1,6 +1,5 @@
 #include "vk_pipeline.h"
 #include "vk_obj_model.h"
-
 // std
 #include <fstream>
 #include <stdexcept>
@@ -85,7 +84,7 @@ namespace vkc
 		shaderStages[1].pName = "main";
 		shaderStages[1].flags = 0;
 		shaderStages[1].pNext = nullptr;
-		shaderStages[1].pSpecializationInfo = nullptr;
+		shaderStages[1].pSpecializationInfo = configInfo.fragSpecInfo;
 
 		auto& bindingDescriptions = configInfo.bindingDescriptions;
 		auto& attributeDescriptions = configInfo.attributeDescriptions;
@@ -218,6 +217,10 @@ namespace vkc
 		configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
+
+
+		configInfo.bindingDescriptions.clear();
+		configInfo.attributeDescriptions.clear();
 
 		configInfo.bindingDescriptions = VkcOBJmodel::Vertex::getBindingDescriptions();
 		configInfo.attributeDescriptions = VkcOBJmodel::Vertex::getAttributeDescriptions();

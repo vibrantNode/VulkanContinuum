@@ -32,6 +32,8 @@ namespace vkc {
         _renderSystemManager.registerSystems(_game.getScene());
 
         auto currentTime = std::chrono::high_resolution_clock::now();
+        int  frameCount = 0;
+        float fpsTimer = 0.0f;
 
         while (!_window.shouldClose()) 
         {
@@ -39,6 +41,14 @@ namespace vkc {
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
+
+            frameCount++;
+            fpsTimer += frameTime;
+            if (fpsTimer >= 1.0f) {
+                //std::cout << "FPS: " << frameCount << "\n";
+                frameCount = 0;
+                fpsTimer -= 1.0f;
+            }
            
             if (auto commandBuffer = _renderer.beginFrame()) 
             {

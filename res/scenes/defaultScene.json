@@ -21,9 +21,9 @@
       "special": "lights",
       "count": 1,
       "radius": 0.0,
-      "height": 10.0,
-      "intensity": 2.0,
-      "colors": [ [ 0.0, 0.0, 1.0 ] ]
+      "height": 30.0,
+      "intensity": 0.7,
+      "colors": [ [ 1.0, 1.0, 1.0 ] ]
     }
   ]
 }

@@ -26,13 +26,15 @@ namespace vkc
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
-		void drawNodeRecursive(vkglTF::Node* node, VkCommandBuffer cmd);
+
 		VkcDevice& vkcDevice;
 		VkDescriptorSetLayout globalSetLayout;
 		VkDescriptorSetLayout textureSetLayout;
 
+		std::unique_ptr<VkcPipeline> opaquePipeline;
+		std::unique_ptr<VkcPipeline> maskPipeline;
+		std::unique_ptr<VkcPipeline> blendPipeline;
 
-		std::unique_ptr<VkcPipeline> vkcPipeline;
 		VkPipelineLayout pipelineLayout;
 
 	};

@@ -56,7 +56,7 @@ namespace vkglTF
 		uint32_t index;
 		void updateDescriptor();
 		void destroy();
-		void fromglTfImage(tinygltf::Image& gltfimage, std::string path, vkc::VkcDevice* device, VkQueue copyQueue);
+		void fromglTfImage(tinygltf::Image& gltfimage, std::string path, vkc::VkcDevice* device, VkQueue copyQueue, bool isSrgb);
 	};
 
 

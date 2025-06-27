@@ -1,4 +1,4 @@
-// standard.vert
+// gltf.vert
 #version 450
 #extension GL_KHR_vulkan_glsl : enable
 
@@ -18,15 +18,15 @@ layout(std140, set = 0, binding = 0) uniform GlobalUbo {
     mat4 projection;
     mat4 view;
     mat4 invView;
-    vec4 ambientLightColor;      // rgb ambient, a unused
-    vec4 lightDirection;   // <-- add back in
+    vec4 ambientLightColor;
+    vec4 lightDirection;
     vec4 viewPos;   
     PointLight pointLights[10];
     int     numLights;
     ivec3 _pad;
 } ubo;
 
-//— Per‐object transforms (set 1)
+
 layout(set = 1, binding = 0) uniform PerNode {
     mat4 modelMatrix;
     mat4 normalMatrix;           // inverse-transpose of model
@@ -39,7 +39,7 @@ layout(location = 2) out vec2  fragUV;
 layout(location = 3) out vec3  fragViewVec;
 layout(location = 4) out vec3  fragLightVec;
 layout(location = 5) out vec4  fragTangent;
-
+layout(location = 6) out vec4  fragLightColor;
 void main() {
     // world-space position
     vec4 worldPos = perNode.modelMatrix * vec4(inPos, 1.0);
@@ -58,4 +58,5 @@ void main() {
 
     fragViewVec  = camPos   - worldPos.xyz;
     fragLightVec = lightPos - worldPos.xyz;
+    fragLightColor = ubo.pointLights[0].color;
 }

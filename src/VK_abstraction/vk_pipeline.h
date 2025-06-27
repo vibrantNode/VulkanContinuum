@@ -26,6 +26,7 @@ namespace vkc {
 		VkPipelineLayout pipelineLayout = nullptr;
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
+		VkSpecializationInfo* fragSpecInfo = nullptr;
 	};
 
 	class VkcPipeline {

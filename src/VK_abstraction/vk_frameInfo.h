@@ -18,8 +18,8 @@ namespace vkc {
 
 	struct PointLight 
 	{
-		glm::vec4 position{};  // ignore w
-		glm::vec4 color{};     // w is intensity
+		glm::vec4 position{};
+		glm::vec4 color{};
 	};
 
 
@@ -29,7 +29,7 @@ namespace vkc {
 		glm::mat4 view{ 1.f };
 		glm::mat4 inverseView{ 1.f };
 		glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f };
-		glm::vec4 lightDirection; // Directional light
+		glm::vec4 lightDirection;
 		glm::vec4 viewPos;
 		PointLight pointLights[MAX_LIGHTS];
 		int numLights;
