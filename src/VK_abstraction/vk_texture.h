@@ -39,7 +39,7 @@ namespace vkc
 			bool               forceLinear
 		);
 		bool LoadCubemap(const std::array<std::string, 6>& faceFilePaths);
-
+		void KtxLoadCubemapFromFile(std::string filename, VkFormat format, vkc::VkcDevice* device, VkQueue copyQueue, VkImageUsageFlags imageUsageFlags, VkImageLayout imageLayout);
 		void Destroy();
 		void UpdateDescriptor();
 		void fromBuffer(

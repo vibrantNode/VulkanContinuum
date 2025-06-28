@@ -1556,6 +1556,7 @@ void vkglTF::Model::loadAnimations(tinygltf::Model& gltfModel)
 		animations.push_back(animation);
 	}
 }
+
 void vkglTF::Model::updateAnimation(uint32_t index, float time)
 {
 	if (index > static_cast<uint32_t>(animations.size()) - 1) {

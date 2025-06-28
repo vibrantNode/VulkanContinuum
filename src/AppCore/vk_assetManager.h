@@ -30,7 +30,18 @@ namespace vkc {
             float scale = 1.0f);
 
         std::shared_ptr<IModel> loadSkyboxModel(const std::string& modelName, const std::string& filepath);
-        std::shared_ptr<VkcTexture> loadCubemap(const std::string& name, const std::array<std::string, 6>& faces);
+
+        std::shared_ptr<VkcTexture> loadCubemap(
+            const std::string& name,
+            const std::array<std::string, 6>& faces);
+
+        std::shared_ptr<VkcTexture> loadCubemap(
+            const std::string& name,
+            const std::string& ktxFilename,
+            VkFormat format,
+            VkImageUsageFlags usageFlags,
+            VkImageLayout initialLayout);
+
         std::shared_ptr<VkcTexture> loadTexture(
             const std::string& name,
             const std::string& path,
@@ -64,6 +75,7 @@ namespace vkc {
         std::unordered_map<std::string, size_t>                       textureIndexMap;// name→index
 
         VkcDevice& _device;
+		VkQueue _transferQueue;
 
     };
 }

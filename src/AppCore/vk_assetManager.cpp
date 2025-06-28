@@ -7,7 +7,7 @@
 namespace vkc {
 
 
-    AssetManager::AssetManager(VkcDevice& device) : _device(device) 
+	AssetManager::AssetManager(VkcDevice& device) : _device(device), _transferQueue(device.graphicsQueue())
     {
     }
     void AssetManager::preloadGlobalAssets() 
@@ -25,6 +25,13 @@ namespace vkc {
         loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf");
         loadModel("dragon", PROJECT_ROOT_DIR "/res/models/gltf/chinesedragon.gltf");
         loadModel("sponza", PROJECT_ROOT_DIR "/res/models/gltf/sponza/sponza.gltf");
+
+        loadCubemap("environmentHDR",
+            PROJECT_ROOT_DIR "/res/textures/ktx/hdr/pisa_cube.ktx",
+            VK_FORMAT_R16G16B16A16_SFLOAT,
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        );
         
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
         loadCubemap("skybox", { {
@@ -87,6 +94,44 @@ namespace vkc {
         if (!texture->LoadCubemap(faces)) {
             throw std::runtime_error("Failed to load cubemap: " + name);
         }
+        textureCache[name] = texture;
+        return texture;
+    }
+    std::shared_ptr<VkcTexture> AssetManager::loadCubemap(
+        const std::string& name,
+        const std::string& ktxFilename,
+        VkFormat format,
+        VkImageUsageFlags usageFlags,
+        VkImageLayout initialLayout)
+    {
+        // 1) Return cached if already loaded
+        auto it = textureCache.find(name);
+        if (it != textureCache.end())
+            return it->second;
+
+        // 2) Create and load
+        auto texture = std::make_shared<VkcTexture>();
+
+        // Make sure the texture knows about the device
+        // (if your VkcTexture expects it in ctor, adjust accordingly)
+        texture->m_pdevice = &_device;
+
+        // Call the KTX HDR loader we wrote
+        try {
+            texture->KtxLoadCubemapFromFile(
+                ktxFilename,
+                format,
+                &_device,
+                _transferQueue,
+                usageFlags,
+                initialLayout
+            );
+        }
+        catch (const std::exception& e) {
+            throw std::runtime_error("Failed to load HDR cubemap '" + name + "': " + e.what());// crashes here
+        }
+
+        // 3) Cache and return
         textureCache[name] = texture;
         return texture;
     }

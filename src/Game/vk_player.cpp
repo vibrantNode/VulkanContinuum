@@ -12,23 +12,23 @@ namespace vkc {
     }
 
     void Player::Init() {
-        // 1) Setup viewer object
+        // Setup viewer object
         glm::vec3 startPos(0.0f, 0.0f, -5.0f);
         viewerObject = VkcGameObject::createGameObject();
         viewerObject.transform.translation = startPos;
         viewerObject.transform.rotation = glm::vec3(0.0f);
 
-        // 2) Compute initial yaw/pitch
+        // Compute initial yaw/pitch
         glm::vec3 target(0.0f);
         glm::vec3 dir = glm::normalize(target - startPos);
         float yaw = glm::degrees(atan2(dir.x, dir.z));
         float pitch = glm::degrees(asin(-dir.y));
 
-        // 3) Init camera & controller
+        // Init camera & controller
         camera = VkcCamera(startPos, yaw, pitch, defaultFovY);
         controller = MNKController(0.1f, yaw, pitch, 9.0f);
 
-        // 4) Lock/hide cursor and set callback
+        // Lock/hide cursor and set callback
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(_window, &controller);
         glfwSetCursorPosCallback(_window, [](GLFWwindow* window, double x, double y) {
