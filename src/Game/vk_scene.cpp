@@ -89,16 +89,15 @@ namespace vkc {
             // Skybox
             go.isSkybox = objJson.value("isSkybox", false);
 
-            // Name-based texture lookup
-            if (!go.isglTF) {
-                if (auto texIt = objJson.find("textureName"); texIt != objJson.end()) {
-                    std::string name = texIt->get<std::string>();
+            // Name-based texture lookup (handles all model types)
+            if (auto texIt = objJson.find("textureName"); texIt != objJson.end()) {
+                std::string name = texIt->get<std::string>();
+                if (assetManager.hasTexture(name)) {
                     go.texture = assetManager.getTexture(name);
                     go.textureIndex = static_cast<int>(assetManager.getTextureIndex(name));
                 }
                 else {
-                    go.texture = nullptr;
-                    go.textureIndex = -1;
+                    throw std::runtime_error("Texture '" + name + "' not found for object: " + objJson.value("name", "<unnamed>"));
                 }
             }
             else {

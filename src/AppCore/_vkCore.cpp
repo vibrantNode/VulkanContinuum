@@ -14,7 +14,7 @@ namespace vkc {
             VkcSwapChain::MAX_FRAMES_IN_FLIGHT,
             sizeof(GlobalUbo),
             &_assetManager,
-			&_game.getScene() // Pass scene for skybox textures
+			&_game.getScene()
         };
 
         _descriptorManager.Initialize(config);

@@ -1342,6 +1342,16 @@ void vkglTF::Model::loadFromFile(std::string filename, vkc::VkcDevice* device, V
 							/*binding=*/ 1
 						)
 				};
+				//std::array<VkDescriptorSetLayoutBinding, 4> setLayoutBindings = {
+				//	// baseColor
+				//	vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 0),
+				//	// normal
+				//	vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1),
+				//	// metallic-roughness
+				//	vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2),
+				//	// ambient occlusion
+				//	vkc::vkinit::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 3)
+				//};
 
 				VkDescriptorSetLayoutCreateInfo descriptorLayoutCI{};
 				descriptorLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

@@ -47,6 +47,10 @@ namespace vkc {
             VkImageLayout initialLayout
         );
 
+        void generateIrradianceMap(VkQueue copyQueue);
+        void generatePrefilteredEnvMap(VkQueue copyQueue);
+        void generateBrdfLut(VkQueue copyQueue);
+
         std::shared_ptr<VkcTexture> loadTexture(
             const std::string& name,
             const std::string& path,
@@ -71,6 +75,9 @@ namespace vkc {
         // all textures in load order
         const std::vector<std::shared_ptr<VkcTexture>>& getAllTextures() const;
 
+        // Helpers
+        bool hasTexture(const std::string& name) const;
+
     private:
         // Models
         std::unordered_map<std::string, std::shared_ptr<IModel>> modelCache;
@@ -80,10 +87,15 @@ namespace vkc {
         std::unordered_map<std::string, size_t>                      textureIndexMap; // name → index
         std::vector<std::shared_ptr<VkcTexture>>                     textureList;     // index → texture
 
+        VkcTexture irradianceCube{};
+        VkcTexture prefilteredCube{};
+        VkcTexture brdfLut{};
+
         VkcDevice& _device;
         VkQueue    _transferQueue;
 
         // Helpers
+
         static void registerTextureIfNeeded(
             const std::string& name,
             const std::shared_ptr<VkcTexture>& tex,

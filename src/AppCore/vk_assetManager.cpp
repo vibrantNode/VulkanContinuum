@@ -33,8 +33,9 @@ namespace vkc {
             VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         );
-        
         loadSkyboxModel("cube", PROJECT_ROOT_DIR "/res/models/cube.obj");
+        loadSkyboxModel("cube_gltf", PROJECT_ROOT_DIR "/res/models/gltf/cube.gltf");
+
         loadCubemap("skybox", { {
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/right.png",
          PROJECT_ROOT_DIR "/res/textures/SpaceSkybox/left.png",
@@ -134,6 +135,18 @@ namespace vkc {
         return tex;
     }
 
+    void AssetManager::generateIrradianceMap(VkQueue copyQueue)
+    {
+    }
+
+    void AssetManager::generatePrefilteredEnvMap(VkQueue copyQueue)
+    {
+    }
+
+    void AssetManager::generateBrdfLut(VkQueue copyQueue)
+    {
+    }
+
 
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(
         const std::string& name,
@@ -179,15 +192,43 @@ namespace vkc {
 
     std::shared_ptr<IModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
     {
+        // Avoid reloading if cached
         auto it = modelCache.find(modelName);
         if (it != modelCache.end()) {
             return it->second;
         }
 
-        auto model = VkcOBJmodel::createModelFromFile(_device, filepath, true);
+        // Determine file extension
+        auto ext = filepath.substr(filepath.find_last_of('.') + 1);
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+        std::shared_ptr<IModel> model;
+
+        if (ext == "obj") {
+            model = VkcOBJmodel::createModelFromFile(_device, filepath, true); // true = isSkybox or flipY
+        }
+        else if (ext == "gltf" || ext == "glb") {
+            auto gltf = std::make_shared<vkglTF::Model>();
+
+            constexpr uint32_t gltfFlags =
+                vkglTF::FileLoadingFlags::PreTransformVertices
+                | vkglTF::FileLoadingFlags::PreMultiplyVertexColors
+                | vkglTF::FileLoadingFlags::FlipY; // needed for skybox orientation
+
+            constexpr float scale = 1.0f;
+
+            gltf->loadFromFile(filepath, &_device, _device.graphicsQueue(), gltfFlags, scale);
+            model = gltf;
+        }
+        else {
+            throw std::runtime_error("Unsupported skybox model format: " + ext);
+        }
+
+        // Cache and return
         modelCache[modelName] = model;
         return model;
     }
+
 
     // Getters
   //------------------------------------------------------------------------------
@@ -232,7 +273,9 @@ namespace vkc {
     }
 
     // Helpers
-
+    bool AssetManager::hasTexture(const std::string& name) const {
+        return textures.find(name) != textures.end();
+    }
 
     void AssetManager::registerTextureIfNeeded(
         const std::string& name,
