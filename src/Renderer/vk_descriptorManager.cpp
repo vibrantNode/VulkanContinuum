@@ -18,7 +18,14 @@ namespace vkc {
         if (config.assetManager) {
             addBindlessTextures(*config.assetManager);
 
-            addSkyboxTextures(config.assetManager->getTexture("skybox"));
+            //addSkyboxTextures(config.assetManager->getTexture("environmentHDR"));
+            
+            if (auto skyOpt = config.scene->getSkyboxObject()) {
+            auto& skyGO = skyOpt->get();
+            auto tex   = config.assetManager->getTexture(skyGO.textureIndex);
+            addSkyboxTextures(tex);
+        }
+            
         }
         buildLayouts();
     }

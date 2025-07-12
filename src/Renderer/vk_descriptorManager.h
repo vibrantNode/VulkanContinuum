@@ -1,6 +1,7 @@
 #pragma once
 #include "VK_abstraction/vk_descriptors.h"
 #include "VK_abstraction/vk_buffer.h"
+#include "Game/vk_scene.h"
 #include "AppCore/vk_assetManager.h"
 
 #include <vector>
@@ -17,6 +18,7 @@ namespace vkc {
         uint32_t maxFrames;
         size_t uniformBufferSize;
         const AssetManager* assetManager; 
+		Scene* scene; // Optional, for skybox textures
     };
 
     class DescriptorManager {

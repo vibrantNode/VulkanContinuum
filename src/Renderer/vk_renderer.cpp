@@ -11,7 +11,6 @@ namespace vkc {
 	Renderer::Renderer(VkWindow& window, VkcDevice& device) : vkcWindow{ window }, vkcDevice{ device } 
 	{
 		recreateSwapchain();
-		createCommandBuffers();
 	}
 
 	Renderer::~Renderer() 

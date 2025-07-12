@@ -33,6 +33,7 @@ namespace vkglTF
 
 	extern VkDescriptorSetLayout descriptorSetLayoutImage;
 	extern VkDescriptorSetLayout descriptorSetLayoutUbo;
+	extern VkDescriptorSetLayout descriptorSetLayoutIbl;
 	extern VkMemoryPropertyFlags memoryPropertyFlags;
 	extern uint32_t descriptorBindingFlags;
 

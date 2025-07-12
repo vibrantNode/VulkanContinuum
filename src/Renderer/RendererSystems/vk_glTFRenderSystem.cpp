@@ -13,7 +13,7 @@ namespace vkc
 		globalSetLayout(globalSetLayout)
 	{
 		createPipelineLayout(globalSetLayout);
-		createPipeline(renderPass);
+		createPipelines(renderPass);
 	}
 
 	glTFRenderSystem::~glTFRenderSystem()
@@ -23,7 +23,6 @@ namespace vkc
 
 
 	void glTFRenderSystem::render(FrameInfo& frameInfo) {
-		// We no longer use a single vkcPipeline here.
 
 		// Bind the global descriptor set once
 		vkCmdBindDescriptorSets(
@@ -92,7 +91,8 @@ namespace vkc
 		const std::vector<VkDescriptorSetLayout> layouts = {
 			globalSetLayout,
 			vkglTF::descriptorSetLayoutUbo,
-			vkglTF::descriptorSetLayoutImage
+			vkglTF::descriptorSetLayoutImage,
+            vkglTF::descriptorSetLayoutIbl
 		};
 		
 
@@ -105,7 +105,7 @@ namespace vkc
 			throw std::runtime_error("Failed to create GLTF pipeline layout");
 		}
 	}
-    void glTFRenderSystem::createPipeline(VkRenderPass renderPass)
+    void glTFRenderSystem::createPipelines(VkRenderPass renderPass)
     {
         assert(pipelineLayout != VK_NULL_HANDLE);
 
@@ -202,7 +202,6 @@ namespace vkc
             VK_COLOR_COMPONENT_G_BIT |
             VK_COLOR_COMPONENT_B_BIT |
             VK_COLOR_COMPONENT_A_BIT;
-
         blendConfig.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         blendConfig.colorBlendInfo.logicOpEnable = VK_FALSE;
         blendConfig.colorBlendInfo.attachmentCount = 1;

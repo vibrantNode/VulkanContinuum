@@ -25,7 +25,7 @@ namespace vkc
 
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-		void createPipeline(VkRenderPass renderPass);
+		void createPipelines(VkRenderPass renderPass);
 
 		VkcDevice& vkcDevice;
 		VkDescriptorSetLayout globalSetLayout;

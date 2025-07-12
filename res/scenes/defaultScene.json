@@ -4,6 +4,7 @@
     {
       "name": "Skybox",
       "model": "cube",
+      "textureName": "skybox",
       "isSkybox": true,
       "position": [ 0, 0, 0 ],
       "rotation": [ 0, 0, 0 ],
@@ -11,8 +12,8 @@
 
     },
     {
-      "name": "Sponza",
-      "model": "sponza",
+      "name": "mainRender",
+      "model": "helmet",
       "position": [ 0, 0, 0 ],
       "rotation": [ 0, 0, 0 ],
       "scale": [ 9, 9, 9 ]

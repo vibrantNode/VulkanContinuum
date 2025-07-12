@@ -40,7 +40,7 @@ namespace vkc {
         for (auto& objJson : sceneJson["objects"]) {
             // Special handling for spinning point lights
             if (objJson.value("special", "") == "lights") {
-                int count = objJson.value("count", 6);
+                int count = objJson.value("count", 1);
                 float radius = objJson.value("radius", 4.8f);
                 float height = objJson.value("height", -2.5f);
                 float intensity = objJson.value("intensity", 15.8f);

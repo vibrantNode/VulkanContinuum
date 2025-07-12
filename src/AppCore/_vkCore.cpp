@@ -8,15 +8,16 @@ namespace vkc {
     Application::Application()
     {
         _assetManager.preloadGlobalAssets();
+        _game.Init(_window.getGLFWwindow());
 
         DescriptorConfig config{
             VkcSwapChain::MAX_FRAMES_IN_FLIGHT,
             sizeof(GlobalUbo),
-            &_assetManager
+            &_assetManager,
+			&_game.getScene() // Pass scene for skybox textures
         };
-        _descriptorManager.Initialize(config);
 
-        _game.Init(_window.getGLFWwindow());
+        _descriptorManager.Initialize(config);
     }
     void Application::RunApp()
     {

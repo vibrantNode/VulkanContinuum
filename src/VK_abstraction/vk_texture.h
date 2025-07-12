@@ -83,7 +83,7 @@ namespace vkc
 
 
 	public:
-		VkcDevice* m_pdevice;
+		VkcDevice* device;
 		uint32_t              width{ 0 }, height{ 0 };
 		VkImage image = VK_NULL_HANDLE;
 		VkDeviceMemory deviceMemory = VK_NULL_HANDLE;

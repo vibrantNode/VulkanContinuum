@@ -23,11 +23,12 @@ namespace vkc {
         //const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
 
         loadModel("helmet", PROJECT_ROOT_DIR "/res/models/gltf/FlightHelmet/glTF/FlightHelmet.gltf");
+        loadModel("cerberus", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/cerberus.gltf");
         loadModel("dragon", PROJECT_ROOT_DIR "/res/models/gltf/chinesedragon.gltf");
         loadModel("sponza", PROJECT_ROOT_DIR "/res/models/gltf/sponza/sponza.gltf");
 
         loadCubemap("environmentHDR",
-            PROJECT_ROOT_DIR "/res/textures/ktx/hdr/pisa_cube.ktx",
+            PROJECT_ROOT_DIR "/res/textures/ktx/hdr/gcanyon_cube.ktx",
             VK_FORMAT_R16G16B16A16_SFLOAT,
             VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
@@ -51,6 +52,12 @@ namespace vkc {
 		loadTexture("fireplaceColorMap", PROJECT_ROOT_DIR "/res/textures/ktx/fireplace_colormap_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
 		loadTexture("rock_array", PROJECT_ROOT_DIR "/res/textures/ktx/particle_gradient_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
 		loadTexture("metal_plate", PROJECT_ROOT_DIR "/res/textures/ktx/metalplate01_rgba.ktx", VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+		// Cerberus
+        loadTexture("cerberus_a", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/albedo.ktx", VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+        loadTexture("cerberus_n", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/normal.ktx", VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+        loadTexture("cerberus_ao", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/ao.ktx", VK_FORMAT_R8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+        loadTexture("cerberus_m", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/metallic.ktx", VK_FORMAT_R8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
+        loadTexture("cerberus_r", PROJECT_ROOT_DIR "/res/models/gltf/cerberus/roughness.ktx", VK_FORMAT_R8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false);
         
     }
     std::shared_ptr<IModel> AssetManager::loadModel(const std::string& name,
@@ -86,16 +93,16 @@ namespace vkc {
         const std::string& name,
         const std::array<std::string, 6>& faces)
     {
-        auto it = textureCache.find(name);
-        if (it != textureCache.end())
+        if (auto it = textures.find(name); it != textures.end())
             return it->second;
 
-        auto texture = std::make_shared<VkcTexture>(&_device);
-        if (!texture->LoadCubemap(faces)) {
+        auto tex = std::make_shared<VkcTexture>(&_device);
+        if (!tex->LoadCubemap(faces)) {
             throw std::runtime_error("Failed to load cubemap: " + name);
         }
-        textureCache[name] = texture;
-        return texture;
+
+        registerTextureIfNeeded(name, tex, textures, textureIndexMap, textureList);
+        return tex;
     }
     std::shared_ptr<VkcTexture> AssetManager::loadCubemap(
         const std::string& name,
@@ -104,21 +111,13 @@ namespace vkc {
         VkImageUsageFlags usageFlags,
         VkImageLayout initialLayout)
     {
-        // 1) Return cached if already loaded
-        auto it = textureCache.find(name);
-        if (it != textureCache.end())
+        if (auto it = textures.find(name); it != textures.end())
             return it->second;
 
-        // 2) Create and load
-        auto texture = std::make_shared<VkcTexture>();
-
-        // Make sure the texture knows about the device
-        // (if your VkcTexture expects it in ctor, adjust accordingly)
-        texture->m_pdevice = &_device;
-
-        // Call the KTX HDR loader we wrote
+        auto tex = std::make_shared<VkcTexture>();
+        tex->device = &_device;
         try {
-            texture->KtxLoadCubemapFromFile(
+            tex->KtxLoadCubemapFromFile(
                 ktxFilename,
                 format,
                 &_device,
@@ -128,46 +127,38 @@ namespace vkc {
             );
         }
         catch (const std::exception& e) {
-            throw std::runtime_error("Failed to load HDR cubemap '" + name + "': " + e.what());// crashes here
+            throw std::runtime_error("Failed to load HDR cubemap '" + name + "': " + e.what());
         }
 
-        // 3) Cache and return
-        textureCache[name] = texture;
-        return texture;
+        registerTextureIfNeeded(name, tex, textures, textureIndexMap, textureList);
+        return tex;
     }
 
 
-
     std::shared_ptr<VkcTexture> AssetManager::loadTexture(
-        const std::string& textureName,
+        const std::string& name,
         const std::string& filepath,
         VkFormat format,
         VkImageUsageFlags usageFlags,
         VkImageLayout layout,
         bool forceLinear)
     {
-        // 1) cache lookup
-        auto it = textureCache.find(textureName);
-        if (it != textureCache.end())
+        if (auto it = textures.find(name); it != textures.end())
             return it->second;
 
-        // 2) create texture instance
-        auto texture = std::make_shared<VkcTexture>(&_device);
+        auto tex = std::make_shared<VkcTexture>(&_device);
 
-        // 3) dispatch to STB vs KTX
-        //    simple extension check (case‐insensitive)
+        // Determine extension
         auto ext = filepath.substr(filepath.find_last_of('.') + 1);
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
         bool ok = false;
         if (ext == "ktx") {
-            // KTX path needs the queue to copy on
-            VkQueue copyQueue = _device.graphicsQueue();
-            texture->KTXLoadFromFile(
+            tex->KTXLoadFromFile(
                 filepath,
                 format,
                 &_device,
-                copyQueue,
+                _transferQueue,
                 usageFlags,
                 layout,
                 forceLinear
@@ -175,25 +166,16 @@ namespace vkc {
             ok = true;
         }
         else {
-            // STB path
-            ok = texture->STBLoadFromFile(filepath);
+            ok = tex->STBLoadFromFile(filepath);
         }
 
         if (!ok) {
-            throw std::runtime_error("AssetManager: failed to load texture " + textureName);
+            throw std::runtime_error("AssetManager: failed to load texture " + name);
         }
 
-        // 4) cache & return
-        textureCache[textureName] = texture;
-
-        size_t index = textureList.size();
-		textureList.push_back(texture);
-		textureIndexMap[textureName] = index;
-        return texture;
+        registerTextureIfNeeded(name, tex, textures, textureIndexMap, textureList);
+        return tex;
     }
-
-
-    
 
     std::shared_ptr<IModel> AssetManager::loadSkyboxModel(const std::string& modelName, const std::string& filepath)
     {
@@ -206,48 +188,63 @@ namespace vkc {
         modelCache[modelName] = model;
         return model;
     }
-  
+
+    // Getters
+  //------------------------------------------------------------------------------
     std::shared_ptr<IModel> AssetManager::getModel(const std::string& name) const
     {
         auto it = modelCache.find(name);
-        if (it == modelCache.end()) {
+        if (it == modelCache.end())
             throw std::runtime_error("Model not found: " + name);
-        }
         return it->second;
     }
 
-
-
-    std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& filename) const
+    //------------------------------------------------------------------------------
+    std::shared_ptr<VkcTexture> AssetManager::getTexture(const std::string& name) const
     {
-        auto it = textureCache.find(filename);
-        if (it != textureCache.end()) {
-            return it->second;
-        }
-        else {
-            throw std::runtime_error("Texture not found in cache: " + filename);
-        }
+        auto it = textures.find(name);
+        if (it == textures.end())
+            throw std::runtime_error("Texture not found: " + name);
+        return it->second;
     }
 
-
+    //------------------------------------------------------------------------------
     std::shared_ptr<VkcTexture> AssetManager::getTexture(size_t index) const
     {
-		if (index >= textureList.size()) {
-            throw std::out_of_range("Texture index out of range");
-		}
-		return textureList[index];
+        if (index >= textureList.size())
+            throw std::runtime_error("Texture index out of range: " + std::to_string(index));
+        return textureList[index];
     }
 
+    //------------------------------------------------------------------------------
     size_t AssetManager::getTextureIndex(const std::string& name) const
     {
-		auto it = textureIndexMap.find(name);
-        if (it == textureIndexMap.end()) 
-			throw std::runtime_error("Texture not found in index map: " + name);
-		return it->second;
+        auto it = textureIndexMap.find(name);
+        if (it == textureIndexMap.end())
+            throw std::runtime_error("Texture not found in index map: " + name);
+        return it->second;
     }
 
-    const std::vector<std::shared_ptr<VkcTexture>>&
-        AssetManager::getAllTextures() const {
+    //------------------------------------------------------------------------------
+    const std::vector<std::shared_ptr<VkcTexture>>& AssetManager::getAllTextures() const
+    {
         return textureList;
+    }
+
+    // Helpers
+
+
+    void AssetManager::registerTextureIfNeeded(
+        const std::string& name,
+        const std::shared_ptr<VkcTexture>& tex,
+        std::unordered_map<std::string, std::shared_ptr<VkcTexture>>& textures,
+        std::unordered_map<std::string, size_t>& textureIndexMap,
+        std::vector<std::shared_ptr<VkcTexture>>& textureList)
+    {
+        if (textures.find(name) == textures.end()) {
+            textures[name] = tex;
+            textureList.push_back(tex);
+            textureIndexMap[name] = textureList.size() - 1;
+        }
     }
 }
